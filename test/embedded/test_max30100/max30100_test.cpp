@@ -6,9 +6,6 @@
 /*
   UnitTest for UnitMAX30100
 */
-
-// Move to each libarry
-
 #include <gtest/gtest.h>
 #include <Wire.h>
 #include <M5Unified.h>
