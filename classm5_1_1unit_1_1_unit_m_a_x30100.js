@@ -1,0 +1,27 @@
+var classm5_1_1unit_1_1_unit_m_a_x30100 =
+[
+    [ "config_t", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t" ],
+    [ "config", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a7c0fec8c9fb297284743f940853dc2db", null ],
+    [ "config", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a0bbd50541ded796febe24a899dfa7459", null ],
+    [ "disableHighResolution", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a72786484553e6fd8c9ade112146b77ef", null ],
+    [ "disablePowerSave", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a93b5cf1963656f37babe7c22257bb674", null ],
+    [ "enableHighResolution", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a0c5fbf3d7fa3738697bd53f5a4fbf033", null ],
+    [ "enablePowerSave", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a095c75f01dd9ba9f4e66aea53286a8a1", null ],
+    [ "ir", "classm5_1_1unit_1_1_unit_m_a_x30100.html#af27fd009f478b263da19a2194a9121a9", null ],
+    [ "measureTemperatureSingleshot", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a402e11d0c7fbb2b6545bfece1d6af96a", null ],
+    [ "overflow", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a0f7a3838e51b4f336a880e741315a209", null ],
+    [ "readLedConfiguration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#afb233ae72fde01462037a921a3544782", null ],
+    [ "readModeConfiguration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a872ad2591edbdd6b4dd2fccb36eaa08a", null ],
+    [ "readSpO2Configuration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a1651de3f7ef6dcb00832064bd0e7e139", null ],
+    [ "red", "classm5_1_1unit_1_1_unit_m_a_x30100.html#aece1be0ba4051adbedb0551b4787bc8d", null ],
+    [ "reset", "classm5_1_1unit_1_1_unit_m_a_x30100.html#adb33512296b90bdad0df1eb882d9c525", null ],
+    [ "resetFIFO", "classm5_1_1unit_1_1_unit_m_a_x30100.html#ae8370da23151de33de185696ae19221d", null ],
+    [ "retrived", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a6fe4cd9ef0e1fee537c81de675e54607", null ],
+    [ "setLedConfiguration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a78734b9e1b167873a29fe6d3adea4f48", null ],
+    [ "setLedCurrent", "classm5_1_1unit_1_1_unit_m_a_x30100.html#adccdd636bcfcd15ae2347de24efee202", null ],
+    [ "setLedPulseWidth", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a73c7da1826d680b342537a5a72becca9", null ],
+    [ "setMode", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a5d6049882a6b51f12af5c2e2ad47c062", null ],
+    [ "setModeConfiguration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#ab25199b31184d407e711484fb3b1d753", null ],
+    [ "setSamplingRate", "classm5_1_1unit_1_1_unit_m_a_x30100.html#aef4223e9d0a1eb8c8ab9edb0c6a10f30", null ],
+    [ "setSpO2Configuration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a3423d0e50f099dda87d2959c4acaa9cd", null ]
+];
