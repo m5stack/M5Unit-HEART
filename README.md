@@ -18,7 +18,7 @@ The MAX30100 provides very small total solution size without sacrificing optical
 
 ## Related Link
 
-- [MAX30100 & Datasheet](https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf)
+- [Unit HEART & Datasheet](https://docs.m5stack.com/ja/unit/heart)
 
 ## Required Libraries:
 

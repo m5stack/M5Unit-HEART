@@ -5,7 +5,7 @@
  */
 /*!
   @file heart_rate.cpp
-  @brief Calculate heart rate
+  @brief Calculate heart rate and SpO2
 */
 #include "heart_rate.hpp"
 #include <M5Unified.hpp>
