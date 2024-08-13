@@ -30,4 +30,3 @@ namespace unit {}  // namespace unit
 }  // namespace m5
 
 #endif
-

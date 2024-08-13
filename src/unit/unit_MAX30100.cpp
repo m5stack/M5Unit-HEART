@@ -21,8 +21,7 @@ namespace {
 constexpr uint8_t partId{0x11};
 // Sampling rate to interval
 constexpr elapsed_time_t interval_table[] = {
-    1000 / 50,  1000 / 100, 1000 / 167, 1000 / 200,
-    1000 / 400, 1000 / 600, 1000 / 800, 1000 / 1000,
+    1000 / 50, 1000 / 100, 1000 / 167, 1000 / 200, 1000 / 400, 1000 / 600, 1000 / 800, 1000 / 1000,
 };
 
 constexpr uint32_t MEASURE_TEMPERATURE_DURATION{29};  // 29ms
@@ -56,8 +55,7 @@ const types::uid_t UnitMAX30100::uid{"UnitMAX30100"_mmh3};
 const types::uid_t UnitMAX30100::attr{0};
 
 bool UnitMAX30100::begin() {
-    assert(_cfg.stored_size >= max30100::MAX_FIFO_DEPTH &&
-           "stored_size must be greater than MAX_FIFO_DEPT");
+    assert(_cfg.stored_size >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPT");
     if (_cfg.stored_size != _data->capacity()) {
         _data.reset(new m5::container::CircularBuffer<Data>(_cfg.stored_size));
         if (!_data) {
@@ -171,8 +169,7 @@ bool UnitMAX30100::setLedConfiguration(const max30100::LedConfiguration lc) {
     return set_led_configration(lc.value);
 }
 
-bool UnitMAX30100::setLedCurrent(const max30100::CurrentControl ir,
-                                 const max30100::CurrentControl red) {
+bool UnitMAX30100::setLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red) {
     max30100::LedConfiguration lc{};
     lc.irLed(ir);
     lc.redLed(red);
@@ -180,8 +177,7 @@ bool UnitMAX30100::setLedCurrent(const max30100::CurrentControl ir,
 }
 
 bool UnitMAX30100::resetFIFO() {
-    return writeRegister8(FIFO_WRITE_POINTER, 0) &&
-           writeRegister8(FIFO_OVERFLOW_COUNTER, 0) &&
+    return writeRegister8(FIFO_WRITE_POINTER, 0) && writeRegister8(FIFO_OVERFLOW_COUNTER, 0) &&
            writeRegister8(FIFO_READ_POINTER, 0);
 }
 
@@ -190,8 +186,7 @@ bool UnitMAX30100::measureTemperatureSingleshot(TemperatureData& td) {
     if (read_mode_configration(mc.value)) {
         mc.temperature(true);
         if (set_mode_configration(mc.value)) {
-            auto timeout_at =
-                m5::utility::millis() + MEASURE_TEMPERATURE_DURATION * 2;
+            auto timeout_at = m5::utility::millis() + MEASURE_TEMPERATURE_DURATION * 2;
             bool done{};
             do {
                 m5::utility::delay(MEASURE_TEMPERATURE_DURATION);
@@ -206,16 +201,13 @@ bool UnitMAX30100::measureTemperatureSingleshot(TemperatureData& td) {
 //
 bool UnitMAX30100::read_FIFO() {
     uint8_t wptr{}, rptr{};
-    if (!read_register8(FIFO_WRITE_POINTER, wptr) ||
-        !read_register8(FIFO_READ_POINTER, rptr) ||
+    if (!read_register8(FIFO_WRITE_POINTER, wptr) || !read_register8(FIFO_READ_POINTER, rptr) ||
         !read_register8(FIFO_OVERFLOW_COUNTER, _overflow)) {
         M5_LIB_LOGE("Failed to read ptrs");
         return false;
     }
 
-    uint_fast8_t readCount =
-        _overflow ? max30100::MAX_FIFO_DEPTH
-                  : (wptr - rptr) & (max30100::MAX_FIFO_DEPTH - 1);
+    uint_fast8_t readCount = _overflow ? max30100::MAX_FIFO_DEPTH : (wptr - rptr) & (max30100::MAX_FIFO_DEPTH - 1);
 
     // M5_LIB_LOGI(">>cnt:%u of:%u", readCount, _overflow);
 
@@ -225,8 +217,7 @@ bool UnitMAX30100::read_FIFO() {
         Data d{};
         for (uint_fast8_t i = 0; i < readCount; ++i) {
             // //Note that FIFO_DATA_REGISTER cannot be burst read.
-            if (!read_register(FIFO_DATA_REGISTER, d.raw.data(),
-                               d.raw.size())) {
+            if (!read_register(FIFO_DATA_REGISTER, d.raw.data(), d.raw.size())) {
                 // Recover the reading position
                 M5_LIB_LOGE("Failed to read");
                 if (!writeRegister8(FIFO_READ_POINTER, rptr + i)) {
@@ -278,8 +269,7 @@ bool UnitMAX30100::set_spo2_configration(const uint8_t c) {
     // in the configuration. However, the value is not actually set, so
     // check it.
     uint8_t chk{};
-    if (writeRegister8(SPO2_CONFIGURATION, c) && read_spo2_configration(chk) &&
-        (chk == c)) {
+    if (writeRegister8(SPO2_CONFIGURATION, c) && read_spo2_configration(chk) && (chk == c)) {
         max30100::SpO2Configuration sc;
         sc.value      = c;
         _samplingRate = sc.samplingRate();
@@ -310,8 +300,7 @@ bool UnitMAX30100::read_register8(const uint8_t reg, uint8_t& v) {
     return readRegister8(reg, v, 0, false /*stop*/);
 }
 
-bool UnitMAX30100::read_register(const uint8_t reg, uint8_t* buf,
-                                 const size_t len) {
+bool UnitMAX30100::read_register(const uint8_t reg, uint8_t* buf, const size_t len) {
     return readRegister(reg, buf, len, 0, false /*stop*/);
 }
 

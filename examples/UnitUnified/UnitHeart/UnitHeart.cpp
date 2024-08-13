@@ -24,8 +24,7 @@ m5::unit::UnitMAX30100 unitMAX30100;
 m5::max30100::HeartRate heartRate(100);
 
 uint32_t getSamplingRate(const m5::unit::max30100::Sampling rate) {
-    static constexpr uint32_t table[] = {50,  100, 167, 200,
-                                         400, 600, 800, 1000};
+    static constexpr uint32_t table[] = {50, 100, 167, 200, 400, 600, 800, 1000};
     return table[m5::stl::to_underlying(rate)];
 }
 
@@ -58,8 +57,7 @@ void setup() {
     i2c_cfg.pin_scl = m5::hal::gpio::getPin(pin_num_scl);
     auto i2c_bus    = m5::hal::bus::i2c::getBus(i2c_cfg);
     M5_LOGI("Bus:%d", i2c_bus.has_value());
-    if (!Units.add(unitMAX30100, i2c_bus ? i2c_bus.value() : nullptr) ||
-        !Units.begin()) {
+    if (!Units.add(unitMAX30100, i2c_bus ? i2c_bus.value() : nullptr) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         lcd.clear(TFT_RED);
         while (true) {
@@ -92,8 +90,7 @@ void loop() {
         while (unitMAX30100.available()) {
             // M5_LOGI("\n>IR:%u\n>RED:%u", unitMAX30100.ir(),
             // unitMAX30100.red());
-            bool beat = heartRate.push_back((float)unitMAX30100.ir(),
-                                            (float)unitMAX30100.red());
+            bool beat = heartRate.push_back((float)unitMAX30100.ir(), (float)unitMAX30100.red());
             if (beat) {
                 M5_LOGI("Beat!");
             }

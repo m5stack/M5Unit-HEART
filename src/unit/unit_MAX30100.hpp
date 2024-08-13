@@ -147,8 +147,7 @@ struct SpO2Configuration {
         value = (value & ~(1U << 6)) | ((b ? 1 : 0) << 6);
     }
     void samplingRate(const Sampling rate) {
-        value = (value & ~(0x07 << 2)) |
-                ((m5::stl::to_underlying(rate) & 0x07) << 2);
+        value = (value & ~(0x07 << 2)) | ((m5::stl::to_underlying(rate) & 0x07) << 2);
     }
     void ledPulseWidth(const LedPulseWidth width) {
         value = (value & ~0x03) | (m5::stl::to_underlying(width) & 0x03);
@@ -198,8 +197,7 @@ struct LedConfiguration {
     ///@name Setter
     ///@{
     void redLed(const CurrentControl cc) {
-        value =
-            (value & ~(0x0F << 4)) | ((m5::stl::to_underlying(cc) & 0x0F) << 4);
+        value = (value & ~(0x0F << 4)) | ((m5::stl::to_underlying(cc) & 0x0F) << 4);
     }
     void irLed(const CurrentControl cc) {
         value = (value & ~0x0F) | (m5::stl::to_underlying(cc) & 0x0F);
@@ -243,9 +241,7 @@ struct TemperatureData {
   @note The only single measurement is temperature; other data is constantly
   measured and stored
 */
-class UnitMAX30100
-    : public Component,
-      public PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data> {
+class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data> {
     M5_UNIT_COMPONENT_HPP_BUILDER(UnitMAX30100, 0x57);
 
    public:
@@ -259,24 +255,19 @@ class UnitMAX30100
         //! @brief Sampling rate
         max30100::Sampling samplingRate{m5::unit::max30100::Sampling::Rate100};
         //! @brief Led pulse width
-        max30100::LedPulseWidth pulseWidth{
-            m5::unit::max30100::LedPulseWidth::PW1600};
+        max30100::LedPulseWidth pulseWidth{m5::unit::max30100::LedPulseWidth::PW1600};
         //! @brief The SpO2 ADC resolution
         bool highResolution{true};
         //! @brief Led current for IR
-        m5::unit::max30100::CurrentControl irCurrent{
-            //            m5::unit::max30100::CurrentControl::mA7_6};
-            m5::unit::max30100::CurrentControl::mA27_1};
+        m5::unit::max30100::CurrentControl irCurrent{//            m5::unit::max30100::CurrentControl::mA7_6};
+                                                     m5::unit::max30100::CurrentControl::mA27_1};
         //! @brief Led current for Red
-        m5::unit::max30100::CurrentControl redCurrent{
-            //            m5::unit::max30100::CurrentControl::mA7_6};
-            m5::unit::max30100::CurrentControl::mA27_1};
+        m5::unit::max30100::CurrentControl redCurrent{//            m5::unit::max30100::CurrentControl::mA7_6};
+                                                      m5::unit::max30100::CurrentControl::mA27_1};
     };
 
     explicit UnitMAX30100(const uint8_t addr = DEFAULT_ADDRESS)
-        : Component(addr),
-          _data{new m5::container::CircularBuffer<max30100::Data>(
-              max30100::MAX_FIFO_DEPTH)} {
+        : Component(addr), _data{new m5::container::CircularBuffer<max30100::Data>(max30100::MAX_FIFO_DEPTH)} {
         auto cfg        = config();
         cfg.stored_size = max30100::MAX_FIFO_DEPTH;
         config(cfg);
@@ -408,8 +399,7 @@ class UnitMAX30100
     */
     bool setLedConfiguration(const max30100::LedConfiguration lc);
     //! @brief Set IR/RED current
-    bool setLedCurrent(const max30100::CurrentControl ir,
-                       const max30100::CurrentControl red);
+    bool setLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red);
     ///@}
 
     ///@note The temperature sensor data can be used to compensate the SpO2
@@ -453,8 +443,7 @@ class UnitMAX30100
     bool read_FIFO();
     bool read_measurement_temperature(max30100::TemperatureData& td);
 
-    M5_UNIT_COMPONENT_PERIODIC_MEASUREMENT_ADAPTER_HPP_BUILDER(UnitMAX30100,
-                                                               max30100::Data);
+    M5_UNIT_COMPONENT_PERIODIC_MEASUREMENT_ADAPTER_HPP_BUILDER(UnitMAX30100, max30100::Data);
 
     bool read_mode_configration(uint8_t& c);
     bool set_mode_configration(const uint8_t c);

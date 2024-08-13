@@ -47,8 +47,7 @@ class HeartRate {
       @param threshold Threshold for detect beat (depends on ir/redCUrrent)
       @param store_size Stored data size(0U means auto)
      */
-    HeartRate(const uint32_t srate, const float threshold = 125.f,
-              const size_t max_data_size = 0U);
+    HeartRate(const uint32_t srate, const float threshold = 125.f, const size_t max_data_size = 0U);
 
     ///@name Settings
     ///@{
