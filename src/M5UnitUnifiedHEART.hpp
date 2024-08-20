@@ -4,17 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 /*!
-  @file M5UnitHEART.hpp
-  @brief Main header of M5UnitHEART
+  @file M5UnitUnifiedHEART.hpp
+  @brief Main header of M5UnitUnifiedHEART
 
-  @mainpage M5UnitHEART
+  @mainpage M5Unit-HEART
   Library for UnitHEART using M5UnitUnified.
 */
 #ifndef M5_UNIT_HEART_HPP
 #define M5_UNIT_HEART_HPP
 
-#include "unit/unit_Ameter.hpp"
-#include "unit/unit_Vmeter.hpp"
+#include "unit/unit_MAX30100.hpp"
 
 /*!
   @namespace m5
@@ -26,7 +25,11 @@ namespace m5 {
   @namespace unit
   @brief Unit-related namespace
  */
-namespace unit {}  // namespace unit
+namespace unit {
+
+using UnitHEART = m5::unit::UnitMAX30100;
+
+}  // namespace unit
 }  // namespace m5
 
 #endif

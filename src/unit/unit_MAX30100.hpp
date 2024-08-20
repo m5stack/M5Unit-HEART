@@ -11,8 +11,8 @@
 #define M5_UNIT_HEART_UNIT_MAX30100_HPP
 
 #include <M5UnitComponent.hpp>
-#include "m5_utility/stl/extension.hpp"
-#include "m5_utility/container/circular_buffer.hpp"
+#include <m5_utility/stl/extension.hpp>
+#include <m5_utility/container/circular_buffer.hpp>
 #include <limits>  // NaN
 
 namespace m5 {

@@ -11,7 +11,7 @@
 
 #include <M5Unified.h>
 #include <M5UnitUnified.h>
-#include <unit/unit_MAX30100.hpp>
+#include <M5UnitUnifiedHEART.h>
 #include <utility/heart_rate.hpp>
 #if !defined(USING_M5HAL)
 #include <Wire.h>
@@ -20,7 +20,7 @@
 namespace {
 auto& lcd = M5.Display;
 m5::unit::UnitUnified Units;
-m5::unit::UnitMAX30100 unitMAX30100;
+m5::unit::UnitHEART unitHeart;
 m5::max30100::HeartRate heartRate(100);
 
 uint32_t getSamplingRate(const m5::unit::max30100::Sampling rate) {
@@ -35,14 +35,14 @@ void setup() {
 
     // Another settings
     if (0) {
-        auto cfg         = unitMAX30100.config();
+        auto cfg         = unitHeart.config();
         cfg.samplingRate = m5::unit::max30100::Sampling::Rate400;
         cfg.pulseWidth   = m5::unit::max30100::LedPulseWidth::PW400;
         cfg.irCurrent    = m5::unit::max30100::CurrentControl::mA7_6;
         cfg.redCurrent   = m5::unit::max30100::CurrentControl::mA7_6;
         heartRate.setSamplingRate(getSamplingRate(cfg.samplingRate));
         heartRate.setThreshold(25.0f);  // depends on ir/redCurrent
-        unitMAX30100.config(cfg);
+        unitHeart.config(cfg);
     }
 
     auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
@@ -57,7 +57,7 @@ void setup() {
     i2c_cfg.pin_scl = m5::hal::gpio::getPin(pin_num_scl);
     auto i2c_bus    = m5::hal::bus::i2c::getBus(i2c_cfg);
     M5_LOGI("Bus:%d", i2c_bus.has_value());
-    if (!Units.add(unitMAX30100, i2c_bus ? i2c_bus.value() : nullptr) || !Units.begin()) {
+    if (!Units.add(unitHeart, i2c_bus ? i2c_bus.value() : nullptr) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         lcd.clear(TFT_RED);
         while (true) {
@@ -68,7 +68,7 @@ void setup() {
 #pragma message "Using Wire"
     // Using TwoWire
     Wire.begin(pin_num_sda, pin_num_scl, 400000U);
-    if (!Units.add(unitMAX30100, Wire) || !Units.begin()) {
+    if (!Units.add(unitHeart, Wire) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         lcd.clear(TFT_RED);
         while (true) {
@@ -86,16 +86,16 @@ void setup() {
 void loop() {
     M5.update();
     Units.update();
-    if (unitMAX30100.updated()) {
-        while (unitMAX30100.available()) {
-            // M5_LOGI("\n>IR:%u\n>RED:%u", unitMAX30100.ir(),
-            // unitMAX30100.red());
-            bool beat = heartRate.push_back((float)unitMAX30100.ir(), (float)unitMAX30100.red());
+    if (unitHeart.updated()) {
+        while (unitHeart.available()) {
+            // M5_LOGI("\n>IR:%u\n>RED:%u", unitHeart.ir(),
+            // unitHeart.red());
+            bool beat = heartRate.push_back((float)unitHeart.ir(), (float)unitHeart.red());
             if (beat) {
                 M5_LOGI("Beat!");
             }
 
-            unitMAX30100.discard();
+            unitHeart.discard();
         }
         auto bpm = heartRate.calculate();
         M5_LOGW("\n>HRR:%f\n>SpO2:%f", bpm, heartRate.SpO2());
@@ -105,7 +105,7 @@ void loop() {
     if (M5.BtnA.wasClicked()) {
         heartRate.clear();
         m5::unit::max30100::TemperatureData td{};
-        if (unitMAX30100.measureTemperatureSingleshot(td)) {
+        if (unitHeart.measureTemperatureSingleshot(td)) {
             M5_LOGI("\n>Temp:%f", td.celsius());
         }
     }
