@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 /*
-  Example using M5UnitUnified for UnitHeart(MAX30100)
+  Example using M5UnitUnified for UnitHEART
 */
 
 // #define USING_M5HAL  // When using M5HAL
