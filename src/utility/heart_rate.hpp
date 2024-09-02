@@ -13,7 +13,7 @@
 #include <deque>
 #include <cstddef>
 #include <m5_unit_component/types.hpp>
-#include "../unit/unit_max30100.hpp"
+#include "../unit/unit_MAX30100.hpp"
 
 namespace m5 {
 namespace max30100 {
