@@ -21,7 +21,8 @@ namespace {
 auto& lcd = M5.Display;
 m5::unit::UnitUnified Units;
 m5::unit::UnitHEART unitHeart;
-m5::max30100::HeartRate heartRate(100);
+m5::max30100::HeartRate heartRate(100 /*samplingrate*/);
+}  // namespace
 
 void setup() {
     M5.begin();
