@@ -14,6 +14,7 @@
 #define M5_UNIT_HEART_HPP
 
 #include "unit/unit_MAX30100.hpp"
+#include "utility/heart_rate.hpp"
 
 /*!
   @namespace m5

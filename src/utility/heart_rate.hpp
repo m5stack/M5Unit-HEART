@@ -13,6 +13,7 @@
 #include <deque>
 #include <cstddef>
 #include <m5_unit_component/types.hpp>
+#include "../unit/unit_max30100.hpp"
 
 namespace m5 {
 namespace max30100 {
@@ -43,11 +44,21 @@ struct butterworthFilter_t {
 class HeartRate {
    public:
     /*!
+      @brief Conversion m5::unit::max30100::Sampling to sapling rate
+      @param rate bm5::unit::max30100::Sampling value
+      @return Sampling rate
+     */
+    static uint32_t getSamplingRate(const m5::unit::max30100::Sampling rate) {
+        static constexpr uint32_t table[] = {50, 100, 167, 200, 400, 600, 800, 1000};
+        return table[m5::stl::to_underlying(rate)];
+    }
+
+    /*!
       @param sr Sampling rate (e.g. 167 if max30100::Sampling::Rate167)
       @param threshold Threshold for detect beat (depends on ir/redCUrrent)
       @param store_size Stored data size(0U means auto)
      */
-    HeartRate(const uint32_t srate, const float threshold = 125.f, const size_t max_data_size = 0U);
+    explicit HeartRate(const uint32_t srate = 1, const float threshold = 125.f, const size_t max_data_size = 0U);
 
     ///@name Settings
     ///@{

@@ -23,13 +23,6 @@ m5::unit::UnitUnified Units;
 m5::unit::UnitHEART unitHeart;
 m5::max30100::HeartRate heartRate(100);
 
-uint32_t getSamplingRate(const m5::unit::max30100::Sampling rate) {
-    static constexpr uint32_t table[] = {50, 100, 167, 200, 400, 600, 800, 1000};
-    return table[m5::stl::to_underlying(rate)];
-}
-
-}  // namespace
-
 void setup() {
     M5.begin();
 
@@ -40,7 +33,7 @@ void setup() {
         cfg.pulseWidth   = m5::unit::max30100::LedPulseWidth::PW400;
         cfg.irCurrent    = m5::unit::max30100::CurrentControl::mA7_6;
         cfg.redCurrent   = m5::unit::max30100::CurrentControl::mA7_6;
-        heartRate.setSamplingRate(getSamplingRate(cfg.samplingRate));
+        heartRate.setSamplingRate(m5::max30100::HeartRate::getSamplingRate(cfg.samplingRate));
         heartRate.setThreshold(25.0f);  // depends on ir/redCurrent
         unitHeart.config(cfg);
     }
@@ -88,8 +81,7 @@ void loop() {
     Units.update();
     if (unitHeart.updated()) {
         while (unitHeart.available()) {
-            // M5_LOGI("\n>IR:%u\n>RED:%u", unitHeart.ir(),
-            // unitHeart.red());
+            M5_LOGI("\n>IR:%u\n>RED:%u", unitHeart.ir(), unitHeart.red());
             bool beat = heartRate.push_back((float)unitHeart.ir(), (float)unitHeart.red());
             if (beat) {
                 M5_LOGI("Beat!");

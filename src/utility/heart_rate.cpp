@@ -123,6 +123,7 @@ bool HeartRate::push_back(const float ir, const float red) {
 
     // SpO2
     _acSqIR += _dcIR.result * _dcIR.result;
+    //_acSqRED += _dcRED.result * _dcRED.result;
     _acSqRED = _dcRED.result * _dcRED.result;
     ++_count;
     if (_beat) {

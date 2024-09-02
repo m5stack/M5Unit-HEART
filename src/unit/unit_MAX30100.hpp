@@ -296,11 +296,11 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
 
     ///@name Measurement data by periodic
     ///@{
-    //! @brief Oldest CO2eq (ppm)
+    //! @brief Oldest IR
     inline uint16_t ir() const {
         return !empty() ? oldest().ir() : 0;
     }
-    //! @brief Oldest TVOC (ppb)
+    //! @brief Oldest Red
     inline uint16_t red() const {
         return !empty() ? oldest().red() : 0;
     }
