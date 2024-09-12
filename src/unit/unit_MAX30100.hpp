@@ -268,12 +268,9 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
 
     explicit UnitMAX30100(const uint8_t addr = DEFAULT_ADDRESS)
         : Component(addr), _data{new m5::container::CircularBuffer<max30100::Data>(max30100::MAX_FIFO_DEPTH)} {
-        auto cfg        = config();
-        cfg.stored_size = max30100::MAX_FIFO_DEPTH;
-        config(cfg);
-
-        auto ccfg  = component_config();
-        ccfg.clock = 400000U;
+        auto ccfg        = component_config();
+        ccfg.clock       = 400 * 1000U;
+        ccfg.stored_size = max30100::MAX_FIFO_DEPTH;
         component_config(ccfg);
     }
     virtual ~UnitMAX30100() {

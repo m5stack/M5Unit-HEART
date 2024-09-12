@@ -55,9 +55,10 @@ const types::uid_t UnitMAX30100::uid{"UnitMAX30100"_mmh3};
 const types::uid_t UnitMAX30100::attr{0};
 
 bool UnitMAX30100::begin() {
-    assert(_cfg.stored_size >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPT");
-    if (_cfg.stored_size != _data->capacity()) {
-        _data.reset(new m5::container::CircularBuffer<Data>(_cfg.stored_size));
+    auto ssize = stored_size();
+    assert(ssize >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPT");
+    if (ssize != _data->capacity()) {
+        _data.reset(new m5::container::CircularBuffer<Data>(ssize));
         if (!_data) {
             M5_LIB_LOGE("Failed to allocate");
             return false;
