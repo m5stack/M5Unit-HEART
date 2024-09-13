@@ -85,8 +85,8 @@ bool UnitMAX30100::begin() {
     sc.ledPulseWidth(_cfg.pulseWidth);
     sc.highResolution(_cfg.highResolution);
 
-    _periodic = setMode(max30100::Mode::SPO2) && setSpO2Configuration(sc) &&
-                setLedCurrent(_cfg.irCurrent, _cfg.redCurrent) && resetFIFO();
+    _periodic = writeMode(max30100::Mode::SPO2) && writeSpO2Configuration(sc) &&
+                writeLedCurrent(_cfg.irCurrent, _cfg.redCurrent) && resetFIFO();
     return _periodic;
 }
 
@@ -107,15 +107,15 @@ bool UnitMAX30100::readModeConfiguration(max30100::ModeConfiguration& mc) {
     return read_mode_configration(mc.value);
 }
 
-bool UnitMAX30100::setModeConfiguration(const max30100::ModeConfiguration mc) {
-    return set_mode_configration(mc.value);
+bool UnitMAX30100::writeModeConfiguration(const max30100::ModeConfiguration mc) {
+    return write_mode_configration(mc.value);
 }
 
-bool UnitMAX30100::setMode(const max30100::Mode m) {
+bool UnitMAX30100::writeMode(const max30100::Mode m) {
     max30100::ModeConfiguration mc{};
     if (read_mode_configration(mc.value)) {
         mc.mode(m);
-        return set_mode_configration(mc.value);
+        return write_mode_configration(mc.value);
     }
     return false;
 }
@@ -123,7 +123,7 @@ bool UnitMAX30100::setMode(const max30100::Mode m) {
 bool UnitMAX30100::reset() {
     max30100::ModeConfiguration mc{};
     mc.reset(true);
-    if (set_mode_configration(mc.value)) {
+    if (write_mode_configration(mc.value)) {
         auto start_at{m5::utility::millis()};
         // timeout 1 sec
         do {
@@ -141,24 +141,24 @@ bool UnitMAX30100::readSpO2Configuration(max30100::SpO2Configuration& sc) {
     return read_spo2_configration(sc.value);
 }
 
-bool UnitMAX30100::setSpO2Configuration(const max30100::SpO2Configuration sc) {
-    return set_spo2_configration(sc.value);
+bool UnitMAX30100::writeSpO2Configuration(const max30100::SpO2Configuration sc) {
+    return write_spo2_configration(sc.value);
 }
 
-bool UnitMAX30100::setSamplingRate(const max30100::Sampling rate) {
+bool UnitMAX30100::writeSamplingRate(const max30100::Sampling rate) {
     max30100::SpO2Configuration sc{};
     if (read_spo2_configration(sc.value)) {
         sc.samplingRate(rate);
-        return set_spo2_configration(sc.value);
+        return write_spo2_configration(sc.value);
     }
     return false;
 }
 
-bool UnitMAX30100::setLedPulseWidth(const max30100::LedPulseWidth width) {
+bool UnitMAX30100::writeLedPulseWidth(const max30100::LedPulseWidth width) {
     max30100::SpO2Configuration sc{};
     if (read_spo2_configration(sc.value)) {
         sc.ledPulseWidth(width);
-        return set_spo2_configration(sc.value);
+        return write_spo2_configration(sc.value);
     }
     return false;
 }
@@ -166,15 +166,15 @@ bool UnitMAX30100::setLedPulseWidth(const max30100::LedPulseWidth width) {
 bool UnitMAX30100::readLedConfiguration(max30100::LedConfiguration& lc) {
     return read_led_configration(lc.value);
 }
-bool UnitMAX30100::setLedConfiguration(const max30100::LedConfiguration lc) {
-    return set_led_configration(lc.value);
+bool UnitMAX30100::writeLedConfiguration(const max30100::LedConfiguration lc) {
+    return write_led_configration(lc.value);
 }
 
-bool UnitMAX30100::setLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red) {
+bool UnitMAX30100::writeLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red) {
     max30100::LedConfiguration lc{};
     lc.irLed(ir);
     lc.redLed(red);
-    return set_led_configration(lc.value);
+    return write_led_configration(lc.value);
 }
 
 bool UnitMAX30100::resetFIFO() {
@@ -186,7 +186,7 @@ bool UnitMAX30100::measureTemperatureSingleshot(TemperatureData& td) {
     max30100::ModeConfiguration mc{};
     if (read_mode_configration(mc.value)) {
         mc.temperature(true);
-        if (set_mode_configration(mc.value)) {
+        if (write_mode_configration(mc.value)) {
             auto timeout_at = m5::utility::millis() + MEASURE_TEMPERATURE_DURATION * 2;
             bool done{};
             do {
@@ -242,7 +242,7 @@ bool UnitMAX30100::read_mode_configration(uint8_t& c) {
     return read_register8(MODE_CONFIGURATION, c);
 }
 
-bool UnitMAX30100::set_mode_configration(const uint8_t c) {
+bool UnitMAX30100::write_mode_configration(const uint8_t c) {
     if (writeRegister8(MODE_CONFIGURATION, c)) {
         max30100::ModeConfiguration mc;
         mc.value = c;
@@ -256,7 +256,7 @@ bool UnitMAX30100::enable_power_save(const bool enabled) {
     max30100::ModeConfiguration mc{};
     if (read_mode_configration(mc.value)) {
         mc.shdn(enabled);
-        return set_mode_configration(mc.value);
+        return write_mode_configration(mc.value);
     }
     return false;
 }
@@ -265,7 +265,7 @@ bool UnitMAX30100::read_spo2_configration(uint8_t& c) {
     return read_register8(SPO2_CONFIGURATION, c);
 }
 
-bool UnitMAX30100::set_spo2_configration(const uint8_t c) {
+bool UnitMAX30100::write_spo2_configration(const uint8_t c) {
     // The write is considered successful even if the value is not allowed
     // in the configuration. However, the value is not actually set, so
     // check it.
@@ -284,7 +284,7 @@ bool UnitMAX30100::enable_high_resolution(const bool enabled) {
     max30100::SpO2Configuration sc{};
     if (read_spo2_configration(sc.value)) {
         sc.highResolution(enabled);
-        return set_spo2_configration(sc.value);
+        return write_spo2_configration(sc.value);
     }
     return false;
 }
@@ -292,7 +292,7 @@ bool UnitMAX30100::enable_high_resolution(const bool enabled) {
 bool UnitMAX30100::read_led_configration(uint8_t& c) {
     return read_register8(LED_CONFIGURATION, c);
 }
-bool UnitMAX30100::set_led_configration(const uint8_t c) {
+bool UnitMAX30100::write_led_configration(const uint8_t c) {
     return writeRegister8(LED_CONFIGURATION, c);
 }
 

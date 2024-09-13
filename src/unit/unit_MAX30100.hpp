@@ -330,20 +330,19 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
      */
     bool readModeConfiguration(max30100::ModeConfiguration& mc);
     /*!
-      @brief Set Mode configuration
-      @brief read Mode configuration
+      @brief Write Mode configuration
       @param mc ModeConfigration
       @return True if successful
     */
-    bool setModeConfiguration(const max30100::ModeConfiguration mc);
-    //! @brief Set Mode
-    bool setMode(const max30100::Mode mode);
-    //! @brief Enable power save mode
-    bool enablePowerSave() {
+    bool writeModeConfiguration(const max30100::ModeConfiguration mc);
+    //! @brief Write Mode
+    bool writeMode(const max30100::Mode mode);
+    //! @brief Write power save mode to enable
+    bool writePowerSaveEnable() {
         return enable_power_save(true);
     }
-    //! @brief Disable power save mode
-    bool disablePowerSave() {
+    //! @brief Write power save mode to disable
+    bool writePowerSaveDisable() {
         return enable_power_save(false);
     }
     ///@}
@@ -359,21 +358,21 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     */
     bool readSpO2Configuration(max30100::SpO2Configuration& sc);
     /*!
-      @brief Set SpO2 configrartion
+      @brief Write SpO2 configrartion
       @param sc SpO2Configration
       @return True if successful
     */
-    bool setSpO2Configuration(const max30100::SpO2Configuration sc);
-    //! @brief Set sampling rate
-    bool setSamplingRate(const max30100::Sampling rate);
-    //! @brief Set LED pulse width
-    bool setLedPulseWidth(const max30100::LedPulseWidth width);
-    //! @brief Enable high resolution mode
-    inline bool enableHighResolution() {
+    bool writeSpO2Configuration(const max30100::SpO2Configuration sc);
+    //! @brief Write sampling rate
+    bool writeSamplingRate(const max30100::Sampling rate);
+    //! @brief Write LED pulse width
+    bool writeLedPulseWidth(const max30100::LedPulseWidth width);
+    //! @brief Writee high resolution mode to enable
+    inline bool writeHighResolutionEnable() {
         return enable_high_resolution(true);
     }
-    //! @brief Disable high resolution mode
-    inline bool disableHighResolution() {
+    //! @brief Write high resolution mode to disable
+    inline bool writeHighResolutionDisable() {
         return enable_high_resolution(false);
     }
     ///@}
@@ -390,13 +389,13 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     */
     bool readLedConfiguration(max30100::LedConfiguration& lc);
     /*!
-      @brief Set Led configrartion
+      @brief Write Led configrartion
       @param lc LedConfigration
       @return True if successful
     */
-    bool setLedConfiguration(const max30100::LedConfiguration lc);
-    //! @brief Set IR/RED current
-    bool setLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red);
+    bool writeLedConfiguration(const max30100::LedConfiguration lc);
+    //! @brief Write IR/RED current
+    bool writeLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red);
     ///@}
 
     ///@note The temperature sensor data can be used to compensate the SpO2
@@ -418,7 +417,7 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     */
     bool resetFIFO();
     /*!
-      @brief Software reset
+      @brief Reset
       @return True if successful
       @warning Blocked until the reset process is completed
      */
@@ -443,13 +442,13 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     M5_UNIT_COMPONENT_PERIODIC_MEASUREMENT_ADAPTER_HPP_BUILDER(UnitMAX30100, max30100::Data);
 
     bool read_mode_configration(uint8_t& c);
-    bool set_mode_configration(const uint8_t c);
+    bool write_mode_configration(const uint8_t c);
     bool enable_power_save(const bool enabled);
     bool read_spo2_configration(uint8_t& c);
-    bool set_spo2_configration(const uint8_t c);
+    bool write_spo2_configration(const uint8_t c);
     bool enable_high_resolution(const bool enabled);
     bool read_led_configration(uint8_t& c);
-    bool set_led_configration(const uint8_t c);
+    bool write_led_configration(const uint8_t c);
 
     bool read_register(const uint8_t reg, uint8_t* buf, const size_t len);
     bool read_register8(const uint8_t reg, uint8_t& v);

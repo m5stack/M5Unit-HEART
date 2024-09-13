@@ -29,8 +29,8 @@ class TestMAX30100 : public ComponentTestBase<UnitMAX30100, bool> {
     virtual UnitMAX30100* get_instance() override {
         auto ptr = new m5::unit::UnitMAX30100();
         if (ptr) {
-            auto cfg = ptr->config();
-            ptr->config(cfg);
+            auto ccfg = ptr->component_config();
+            ptr->component_config(ccfg);
         }
         return ptr;
     }
@@ -81,14 +81,14 @@ TEST_P(TestMAX30100, Configration) {
             // M5_LOGI("%s", s.c_str());
 
             ModeConfiguration mc{};
-            EXPECT_TRUE(unit->setMode(m));
+            EXPECT_TRUE(unit->writeMode(m));
 
             EXPECT_TRUE(unit->readModeConfiguration(mc));
             EXPECT_EQ(mc.mode(), m);
 
             auto mm = (m == Mode::HROnly ? Mode::SPO2 : Mode::HROnly);
             mc.mode(mm);
-            EXPECT_TRUE(unit->setModeConfiguration(mc));
+            EXPECT_TRUE(unit->writeModeConfiguration(mc));
 
             EXPECT_TRUE(unit->readModeConfiguration(mc));
             EXPECT_EQ(mc.mode(), mm);
@@ -102,13 +102,13 @@ TEST_P(TestMAX30100, Configration) {
 
             ModeConfiguration mc{};
 
-            EXPECT_TRUE(ps ? unit->enablePowerSave() : unit->disablePowerSave());
+            EXPECT_TRUE(ps ? unit->writePowerSaveEnable() : unit->writePowerSaveDisable());
             EXPECT_TRUE(unit->readModeConfiguration(mc));
             EXPECT_EQ(mc.shdn(), ps);
 
             bool f = !ps;
             mc.shdn(f);
-            EXPECT_TRUE(unit->setModeConfiguration(mc));
+            EXPECT_TRUE(unit->writeModeConfiguration(mc));
 
             EXPECT_TRUE(unit->readModeConfiguration(mc));
             EXPECT_EQ(mc.shdn(), f);
@@ -128,7 +128,7 @@ TEST_P(TestMAX30100, Configration) {
         };
 
         {
-            EXPECT_TRUE(unit->setMode(Mode::SPO2));
+            EXPECT_TRUE(unit->writeMode(Mode::SPO2));
             for (auto&& rate : sr_table) {
                 for (auto&& pw : pw_table) {
                     auto s = m5::utility::formatString("SPO2:Rate:%u:LPW:%u", rate, pw);
@@ -140,17 +140,17 @@ TEST_P(TestMAX30100, Configration) {
                     sc.samplingRate(rate);
                     sc.ledPulseWidth(pw);
                     if (is_allowed_settings(Mode::SPO2, rate, pw)) {
-                        EXPECT_TRUE(unit->setSpO2Configuration(sc));
-                        EXPECT_TRUE(unit->setSamplingRate(rate));
-                        EXPECT_TRUE(unit->setLedPulseWidth(pw));
+                        EXPECT_TRUE(unit->writeSpO2Configuration(sc));
+                        EXPECT_TRUE(unit->writeSamplingRate(rate));
+                        EXPECT_TRUE(unit->writeLedPulseWidth(pw));
                     } else {
-                        EXPECT_FALSE(unit->setSpO2Configuration(sc));
-                        EXPECT_FALSE(unit->setSamplingRate(rate));
+                        EXPECT_FALSE(unit->writeSpO2Configuration(sc));
+                        EXPECT_FALSE(unit->writeSamplingRate(rate));
 #if 0
                         // setLedPulseWidth here may succeed because no
                         // deviating data is written in setSamplingRate, so it
                         // is not tested
-                        EXPECT_FALSE(unit->setLedPulseWidth(pw))
+                        EXPECT_FALSE(unit->writeLedPulseWidth(pw))
                             << "Rate:" << (int)rate << " PW:" << (int)pw;
 #endif
                     }
@@ -158,7 +158,7 @@ TEST_P(TestMAX30100, Configration) {
             }
         }
         {
-            EXPECT_TRUE(unit->setMode(Mode::HROnly));
+            EXPECT_TRUE(unit->writeMode(Mode::HROnly));
             for (auto&& rate : sr_table) {
                 for (auto&& pw : pw_table) {
                     auto s = m5::utility::formatString("HRONly:Rate:%u:LPW:%u", rate, pw);
@@ -170,17 +170,17 @@ TEST_P(TestMAX30100, Configration) {
                     sc.samplingRate(rate);
                     sc.ledPulseWidth(pw);
                     if (is_allowed_settings(Mode::HROnly, rate, pw)) {
-                        EXPECT_TRUE(unit->setSpO2Configuration(sc));
-                        EXPECT_TRUE(unit->setSamplingRate(rate));
-                        EXPECT_TRUE(unit->setLedPulseWidth(pw));
+                        EXPECT_TRUE(unit->writeSpO2Configuration(sc));
+                        EXPECT_TRUE(unit->writeSamplingRate(rate));
+                        EXPECT_TRUE(unit->writeLedPulseWidth(pw));
                     } else {
-                        EXPECT_FALSE(unit->setSpO2Configuration(sc));
-                        EXPECT_FALSE(unit->setSamplingRate(rate));
+                        EXPECT_FALSE(unit->writeSpO2Configuration(sc));
+                        EXPECT_FALSE(unit->writeSamplingRate(rate));
 #if 0
                         // setLedPulseWidth here may succeed because no
                         // deviating data is written in setSamplingRate, so it
                         // is not tested
-                        EXPECT_FALSE(unit->setLedPulseWidth(pw))
+                        EXPECT_FALSE(unit->writeLedPulseWidth(pw))
                             << "Rate:" << (int)rate << " PW:" << (int)pw;
 #endif
                     }
@@ -196,7 +196,7 @@ TEST_P(TestMAX30100, Configration) {
                 SCOPED_TRACE(s.c_str());
                 // M5_LOGI("%s", s.c_str());
 
-                EXPECT_TRUE(hr ? unit->enableHighResolution() : unit->disableHighResolution());
+                EXPECT_TRUE(hr ? unit->writeHighResolutionEnable() : unit->writeHighResolutionDisable());
 
                 SpO2Configuration sc{};
                 EXPECT_TRUE(unit->readSpO2Configuration(sc));
@@ -215,7 +215,7 @@ TEST_P(TestMAX30100, Configration) {
 
         // In the heart-rate only mode, the red LED is inactive,
         {
-            EXPECT_TRUE(unit->setMode(Mode::SPO2));
+            EXPECT_TRUE(unit->writeMode(Mode::SPO2));
             for (auto&& ir : cc_table) {
                 for (auto&& red : cc_table) {
                     auto s = m5::utility::formatString("SPO2:IR:%u/RED:%u", ir, red);
@@ -224,7 +224,7 @@ TEST_P(TestMAX30100, Configration) {
 
                     LedConfiguration lc{};
 
-                    EXPECT_TRUE(unit->setLedCurrent(ir, red));
+                    EXPECT_TRUE(unit->writeLedCurrent(ir, red));
 
                     EXPECT_TRUE(unit->readLedConfiguration(lc));
                     EXPECT_EQ(lc.irLed(), ir);
@@ -232,7 +232,7 @@ TEST_P(TestMAX30100, Configration) {
 
                     lc.irLed(ir);
                     lc.redLed(red);
-                    EXPECT_TRUE(unit->setLedConfiguration(lc));
+                    EXPECT_TRUE(unit->writeLedConfiguration(lc));
 
                     EXPECT_TRUE(unit->readLedConfiguration(lc));
                     EXPECT_EQ(lc.irLed(), ir);
@@ -242,7 +242,7 @@ TEST_P(TestMAX30100, Configration) {
         }
 
         {
-            EXPECT_TRUE(unit->setMode(Mode::SPO2));
+            EXPECT_TRUE(unit->writeMode(Mode::SPO2));
             for (auto&& ir : cc_table) {
                 for (auto&& red : cc_table) {
                     auto s = m5::utility::formatString("HRONLY:IR:%u/RED:%u", ir, red);
@@ -251,7 +251,7 @@ TEST_P(TestMAX30100, Configration) {
 
                     LedConfiguration lc{};
 
-                    EXPECT_TRUE(unit->setLedCurrent(ir, red));
+                    EXPECT_TRUE(unit->writeLedCurrent(ir, red));
 
                     EXPECT_TRUE(unit->readLedConfiguration(lc));
                     EXPECT_EQ(lc.irLed(), ir);
@@ -259,7 +259,7 @@ TEST_P(TestMAX30100, Configration) {
 
                     lc.irLed(ir);
                     lc.redLed(red);
-                    EXPECT_TRUE(unit->setLedConfiguration(lc));
+                    EXPECT_TRUE(unit->writeLedConfiguration(lc));
 
                     EXPECT_TRUE(unit->readLedConfiguration(lc));
                     EXPECT_EQ(lc.irLed(), ir);
@@ -273,19 +273,19 @@ TEST_P(TestMAX30100, Configration) {
 TEST_P(TestMAX30100, Temperature) {
     SCOPED_TRACE(ustr);
 
-    EXPECT_TRUE(unit->setMode(Mode::SPO2));
-    EXPECT_TRUE(unit->disablePowerSave());
+    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
+    EXPECT_TRUE(unit->writePowerSaveDisable());
     SpO2Configuration sc{};
     sc.samplingRate(Sampling::Rate100);
     sc.ledPulseWidth(LedPulseWidth::PW1600);
     sc.highResolution(true);
-    EXPECT_TRUE(unit->setSpO2Configuration(sc));
-    EXPECT_TRUE(unit->setLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
+    EXPECT_TRUE(unit->writeSpO2Configuration(sc));
+    EXPECT_TRUE(unit->writeLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
 
     for (auto&& m : mode_table) {
         auto s = m5::utility::formatString("Mode:%u", m);
         SCOPED_TRACE(s.c_str());
-        EXPECT_TRUE(unit->setMode(m));
+        EXPECT_TRUE(unit->writeMode(m));
 
         TemperatureData td{};
         uint32_t cnt{8};
@@ -299,16 +299,16 @@ TEST_P(TestMAX30100, Temperature) {
 }
 
 TEST_P(TestMAX30100, Reset) {
-    EXPECT_TRUE(unit->setMode(Mode::SPO2));
-    EXPECT_TRUE(unit->enablePowerSave());
+    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
+    EXPECT_TRUE(unit->writePowerSaveEnable());
 
     SpO2Configuration sc{};
     sc.samplingRate(Sampling::Rate100);
     sc.ledPulseWidth(LedPulseWidth::PW1600);
     sc.highResolution(true);
-    EXPECT_TRUE(unit->setSpO2Configuration(sc));
+    EXPECT_TRUE(unit->writeSpO2Configuration(sc));
 
-    EXPECT_TRUE(unit->setLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
+    EXPECT_TRUE(unit->writeLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
 
     EXPECT_TRUE(unit->writeRegister8(FIFO_WRITE_POINTER, 1));
     EXPECT_TRUE(unit->writeRegister8(FIFO_READ_POINTER, 1));
@@ -339,15 +339,15 @@ TEST_P(TestMAX30100, Reset) {
 TEST_P(TestMAX30100, Periodic) {
     SCOPED_TRACE(ustr);
 
-    EXPECT_TRUE(unit->setMode(Mode::SPO2));
-    EXPECT_TRUE(unit->disablePowerSave());
+    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
+    EXPECT_TRUE(unit->writePowerSaveDisable());
     SpO2Configuration sc{};
     sc.samplingRate(Sampling::Rate100);  // *1
     sc.ledPulseWidth(LedPulseWidth::PW1600);
     sc.highResolution(true);
-    EXPECT_TRUE(unit->setSpO2Configuration(sc));
+    EXPECT_TRUE(unit->writeSpO2Configuration(sc));
 
-    EXPECT_TRUE(unit->setLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
+    EXPECT_TRUE(unit->writeLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
 
     auto start_at = m5::utility::millis();
 
