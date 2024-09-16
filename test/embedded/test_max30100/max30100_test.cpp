@@ -70,24 +70,22 @@ constexpr Sample sr_table[] = {
     Sample::Rate50,  Sample::Rate100, Sample::Rate167, Sample::Rate200,
     Sample::Rate400, Sample::Rate600, Sample::Rate800, Sample::Rate1000,
 };
+
 constexpr LedPulseWidth pw_table[] = {
     LedPulseWidth::PW200,
     LedPulseWidth::PW400,
     LedPulseWidth::PW800,
     LedPulseWidth::PW1600,
 };
-constexpr bool hr_table[]           = {true, false};
+
+constexpr bool hr_table[] = {true, false};
+
 constexpr CurrentControl cc_table[] = {
     CurrentControl::mA0_0,  CurrentControl::mA4_4,  CurrentControl::mA7_6,  CurrentControl::mA11_0,
     CurrentControl::mA14_2, CurrentControl::mA17_4, CurrentControl::mA20_8, CurrentControl::mA24_0,
     CurrentControl::mA27_1, CurrentControl::mA30_6, CurrentControl::mA33_8, CurrentControl::mA37_0,
     CurrentControl::mA40_2, CurrentControl::mA43_6, CurrentControl::mA46_8, CurrentControl::mA50_0,
 };
-
-inline void check_measurement_values(m5::unit::UnitMAX30100* u) {
-    //    EXPECT_NE(u->latest().ir(), 0U);
-    //    EXPECT_NE(u->latest().red(), 0U);
-}
 
 }  // namespace
 
