@@ -44,17 +44,17 @@ struct butterworthFilter_t {
 class HeartRate {
    public:
     /*!
-      @brief Conversion m5::unit::max30100::Sampling to sapling rate
-      @param rate bm5::unit::max30100::Sampling value
-      @return Sampling rate
+      @brief Conversion m5::unit::max30100::Sample to sapling rate
+      @param rate bm5::unit::max30100::Sample value
+      @return Sample rate
      */
-    static uint32_t getSamplingRate(const m5::unit::max30100::Sampling rate) {
+    static uint32_t getSampleRate(const m5::unit::max30100::Sample rate) {
         static constexpr uint32_t table[] = {50, 100, 167, 200, 400, 600, 800, 1000};
         return table[m5::stl::to_underlying(rate)];
     }
 
     /*!
-      @param sr Sampling rate (e.g. 167 if max30100::Sampling::Rate167)
+      @param sr Sample rate (e.g. 167 if max30100::Sample::Rate167)
       @param threshold Threshold for detect beat (depends on ir/redCUrrent)
       @param store_size Stored data size(0U means auto)
      */
@@ -62,8 +62,8 @@ class HeartRate {
 
     ///@name Settings
     ///@{
-    //! @brief Set sampling rate
-    void setSamplingRate(const uint32_t sr);
+    //! @brief Set sample rate
+    void setSampleRate(const uint32_t sr);
     //! @brief Set threshold
     void setThreshold(const float t) {
         _threshold = t;
@@ -98,7 +98,7 @@ class HeartRate {
    private:
     bool detect_beat();
 
-    float _samplingRate{}, _threshold{};
+    float _sampleRate{}, _threshold{};
     size_t _maxDataSize{};
     std::deque<float> _dataIR{};
     std::deque<m5::unit::types::elapsed_time_t> _peakDowns{};

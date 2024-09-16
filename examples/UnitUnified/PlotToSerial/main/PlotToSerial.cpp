@@ -6,7 +6,6 @@
 /*
   Example using M5UnitUnified for UnitHEART
 */
-
 // #define USING_M5HAL  // When using M5HAL
 
 #include <M5Unified.h>
@@ -21,21 +20,24 @@ namespace {
 auto& lcd = M5.Display;
 m5::unit::UnitUnified Units;
 m5::unit::UnitHEART unitHeart;
-m5::max30100::HeartRate heartRate(100 /*samplingrate*/);
+m5::max30100::HeartRate heartRate(100 /*sample rate*/);
 }  // namespace
 
 void setup() {
+    m5::utility::delay(1500);
+
     M5.begin();
 
     // Another settings
     if (0) {
-        auto cfg         = unitHeart.config();
-        cfg.samplingRate = m5::unit::max30100::Sampling::Rate400;
-        cfg.pulseWidth   = m5::unit::max30100::LedPulseWidth::PW400;
-        cfg.irCurrent    = m5::unit::max30100::CurrentControl::mA7_6;
-        cfg.redCurrent   = m5::unit::max30100::CurrentControl::mA7_6;
-        heartRate.setSamplingRate(m5::max30100::HeartRate::getSamplingRate(cfg.samplingRate));
-        heartRate.setThreshold(25.0f);  // depends on ir/redCurrent
+        auto cfg        = unitHeart.config();
+        cfg.sample_rate = m5::unit::max30100::Sample::Rate400;
+        cfg.pulse_width = m5::unit::max30100::LedPulseWidth::PW400;
+        cfg.ir_current  = m5::unit::max30100::CurrentControl::mA7_6;
+        cfg.red_current = m5::unit::max30100::CurrentControl::mA7_6;
+        heartRate.setSampleRate(m5::max30100::HeartRate::getSampleRate(cfg.sample_rate));
+        //        heartRate.setThreshold(25.0f);  // depends on ir/redCurrent
+        // cfg.mode = m5::unit::max30100::Mode::HROnly;
         unitHeart.config(cfg);
     }
 

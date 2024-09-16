@@ -26,6 +26,21 @@ constexpr elapsed_time_t interval_table[] = {
 
 constexpr uint32_t MEASURE_TEMPERATURE_DURATION{29};  // 29ms
 
+constexpr uint8_t allowed_spo2_table[] = {
+    // LSB:200 MSB:1600
+    0x0F, 0x0F, 0x07, 0x07, 0x03, 0x01, 0x01, 0x01,
+};
+constexpr uint8_t allowed_hr_table[] = {
+    // LSB:200 MSB:1600
+    0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x03, 0x03,
+};
+bool is_allowed_settings(const Mode mode, const Sample rate, const LedPulseWidth pw) {
+    return (mode != Mode::None)
+               ? (mode == Mode::SPO2 ? allowed_spo2_table : allowed_hr_table)[m5::stl::to_underlying(rate)] &
+                     (1U << m5::stl::to_underlying(pw))
+               : false;
+}
+
 }  // namespace
 
 namespace m5 {
@@ -79,15 +94,9 @@ bool UnitMAX30100::begin() {
         return false;
     }
 
-    //
-    m5::unit::max30100::SpO2Configuration sc{};
-    sc.samplingRate(_cfg.samplingRate);
-    sc.ledPulseWidth(_cfg.pulseWidth);
-    sc.highResolution(_cfg.highResolution);
-
-    _periodic = writeMode(max30100::Mode::SPO2) && writeSpO2Configuration(sc) &&
-                writeLedCurrent(_cfg.irCurrent, _cfg.redCurrent) && resetFIFO();
-    return _periodic;
+    return _cfg.start_periodic ? startPeriodicMeasurement(_cfg.mode, _cfg.sample_rate, _cfg.pulse_width,
+                                                          _cfg.ir_current, _cfg.high_resolution, _cfg.red_current)
+                               : true;
 }
 
 void UnitMAX30100::update(const bool force) {
@@ -101,6 +110,56 @@ void UnitMAX30100::update(const bool force) {
             }
         }
     }
+}
+
+bool UnitMAX30100::start_periodic_measurement() {
+    if (inPeriodic()) {
+        return false;
+    }
+
+    ModeConfiguration mc{};
+    if (read_mode_configration(mc.value)) {
+        bool done{true};
+        if (mc.shdn()) {
+            mc.shdn(false);  // power save OFF
+            done = write_mode_configration(mc.value);
+        }
+        if (done && resetFIFO()) {
+            _latest   = 0;
+            _periodic = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool UnitMAX30100::start_periodic_measurement(const max30100::Mode mode, const max30100::Sample sample_rate,
+                                              const max30100::LedPulseWidth pulse_width,
+                                              const max30100::CurrentControl ir_current, const bool high_resolution,
+                                              const max30100::CurrentControl red_current) {
+    if (inPeriodic()) {
+        return false;
+    }
+
+    SpO2Configuration sc{};
+    sc.sampleRate(sample_rate);
+    sc.ledPulseWidth(pulse_width);
+    sc.highResolution(high_resolution);
+
+    return writeMode(mode) && writeSpO2Configuration(sc) && writeLedCurrent(ir_current, red_current) &&
+           start_periodic_measurement();
+}
+
+bool UnitMAX30100::stop_periodic_measurement() {
+    ModeConfiguration mc{};
+    if (read_mode_configration(mc.value)) {
+        mc.shdn(true);  // power save ON
+        if (write_mode_configration(mc.value)) {
+            _periodic = false;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool UnitMAX30100::readModeConfiguration(max30100::ModeConfiguration& mc) {
@@ -145,10 +204,10 @@ bool UnitMAX30100::writeSpO2Configuration(const max30100::SpO2Configuration sc) 
     return write_spo2_configration(sc.value);
 }
 
-bool UnitMAX30100::writeSamplingRate(const max30100::Sampling rate) {
+bool UnitMAX30100::writeSampleRate(const max30100::Sample rate) {
     max30100::SpO2Configuration sc{};
     if (read_spo2_configration(sc.value)) {
-        sc.samplingRate(rate);
+        sc.sampleRate(rate);
         return write_spo2_configration(sc.value);
     }
     return false;
@@ -166,14 +225,15 @@ bool UnitMAX30100::writeLedPulseWidth(const max30100::LedPulseWidth width) {
 bool UnitMAX30100::readLedConfiguration(max30100::LedConfiguration& lc) {
     return read_led_configration(lc.value);
 }
+
 bool UnitMAX30100::writeLedConfiguration(const max30100::LedConfiguration lc) {
     return write_led_configration(lc.value);
 }
 
 bool UnitMAX30100::writeLedCurrent(const max30100::CurrentControl ir, const max30100::CurrentControl red) {
     max30100::LedConfiguration lc{};
-    lc.irLed(ir);
-    lc.redLed(red);
+    lc.ir(ir);
+    lc.red(red);
     return write_led_configration(lc.value);
 }
 
@@ -266,15 +326,20 @@ bool UnitMAX30100::read_spo2_configration(uint8_t& c) {
 }
 
 bool UnitMAX30100::write_spo2_configration(const uint8_t c) {
-    // The write is considered successful even if the value is not allowed
-    // in the configuration. However, the value is not actually set, so
-    // check it.
+    // The write is considered successful even if the value is not
+    // allowed in the configuration. However, the value is not
+    // actually set, so check it.
     uint8_t chk{};
+    max30100::SpO2Configuration sc;
+    sc.value = c;
+
+    if (!is_allowed_settings(_mode, sc.sampleRate(), sc.ledPulseWidth())) {
+        M5_LIB_LOGW("Invalid combination %u:%u:%u", _mode, sc.sampleRate(), sc.ledPulseWidth());
+        return false;
+    }
+
     if (writeRegister8(SPO2_CONFIGURATION, c) && read_spo2_configration(chk) && (chk == c)) {
-        max30100::SpO2Configuration sc;
-        sc.value      = c;
-        _samplingRate = sc.samplingRate();
-        _interval     = interval_table[m5::stl::to_underlying(_samplingRate)];
+        _interval = interval_table[m5::stl::to_underlying(sc.sampleRate())];
         return true;
     }
     return false;

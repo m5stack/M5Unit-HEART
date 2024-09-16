@@ -75,17 +75,17 @@ namespace m5 {
 namespace max30100 {
 
 HeartRate::HeartRate(const uint32_t srate, const float threshold, const size_t max_data_size)
-    : _samplingRate{(float)srate}, _threshold(threshold), _maxDataSize{max_data_size} {
-    assert(srate && "SamplingRate must not be zero");
+    : _sampleRate{(float)srate}, _threshold(threshold), _maxDataSize{max_data_size} {
+    assert(srate && "SampleRate must not be zero");
     if (!max_data_size) {
         _maxDataSize = (size_t)srate * 30U;
     }
-    calculateButterworthCoefficients(_samplingRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
+    calculateButterworthCoefficients(_sampleRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
 }
 
-void HeartRate::setSamplingRate(const uint32_t sr) {
-    _samplingRate = sr;
-    calculateButterworthCoefficients(_samplingRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
+void HeartRate::setSampleRate(const uint32_t sr) {
+    _sampleRate = sr;
+    calculateButterworthCoefficients(_sampleRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
     clear();
 }
 
@@ -96,7 +96,7 @@ void HeartRate::clear() {
     _dcIR      = dcFilter_t{};
     _mdIR      = meanDiffFilter_t{};
     _bwfIR     = butterworthFilter_t{};
-    calculateButterworthCoefficients(_samplingRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
+    calculateButterworthCoefficients(_sampleRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
 }
 
 bool HeartRate::push_back(const float ir, const float red) {

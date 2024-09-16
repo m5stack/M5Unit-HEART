@@ -24,9 +24,10 @@ namespace unit {
 namespace max30100 {
 /*!
   @enum Mode
-  @brief For Mode control
+  @brief Operation mode
  */
 enum class Mode : uint8_t {
+    None,           //!< None
     HROnly = 0x02,  //!< HR only enabled
     SPO2,           //!< SPO2 and HR enabled
 };
@@ -72,11 +73,11 @@ struct ModeConfiguration {
 };
 
 /*!
-  @enum Sampling
+  @enum Sample
   @brief Sample rate for pulse
   @details Unit is the number of sample per second
  */
-enum class Sampling : uint8_t {
+enum class Sample : uint8_t {
     Rate50,    //!< 50 sps
     Rate100,   //!< 100 sps
     Rate167,   //!< 167 sps
@@ -130,11 +131,11 @@ enum class LedPulseWidth {
 struct SpO2Configuration {
     ///@name Getter
     ///@{
-    bool highResolution() const {
+    bool highResolution() const {  // for SpO2
         return value & (1U << 6);
     }
-    Sampling samplingRate() const {
-        return static_cast<Sampling>((value >> 2) & 0x07);
+    Sample sampleRate() const {
+        return static_cast<Sample>((value >> 2) & 0x07);
     }
     LedPulseWidth ledPulseWidth() const {
         return static_cast<LedPulseWidth>(value & 0x03);
@@ -143,10 +144,10 @@ struct SpO2Configuration {
 
     ///@name Setter
     ///@{
-    void highResolution(const bool b) {
+    void highResolution(const bool b) {  // for SpO2
         value = (value & ~(1U << 6)) | ((b ? 1 : 0) << 6);
     }
-    void samplingRate(const Sampling rate) {
+    void sampleRate(const Sample rate) {
         value = (value & ~(0x07 << 2)) | ((m5::stl::to_underlying(rate) & 0x07) << 2);
     }
     void ledPulseWidth(const LedPulseWidth width) {
@@ -159,7 +160,7 @@ struct SpO2Configuration {
 
 /*!
   @enum CurrentControl
-  @brief Current level (Unit mA)
+  @brief Current level for Led
  */
 enum class CurrentControl {
     mA0_0,   //!< @brief 0,0 mA
@@ -187,19 +188,19 @@ enum class CurrentControl {
 struct LedConfiguration {
     ///@name Getter
     ///@{
-    CurrentControl redLed() const {
+    CurrentControl red() const {
         return static_cast<CurrentControl>((value >> 4) & 0x0F);
     }
-    CurrentControl irLed() const {
+    CurrentControl ir() const {
         return static_cast<CurrentControl>(value & 0x0F);
     }
     ///@}
     ///@name Setter
     ///@{
-    void redLed(const CurrentControl cc) {
+    void red(const CurrentControl cc) {
         value = (value & ~(0x0F << 4)) | ((m5::stl::to_underlying(cc) & 0x0F) << 4);
     }
-    void irLed(const CurrentControl cc) {
+    void ir(const CurrentControl cc) {
         value = (value & ~0x0F) | (m5::stl::to_underlying(cc) & 0x0F);
     }
     ///@}
@@ -248,22 +249,23 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     /*!
       @struct config_t
       @brief Settings for begin
+      @warning Note that some combinations of sample_rate and pulse_width are invalid. See also datasheet
      */
-    struct config_t : Component::config_t {
-        //! @brief Operating mode
-        max30100::Mode mode{max30100::Mode::HROnly};
-        //! @brief Sampling rate
-        max30100::Sampling samplingRate{m5::unit::max30100::Sampling::Rate100};
-        //! @brief Led pulse width
-        max30100::LedPulseWidth pulseWidth{m5::unit::max30100::LedPulseWidth::PW1600};
-        //! @brief The SpO2 ADC resolution
-        bool highResolution{true};
-        //! @brief Led current for IR
-        m5::unit::max30100::CurrentControl irCurrent{//            m5::unit::max30100::CurrentControl::mA7_6};
-                                                     m5::unit::max30100::CurrentControl::mA27_1};
-        //! @brief Led current for Red
-        m5::unit::max30100::CurrentControl redCurrent{//            m5::unit::max30100::CurrentControl::mA7_6};
-                                                      m5::unit::max30100::CurrentControl::mA27_1};
+    struct config_t {
+        //! Start periodic measurement on begin?
+        bool start_periodic{true};
+        //! Operating mode if start on begin
+        max30100::Mode mode{max30100::Mode::SPO2};
+        //! Sample rate if start on begin
+        max30100::Sample sample_rate{m5::unit::max30100::Sample::Rate100};
+        //! Led pulse width if start on begin
+        max30100::LedPulseWidth pulse_width{m5::unit::max30100::LedPulseWidth::PW1600};
+        //!  Led current for IR if start on begin
+        m5::unit::max30100::CurrentControl ir_current{m5::unit::max30100::CurrentControl::mA27_1};
+        //! The SpO2 ADC resolution if start on begin (only SpO2)
+        bool high_resolution{true};
+        //! Led current for Red if start on begin (only SpO2)
+        m5::unit::max30100::CurrentControl red_current{m5::unit::max30100::CurrentControl::mA27_1};
     };
 
     explicit UnitMAX30100(const uint8_t addr = DEFAULT_ADDRESS)
@@ -319,6 +321,41 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     }
     ///@}
 
+    ///@name Periodic measurement
+    ///@{
+    /*!
+      @brief Start periodic measurement in the current settings
+      @return True if successful
+    */
+    inline bool startPeriodicMeasurement() {
+        return PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>::startPeriodicMeasurement();
+    }
+    /*!
+      @brief Start periodic measurement
+      @param mode Operation mode
+      @param sample_rate  Sample rate
+      @param pulse_width Pulse width
+      @param ir_current IR Led control
+      @param high_resolution (only SpO2)
+      @param red_current RED Led control (only SpO2)
+      @return True if successful
+      @warning Note that some combinations of sample_rate and pulse_width are invalid. See also datasheet
+    */
+    inline bool startPeriodicMeasurement(const max30100::Mode mode, const max30100::Sample sample_rate,
+                                         const max30100::LedPulseWidth pulse_width,
+                                         const max30100::CurrentControl ir_current, const bool high_resolution = false,
+                                         const max30100::CurrentControl red_current = max30100::CurrentControl::mA0_0) {
+        return PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>::startPeriodicMeasurement(
+            mode, sample_rate, pulse_width, ir_current, high_resolution, red_current);
+    }
+    /*!
+      @brief Stop periodic measurement
+      @return True if successful
+    */
+    inline bool stopPeriodicMeasurement() {
+        return PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>::stopPeriodicMeasurement();
+    }
+
     ///@warning Note that there are different combinations that can be set
     /// depending on the mode See also SpO2Configuration
     ///@name Mode Configuration
@@ -347,8 +384,8 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     }
     ///@}
 
-    ///@warning Note that there are different combinations that can be set
-    /// depending on the mode See also SpO2Configuration
+    ///@warning Note that there are different combinations that can be set depending on the mode See also
+    /// SpO2Configuration
     ///@name SpO2 Configuration
     ///@{
     /*!
@@ -363,15 +400,15 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
       @return True if successful
     */
     bool writeSpO2Configuration(const max30100::SpO2Configuration sc);
-    //! @brief Write sampling rate
-    bool writeSamplingRate(const max30100::Sampling rate);
+    //! @brief Write sample rate
+    bool writeSampleRate(const max30100::Sample rate);
     //! @brief Write LED pulse width
     bool writeLedPulseWidth(const max30100::LedPulseWidth width);
-    //! @brief Writee high resolution mode to enable
+    //! @brief Writee SpO2 high resolution mode to enable
     inline bool writeHighResolutionEnable() {
         return enable_high_resolution(true);
     }
-    //! @brief Write high resolution mode to disable
+    //! @brief Write SpO2 high resolution mode to disable
     inline bool writeHighResolutionDisable() {
         return enable_high_resolution(false);
     }
@@ -424,17 +461,12 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     bool reset();
 
    protected:
-    ///@note Call via startPeriodicMeasurement/stopPeriodicMeasurement
-    ///@note MAX30100 is always measured periodic
-    ///@name Periodic measurement
-    ///@{
-    inline bool start_periodic_measurement() {
-        return false;
-    }
-    inline bool stop_periodic_measurement() {
-        return false;
-    }
-    ///@}
+    bool start_periodic_measurement();
+    bool start_periodic_measurement(const max30100::Mode mode, const max30100::Sample sample_rate,
+                                    const max30100::LedPulseWidth pulse_width,
+                                    const max30100::CurrentControl ir_current, const bool high_resolution,
+                                    const max30100::CurrentControl red_current);
+    bool stop_periodic_measurement();
 
     bool read_FIFO();
     bool read_measurement_temperature(max30100::TemperatureData& td);
@@ -454,8 +486,7 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     bool read_register8(const uint8_t reg, uint8_t& v);
 
    protected:
-    max30100::Mode _mode{};
-    max30100::Sampling _samplingRate{};
+    max30100::Mode _mode{max30100::Mode::None};
     uint8_t _retrived{}, _overflow{};
     std::unique_ptr<m5::container::CircularBuffer<max30100::Data>> _data{};
 
