@@ -2,10 +2,8 @@
 
 ## Overview
 
-Library for UnitHEART using M5UnitUnified.  
-
-The M5UnitUnified version of the library is located under [src/unit](src/unit).  
-M5UnitUnfied has a unified API and can control multiple units via PaHub, etc.
+Library for UnitHEART [M5UnitUnified](https://github.com/m5stack/M5UnitUnified).  
+M5UnitUnified is a library for unified handling of various M5 units products.
 
 ### SKU:U029
 
@@ -17,6 +15,7 @@ The MAX30100 provides very small total solution size without sacrificing optical
 
 
 ## Related Link
+See also examples using conventional methods here.
 
 - [Unit HEART & Datasheet](https://docs.m5stack.com/ja/unit/heart)
 
