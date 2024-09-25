@@ -19,7 +19,8 @@ namespace {
 
 constexpr float ALPHA{0.95f};  // for removeDC
 
-void calculateButterworthCoefficients(float Fs, float Fc, float& a0, float& a1, float& b1) {
+void calculateButterworthCoefficients(float Fs, float Fc, float& a0, float& a1, float& b1)
+{
     float tanWc = std::tan(M_PI * Fc / Fs);
     float sqrt2 = std::sqrt(2.0f);
 
@@ -28,14 +29,16 @@ void calculateButterworthCoefficients(float Fs, float Fc, float& a0, float& a1, 
     b1 = (tanWc - sqrt2) / (tanWc + sqrt2);
 }
 
-inline dcFilter_t removeDC(const float x, const float prev_w, const float alpha) {
+inline dcFilter_t removeDC(const float x, const float prev_w, const float alpha)
+{
     dcFilter_t filtered;
     filtered.w      = x + alpha * prev_w;
     filtered.result = filtered.w - prev_w;
     return filtered;
 }
 
-float meanDiff(const float M, meanDiffFilter_t& filterValues) {
+float meanDiff(const float M, meanDiffFilter_t& filterValues)
+{
     float avg{};
 
     filterValues.sum -= filterValues.values[filterValues.index];
@@ -53,7 +56,8 @@ float meanDiff(const float M, meanDiffFilter_t& filterValues) {
     return avg - M;
 }
 
-void lowPassButterworthFilter(const float x, butterworthFilter_t& fr) {
+void lowPassButterworthFilter(const float x, butterworthFilter_t& fr)
+{
     fr.v[0]   = fr.v[1];
     fr.v[1]   = (fr.a0 * x) + (fr.a1 * fr.v[0]) - (fr.b1 * fr.v[1]);
     fr.result = fr.v[0] + fr.v[1];
@@ -75,7 +79,8 @@ namespace m5 {
 namespace max30100 {
 
 HeartRate::HeartRate(const uint32_t srate, const float threshold, const size_t max_data_size)
-    : _sampleRate{(float)srate}, _threshold(threshold), _maxDataSize{max_data_size} {
+    : _sampleRate{(float)srate}, _threshold(threshold), _maxDataSize{max_data_size}
+{
     assert(srate && "SampleRate must not be zero");
     if (!max_data_size) {
         _maxDataSize = (size_t)srate * 30U;
@@ -83,13 +88,15 @@ HeartRate::HeartRate(const uint32_t srate, const float threshold, const size_t m
     calculateButterworthCoefficients(_sampleRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
 }
 
-void HeartRate::setSampleRate(const uint32_t sr) {
+void HeartRate::setSampleRate(const uint32_t sr)
+{
     _sampleRate = sr;
     calculateButterworthCoefficients(_sampleRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
     clear();
 }
 
-void HeartRate::clear() {
+void HeartRate::clear()
+{
     _dataIR.clear();
     _peakDowns.clear();
     _incrasing = false;
@@ -99,7 +106,8 @@ void HeartRate::clear() {
     calculateButterworthCoefficients(_sampleRate, 10.0f, _bwfIR.a0, _bwfIR.a1, _bwfIR.b1);
 }
 
-bool HeartRate::push_back(const float ir, const float red) {
+bool HeartRate::push_back(const float ir, const float red)
+{
     // Filtering (IR)
     _dcIR = removeDC(ir, _dcIR.w, ALPHA);
     // M5_LIB_LOGI("\n>ACIR:%f", _dcIR.result);
@@ -136,7 +144,8 @@ bool HeartRate::push_back(const float ir, const float red) {
     return _beat;
 }
 
-float HeartRate::calculate() const {
+float HeartRate::calculate() const
+{
     if (_peakDowns.size() < 2) {
         return 0.0f;
     }
@@ -149,7 +158,8 @@ float HeartRate::calculate() const {
     return 1.0f / avg * 60000.0f;
 }
 
-bool HeartRate::detect_beat() {
+bool HeartRate::detect_beat()
+{
     auto now = m5::utility::millis();
     bool beat{};
 

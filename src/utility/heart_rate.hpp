@@ -42,13 +42,14 @@ struct butterworthFilter_t {
   @brief Utility class for calcurate heart beat rate and SpO2
  */
 class HeartRate {
-   public:
+public:
     /*!
       @brief Conversion m5::unit::max30100::Sample to sapling rate
       @param rate bm5::unit::max30100::Sample value
       @return Sample rate
      */
-    static uint32_t getSampleRate(const m5::unit::max30100::Sample rate) {
+    static uint32_t getSampleRate(const m5::unit::max30100::Sample rate)
+    {
         static constexpr uint32_t table[] = {50, 100, 167, 200, 400, 600, 800, 1000};
         return table[m5::stl::to_underlying(rate)];
     }
@@ -65,11 +66,13 @@ class HeartRate {
     //! @brief Set sample rate
     void setSampleRate(const uint32_t sr);
     //! @brief Set threshold
-    void setThreshold(const float t) {
+    void setThreshold(const float t)
+    {
         _threshold = t;
     }
     //! @brief Set coefficients for SpO2 calculations
-    void setSpO2Coefficients(const float coeff) {
+    void setSpO2Coefficients(const float coeff)
+    {
         _coeffSpO2 = coeff;
     }
     ///@}
@@ -90,12 +93,13 @@ class HeartRate {
      */
     float calculate() const;
     //! @brief Gets the latest SpO2
-    float SpO2() const {
+    float SpO2() const
+    {
         return _SpO2;
     }
     ///@}
 
-   private:
+private:
     bool detect_beat();
 
     float _sampleRate{}, _threshold{};
