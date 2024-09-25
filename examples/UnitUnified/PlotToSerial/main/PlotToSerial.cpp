@@ -23,7 +23,8 @@ m5::unit::UnitHEART unitHeart;
 m5::max30100::HeartRate heartRate(100 /*sample rate*/);
 }  // namespace
 
-void setup() {
+void setup()
+{
     m5::utility::delay(1500);
 
     M5.begin();
@@ -79,7 +80,8 @@ void setup() {
     lcd.clear(TFT_DARKGREEN);
 }
 
-void loop() {
+void loop()
+{
     M5.update();
     Units.update();
     if (unitHeart.updated()) {

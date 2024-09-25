@@ -26,8 +26,9 @@ using namespace m5::unit::max30100::command;
 const ::testing::Environment* global_fixture = ::testing::AddGlobalTestEnvironment(new GlobalFixture<400000U>());
 
 class TestMAX30100 : public ComponentTestBase<UnitMAX30100, bool> {
-   protected:
-    virtual UnitMAX30100* get_instance() override {
+protected:
+    virtual UnitMAX30100* get_instance() override
+    {
         auto ptr = new m5::unit::UnitMAX30100();
         if (ptr) {
             auto ccfg = ptr->component_config();
@@ -35,7 +36,8 @@ class TestMAX30100 : public ComponentTestBase<UnitMAX30100, bool> {
         }
         return ptr;
     }
-    virtual bool is_using_hal() const override {
+    virtual bool is_using_hal() const override
+    {
         return GetParam();
     };
 };
@@ -48,7 +50,8 @@ INSTANTIATE_TEST_SUITE_P(ParamValues, TestMAX30100, ::testing::Values(false));
 
 namespace {
 
-bool is_allowed_settings(const Mode mode, const Sample rate, const LedPulseWidth pw) {
+bool is_allowed_settings(const Mode mode, const Sample rate, const LedPulseWidth pw)
+{
     constexpr uint8_t spo2_table[] = {
         // LSB:200 MSB:1600
         0x0F, 0x0F, 0x07, 0x07, 0x03, 0x01, 0x01, 0x01,
@@ -89,7 +92,8 @@ constexpr CurrentControl cc_table[] = {
 
 }  // namespace
 
-TEST_P(TestMAX30100, Configration) {
+TEST_P(TestMAX30100, Configration)
+{
     SCOPED_TRACE(ustr);
 
     for (auto&& m : mode_table) {
@@ -237,7 +241,8 @@ TEST_P(TestMAX30100, Configration) {
     }
 }
 
-TEST_P(TestMAX30100, Temperature) {
+TEST_P(TestMAX30100, Temperature)
+{
     SCOPED_TRACE(ustr);
 
     EXPECT_TRUE(unit->writeMode(Mode::SPO2));
@@ -265,7 +270,8 @@ TEST_P(TestMAX30100, Temperature) {
     }
 }
 
-TEST_P(TestMAX30100, Reset) {
+TEST_P(TestMAX30100, Reset)
+{
     EXPECT_TRUE(unit->writeMode(Mode::SPO2));
     EXPECT_TRUE(unit->writePowerSaveEnable());
 
@@ -303,7 +309,8 @@ TEST_P(TestMAX30100, Reset) {
     }
 }
 
-TEST_P(TestMAX30100, Periodic) {
+TEST_P(TestMAX30100, Periodic)
+{
     SCOPED_TRACE(ustr);
 
     EXPECT_TRUE(unit->inPeriodic());
@@ -379,7 +386,8 @@ TEST_P(TestMAX30100, Periodic) {
     }
 }
 
-TEST_P(TestMAX30100, Periodic2) {
+TEST_P(TestMAX30100, Periodic2)
+{
     constexpr uint32_t sps_table[] = {5, 10, 16, 20, 40, 60, 80, 100};  // Number of measurements per 100 ms (approx.)
 
     SCOPED_TRACE(ustr);

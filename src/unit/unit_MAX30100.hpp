@@ -39,32 +39,40 @@ enum class Mode : uint8_t {
 struct ModeConfiguration {
     ///@name Getter
     ///@{
-    bool shdn() const {
+    bool shdn() const
+    {
         return value & (1U << 7);
     }  //!< @brief Shutdown Control (SHDN)
-    bool reset() const {
+    bool reset() const
+    {
         return value & (1U << 6);
     }  //!< @brief Reset control
-    bool temperature() const {
+    bool temperature() const
+    {
         return value & (1U << 3);
     }  //!< @brief Temperature enable
-    Mode mode() const {
+    Mode mode() const
+    {
         return static_cast<Mode>(value & 0x07);
     }  //!< @brief Mode control
     ///@}
 
     ///@name Setter
     ///@{
-    void shdn(const bool b) {
+    void shdn(const bool b)
+    {
         value = (value & ~(1U << 7)) | ((b ? 1 : 0) << 7);
     }  //!< @brief Shutdown Control (SHDN)
-    void reset(const bool b) {
+    void reset(const bool b)
+    {
         value = (value & ~(1U << 6)) | ((b ? 1 : 0) << 6);
     }  //!< @brief Reset control
-    void temperature(const bool b) {
+    void temperature(const bool b)
+    {
         value = (value & ~(1U << 3)) | ((b ? 1 : 0) << 3);
     }  //!< @brief Temperature enable
-    void mode(const Mode m) {
+    void mode(const Mode m)
+    {
         value = (value & ~0x07) | (m5::stl::to_underlying(m) & 0x07);
     }  //!< @brief Mode control
     ///@}
@@ -131,26 +139,32 @@ enum class LedPulseWidth {
 struct SpO2Configuration {
     ///@name Getter
     ///@{
-    bool highResolution() const {  // for SpO2
+    bool highResolution() const
+    {  // for SpO2
         return value & (1U << 6);
     }
-    Sample sampleRate() const {
+    Sample sampleRate() const
+    {
         return static_cast<Sample>((value >> 2) & 0x07);
     }
-    LedPulseWidth ledPulseWidth() const {
+    LedPulseWidth ledPulseWidth() const
+    {
         return static_cast<LedPulseWidth>(value & 0x03);
     }
     ///@}
 
     ///@name Setter
     ///@{
-    void highResolution(const bool b) {  // for SpO2
+    void highResolution(const bool b)
+    {  // for SpO2
         value = (value & ~(1U << 6)) | ((b ? 1 : 0) << 6);
     }
-    void sampleRate(const Sample rate) {
+    void sampleRate(const Sample rate)
+    {
         value = (value & ~(0x07 << 2)) | ((m5::stl::to_underlying(rate) & 0x07) << 2);
     }
-    void ledPulseWidth(const LedPulseWidth width) {
+    void ledPulseWidth(const LedPulseWidth width)
+    {
         value = (value & ~0x03) | (m5::stl::to_underlying(width) & 0x03);
     }
     ///@}
@@ -188,19 +202,23 @@ enum class CurrentControl {
 struct LedConfiguration {
     ///@name Getter
     ///@{
-    CurrentControl red() const {
+    CurrentControl red() const
+    {
         return static_cast<CurrentControl>((value >> 4) & 0x0F);
     }
-    CurrentControl ir() const {
+    CurrentControl ir() const
+    {
         return static_cast<CurrentControl>(value & 0x0F);
     }
     ///@}
     ///@name Setter
     ///@{
-    void red(const CurrentControl cc) {
+    void red(const CurrentControl cc)
+    {
         value = (value & ~(0x0F << 4)) | ((m5::stl::to_underlying(cc) & 0x0F) << 4);
     }
-    void ir(const CurrentControl cc) {
+    void ir(const CurrentControl cc)
+    {
         value = (value & ~0x0F) | (m5::stl::to_underlying(cc) & 0x0F);
     }
     ///@}
@@ -227,7 +245,8 @@ struct Data {
 struct TemperatureData {
     std::array<uint8_t, 2> raw{};
     //! temperature (Celsius)
-    inline float temperature() const {
+    inline float temperature() const
+    {
         return celsius();
     }
     float celsius() const;     //!< temperature (Celsius)
@@ -245,7 +264,7 @@ struct TemperatureData {
 class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data> {
     M5_UNIT_COMPONENT_HPP_BUILDER(UnitMAX30100, 0x57);
 
-   public:
+public:
     /*!
       @struct config_t
       @brief Settings for begin
@@ -269,13 +288,15 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     };
 
     explicit UnitMAX30100(const uint8_t addr = DEFAULT_ADDRESS)
-        : Component(addr), _data{new m5::container::CircularBuffer<max30100::Data>(max30100::MAX_FIFO_DEPTH)} {
+        : Component(addr), _data{new m5::container::CircularBuffer<max30100::Data>(max30100::MAX_FIFO_DEPTH)}
+    {
         auto ccfg        = component_config();
         ccfg.clock       = 400 * 1000U;
         ccfg.stored_size = max30100::MAX_FIFO_DEPTH;
         component_config(ccfg);
     }
-    virtual ~UnitMAX30100() {
+    virtual ~UnitMAX30100()
+    {
     }
 
     virtual bool begin() override;
@@ -284,11 +305,13 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     ///@name Settings for begin
     ///@{
     /*! @brief Gets the configration */
-    inline config_t config() {
+    inline config_t config()
+    {
         return _cfg;
     }
     //! @brief Set the configration
-    inline void config(const config_t& cfg) {
+    inline void config(const config_t& cfg)
+    {
         _cfg = cfg;
     }
     ///@}
@@ -296,11 +319,13 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     ///@name Measurement data by periodic
     ///@{
     //! @brief Oldest IR
-    inline uint16_t ir() const {
+    inline uint16_t ir() const
+    {
         return !empty() ? oldest().ir() : 0;
     }
     //! @brief Oldest Red
-    inline uint16_t red() const {
+    inline uint16_t red() const
+    {
         return !empty() ? oldest().red() : 0;
     }
     /*!
@@ -309,14 +334,16 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
       accumulated
       @sa available()
     */
-    inline uint8_t retrived() const {
+    inline uint8_t retrived() const
+    {
         return _retrived;
     }
     /*!
       @brief The number of samples lost
       @note It saturates at 15
      */
-    inline uint8_t overflow() const {
+    inline uint8_t overflow() const
+    {
         return _overflow;
     }
     ///@}
@@ -327,7 +354,8 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
       @brief Start periodic measurement in the current settings
       @return True if successful
     */
-    inline bool startPeriodicMeasurement() {
+    inline bool startPeriodicMeasurement()
+    {
         return PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>::startPeriodicMeasurement();
     }
     /*!
@@ -344,7 +372,8 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     inline bool startPeriodicMeasurement(const max30100::Mode mode, const max30100::Sample sample_rate,
                                          const max30100::LedPulseWidth pulse_width,
                                          const max30100::CurrentControl ir_current, const bool high_resolution = false,
-                                         const max30100::CurrentControl red_current = max30100::CurrentControl::mA0_0) {
+                                         const max30100::CurrentControl red_current = max30100::CurrentControl::mA0_0)
+    {
         return PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>::startPeriodicMeasurement(
             mode, sample_rate, pulse_width, ir_current, high_resolution, red_current);
     }
@@ -352,7 +381,8 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
       @brief Stop periodic measurement
       @return True if successful
     */
-    inline bool stopPeriodicMeasurement() {
+    inline bool stopPeriodicMeasurement()
+    {
         return PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>::stopPeriodicMeasurement();
     }
 
@@ -375,11 +405,13 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     //! @brief Write Mode
     bool writeMode(const max30100::Mode mode);
     //! @brief Write power save mode to enable
-    bool writePowerSaveEnable() {
+    bool writePowerSaveEnable()
+    {
         return enable_power_save(true);
     }
     //! @brief Write power save mode to disable
-    bool writePowerSaveDisable() {
+    bool writePowerSaveDisable()
+    {
         return enable_power_save(false);
     }
     ///@}
@@ -405,11 +437,13 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     //! @brief Write LED pulse width
     bool writeLedPulseWidth(const max30100::LedPulseWidth width);
     //! @brief Writee SpO2 high resolution mode to enable
-    inline bool writeHighResolutionEnable() {
+    inline bool writeHighResolutionEnable()
+    {
         return enable_high_resolution(true);
     }
     //! @brief Write SpO2 high resolution mode to disable
-    inline bool writeHighResolutionDisable() {
+    inline bool writeHighResolutionDisable()
+    {
         return enable_high_resolution(false);
     }
     ///@}
@@ -460,7 +494,7 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
      */
     bool reset();
 
-   protected:
+protected:
     bool start_periodic_measurement();
     bool start_periodic_measurement(const max30100::Mode mode, const max30100::Sample sample_rate,
                                     const max30100::LedPulseWidth pulse_width,
@@ -485,7 +519,7 @@ class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX
     bool read_register(const uint8_t reg, uint8_t* buf, const size_t len);
     bool read_register8(const uint8_t reg, uint8_t& v);
 
-   protected:
+protected:
     max30100::Mode _mode{max30100::Mode::None};
     uint8_t _retrived{}, _overflow{};
     std::unique_ptr<m5::container::CircularBuffer<max30100::Data>> _data{};
