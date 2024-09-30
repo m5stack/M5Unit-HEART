@@ -387,7 +387,7 @@ public:
     }
 
     ///@warning Note that there are different combinations that can be set
-    /// depending on the mode See also SpO2Configuration
+    /// depending on the mode See also m5::unit::max30100::SpO2Configuration
     ///@name Mode Configuration
     ///@{
     /*!
@@ -417,7 +417,7 @@ public:
     ///@}
 
     ///@warning Note that there are different combinations that can be set depending on the mode See also
-    /// SpO2Configuration
+    /// m5::unit::max30100::SpO2Configuration
     ///@name SpO2 Configuration
     ///@{
     /*!
