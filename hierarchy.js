@@ -4,9 +4,7 @@ var hierarchy =
     [ "Component", null, [
       [ "m5::unit::UnitMAX30100", "classm5_1_1unit_1_1_unit_m_a_x30100.html", null ]
     ] ],
-    [ "Component::config_t", null, [
-      [ "m5::unit::UnitMAX30100::config_t", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html", null ]
-    ] ],
+    [ "m5::unit::UnitMAX30100::config_t", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html", null ],
     [ "m5::unit::max30100::Data", "structm5_1_1unit_1_1max30100_1_1_data.html", null ],
     [ "m5::max30100::dcFilter_t", "structm5_1_1max30100_1_1dc_filter__t.html", null ],
     [ "m5::max30100::HeartRate", "classm5_1_1max30100_1_1_heart_rate.html", null ],

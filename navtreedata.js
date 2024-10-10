@@ -25,7 +25,6 @@
 var NAVTREE =
 [
   [ "M5Unit-HEART", "index.html", [
-    [ "M5UnitHEART", "index.html", null ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ]
     ] ],
@@ -47,7 +46,7 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_m5_unit_h_e_a_r_t_8hpp.html"
+"_m5_unit_unified_h_e_a_r_t_8hpp.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,8 +1,8 @@
 var searchData=
 [
   ['m5_0',['m5',['../namespacem5.html',1,'']]],
-  ['m5unitheart_1',['M5UnitHEART',['../index.html',1,'']]],
-  ['m5unitheart_2ehpp_2',['M5UnitHEART.hpp',['../_m5_unit_h_e_a_r_t_8hpp.html',1,'']]],
+  ['m5unit_20heart_1',['M5Unit-HEART',['../index.html',1,'']]],
+  ['m5unitunifiedheart_2ehpp_2',['M5UnitUnifiedHEART.hpp',['../_m5_unit_unified_h_e_a_r_t_8hpp.html',1,'']]],
   ['ma0_5f0_3',['mA0_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa8594cd1acf4f7f4d531203a97120b72b',1,'m5::unit::max30100']]],
   ['ma11_5f0_4',['mA11_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa1ed455ee951b0d5df08661a3f4b6690a',1,'m5::unit::max30100']]],
   ['ma14_5f2_5',['mA14_2',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa316afb4c8933c5db8b459dcfb2a4e4b3',1,'m5::unit::max30100']]],

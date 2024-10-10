@@ -32,18 +32,19 @@ var unit___m_a_x30100_8hpp =
       [ "PW1600", "unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23ea6bc4f0dcc257b054d46b83b2ba85fc4e", null ]
     ] ],
     [ "Mode", "unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4", [
+      [ "None", "unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4a6adf97f83acf6453d4a6a4b1070f3754", null ],
       [ "HROnly", "unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4a54eb092955373400ae32c4ba2b87ff78", null ],
       [ "SPO2", "unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4a67d9a20869c6a3420e006460c7dd6a7b", null ]
     ] ],
-    [ "Sampling", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0", [
-      [ "Rate50", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0a16e844da92aa031a7c55f0d55c76b12d", null ],
-      [ "Rate100", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0aa0a4df5c4f3c520956b405e712b6bfee", null ],
-      [ "Rate167", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0a5559135d4d396e25d3c6fc7190a25657", null ],
-      [ "Rate200", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0af2a0c9086352fe2d164c736c8202637d", null ],
-      [ "Rate400", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0a127f3a06935d61ae8e6ca22f36be0c05", null ],
-      [ "Rate600", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0ace08d688698057b3377f0eaf721a24ac", null ],
-      [ "Rate800", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0a2ab198c5715263ca32f60a5816f3e44a", null ],
-      [ "Rate1000", "unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0a9212f1dc8c7b8afd9e28a6bafc09f796", null ]
+    [ "Sample", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992c", [
+      [ "Rate50", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992ca16e844da92aa031a7c55f0d55c76b12d", null ],
+      [ "Rate100", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992caa0a4df5c4f3c520956b405e712b6bfee", null ],
+      [ "Rate167", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992ca5559135d4d396e25d3c6fc7190a25657", null ],
+      [ "Rate200", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992caf2a0c9086352fe2d164c736c8202637d", null ],
+      [ "Rate400", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992ca127f3a06935d61ae8e6ca22f36be0c05", null ],
+      [ "Rate600", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992cace08d688698057b3377f0eaf721a24ac", null ],
+      [ "Rate800", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992ca2ab198c5715263ca32f60a5816f3e44a", null ],
+      [ "Rate1000", "unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992ca9212f1dc8c7b8afd9e28a6bafc09f796", null ]
     ] ],
     [ "MAX_FIFO_DEPTH", "unit___m_a_x30100_8hpp.html#a84301d0fc3e9f55470ecc6780544c0b1", null ]
 ];

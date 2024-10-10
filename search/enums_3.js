@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sampling_0',['Sampling',['../unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0',1,'m5::unit::max30100']]]
+  ['sample_0',['Sample',['../unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992c',1,'m5::unit::max30100']]]
 ];

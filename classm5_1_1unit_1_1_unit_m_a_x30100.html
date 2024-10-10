@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.0 git rev:7c0e82a</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.1 git rev:01d9d0e</span>
    </div>
   </td>
  </tr>
@@ -138,7 +138,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (c
 <tr class="memdesc:ae8370da23151de33de185696ae19221d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset FIFO buffer.  <br /></td></tr>
 <tr class="separator:ae8370da23151de33de185696ae19221d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb33512296b90bdad0df1eb882d9c525" id="r_adb33512296b90bdad0df1eb882d9c525"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adb33512296b90bdad0df1eb882d9c525">reset</a> ()</td></tr>
-<tr class="memdesc:adb33512296b90bdad0df1eb882d9c525"><td class="mdescLeft">&#160;</td><td class="mdescRight">Software reset.  <br /></td></tr>
+<tr class="memdesc:adb33512296b90bdad0df1eb882d9c525"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset.  <br /></td></tr>
 <tr class="separator:adb33512296b90bdad0df1eb882d9c525"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Settings for begin</div></td></tr>
 <tr class="memitem:a7c0fec8c9fb297284743f940853dc2db" id="r_a7c0fec8c9fb297284743f940853dc2db"><td class="memItemLeft" align="right" valign="top"><a id="a7c0fec8c9fb297284743f940853dc2db" name="a7c0fec8c9fb297284743f940853dc2db"></a>
@@ -152,11 +152,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>config</b> (const <a 
 <tr><td colspan="2"><div class="groupHeader">Measurement data by periodic</div></td></tr>
 <tr class="memitem:af27fd009f478b263da19a2194a9121a9" id="r_af27fd009f478b263da19a2194a9121a9"><td class="memItemLeft" align="right" valign="top"><a id="af27fd009f478b263da19a2194a9121a9" name="af27fd009f478b263da19a2194a9121a9"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ir</b> () const</td></tr>
-<tr class="memdesc:af27fd009f478b263da19a2194a9121a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oldest CO2eq (ppm) <br /></td></tr>
+<tr class="memdesc:af27fd009f478b263da19a2194a9121a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oldest IR. <br /></td></tr>
 <tr class="separator:af27fd009f478b263da19a2194a9121a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aece1be0ba4051adbedb0551b4787bc8d" id="r_aece1be0ba4051adbedb0551b4787bc8d"><td class="memItemLeft" align="right" valign="top"><a id="aece1be0ba4051adbedb0551b4787bc8d" name="aece1be0ba4051adbedb0551b4787bc8d"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>red</b> () const</td></tr>
-<tr class="memdesc:aece1be0ba4051adbedb0551b4787bc8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oldest TVOC (ppb) <br /></td></tr>
+<tr class="memdesc:aece1be0ba4051adbedb0551b4787bc8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oldest Red. <br /></td></tr>
 <tr class="separator:aece1be0ba4051adbedb0551b4787bc8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fe4cd9ef0e1fee537c81de675e54607" id="r_a6fe4cd9ef0e1fee537c81de675e54607"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6fe4cd9ef0e1fee537c81de675e54607">retrived</a> () const</td></tr>
 <tr class="memdesc:a6fe4cd9ef0e1fee537c81de675e54607"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of data last retrieved.  <br /></td></tr>
@@ -164,65 +164,75 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>red</b> () const<
 <tr class="memitem:a0f7a3838e51b4f336a880e741315a209" id="r_a0f7a3838e51b4f336a880e741315a209"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0f7a3838e51b4f336a880e741315a209">overflow</a> () const</td></tr>
 <tr class="memdesc:a0f7a3838e51b4f336a880e741315a209"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of samples lost.  <br /></td></tr>
 <tr class="separator:a0f7a3838e51b4f336a880e741315a209"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Periodic measurement</div></td></tr>
+<tr class="memitem:a6283588544dc6948738c6ce7b7a50979" id="r_a6283588544dc6948738c6ce7b7a50979"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6283588544dc6948738c6ce7b7a50979">startPeriodicMeasurement</a> ()</td></tr>
+<tr class="memdesc:a6283588544dc6948738c6ce7b7a50979"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start periodic measurement in the current settings.  <br /></td></tr>
+<tr class="separator:a6283588544dc6948738c6ce7b7a50979"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b1412ed280b4bd1a205946dd3aa5600" id="r_a9b1412ed280b4bd1a205946dd3aa5600"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b1412ed280b4bd1a205946dd3aa5600">startPeriodicMeasurement</a> (const <a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a> mode, const <a class="el" href="unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992c">max30100::Sample</a> sample_rate, const <a class="el" href="unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23e">max30100::LedPulseWidth</a> pulse_width, const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> ir_current, const bool high_resolution=false, const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> red_current=<a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa8594cd1acf4f7f4d531203a97120b72b">max30100::CurrentControl::mA0_0</a>)</td></tr>
+<tr class="memdesc:a9b1412ed280b4bd1a205946dd3aa5600"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start periodic measurement.  <br /></td></tr>
+<tr class="separator:a9b1412ed280b4bd1a205946dd3aa5600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4f6d3f5c815871d66426f1572ec95e1" id="r_ab4f6d3f5c815871d66426f1572ec95e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab4f6d3f5c815871d66426f1572ec95e1">stopPeriodicMeasurement</a> ()</td></tr>
+<tr class="memdesc:ab4f6d3f5c815871d66426f1572ec95e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop periodic measurement.  <br /></td></tr>
+<tr class="separator:ab4f6d3f5c815871d66426f1572ec95e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Mode Configuration</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><dl class="section warning"><dt>Warning</dt><dd>Note that there are different combinations that can be set depending on the mode See also SpO2Configuration </dd></dl>
 </div></td></tr>
 <tr class="memitem:a872ad2591edbdd6b4dd2fccb36eaa08a" id="r_a872ad2591edbdd6b4dd2fccb36eaa08a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a872ad2591edbdd6b4dd2fccb36eaa08a">readModeConfiguration</a> (<a class="el" href="structm5_1_1unit_1_1max30100_1_1_mode_configuration.html">max30100::ModeConfiguration</a> &amp;mc)</td></tr>
 <tr class="memdesc:a872ad2591edbdd6b4dd2fccb36eaa08a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read Mode configuration.  <br /></td></tr>
 <tr class="separator:a872ad2591edbdd6b4dd2fccb36eaa08a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab25199b31184d407e711484fb3b1d753" id="r_ab25199b31184d407e711484fb3b1d753"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab25199b31184d407e711484fb3b1d753">setModeConfiguration</a> (const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_mode_configuration.html">max30100::ModeConfiguration</a> mc)</td></tr>
-<tr class="memdesc:ab25199b31184d407e711484fb3b1d753"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Mode configuration.  <br /></td></tr>
-<tr class="separator:ab25199b31184d407e711484fb3b1d753"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d6049882a6b51f12af5c2e2ad47c062" id="r_a5d6049882a6b51f12af5c2e2ad47c062"><td class="memItemLeft" align="right" valign="top"><a id="a5d6049882a6b51f12af5c2e2ad47c062" name="a5d6049882a6b51f12af5c2e2ad47c062"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setMode</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a> mode)</td></tr>
-<tr class="memdesc:a5d6049882a6b51f12af5c2e2ad47c062"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Mode. <br /></td></tr>
-<tr class="separator:a5d6049882a6b51f12af5c2e2ad47c062"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a095c75f01dd9ba9f4e66aea53286a8a1" id="r_a095c75f01dd9ba9f4e66aea53286a8a1"><td class="memItemLeft" align="right" valign="top"><a id="a095c75f01dd9ba9f4e66aea53286a8a1" name="a095c75f01dd9ba9f4e66aea53286a8a1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enablePowerSave</b> ()</td></tr>
-<tr class="memdesc:a095c75f01dd9ba9f4e66aea53286a8a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable power save mode. <br /></td></tr>
-<tr class="separator:a095c75f01dd9ba9f4e66aea53286a8a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93b5cf1963656f37babe7c22257bb674" id="r_a93b5cf1963656f37babe7c22257bb674"><td class="memItemLeft" align="right" valign="top"><a id="a93b5cf1963656f37babe7c22257bb674" name="a93b5cf1963656f37babe7c22257bb674"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>disablePowerSave</b> ()</td></tr>
-<tr class="memdesc:a93b5cf1963656f37babe7c22257bb674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable power save mode. <br /></td></tr>
-<tr class="separator:a93b5cf1963656f37babe7c22257bb674"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a816a267c6e9d0bcf354997482e6da000" id="r_a816a267c6e9d0bcf354997482e6da000"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a816a267c6e9d0bcf354997482e6da000">writeModeConfiguration</a> (const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_mode_configuration.html">max30100::ModeConfiguration</a> mc)</td></tr>
+<tr class="memdesc:a816a267c6e9d0bcf354997482e6da000"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write Mode configuration.  <br /></td></tr>
+<tr class="separator:a816a267c6e9d0bcf354997482e6da000"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69613c3a6f805b56b22454e4a122534d" id="r_a69613c3a6f805b56b22454e4a122534d"><td class="memItemLeft" align="right" valign="top"><a id="a69613c3a6f805b56b22454e4a122534d" name="a69613c3a6f805b56b22454e4a122534d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writeMode</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a> mode)</td></tr>
+<tr class="memdesc:a69613c3a6f805b56b22454e4a122534d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write Mode. <br /></td></tr>
+<tr class="separator:a69613c3a6f805b56b22454e4a122534d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af77981cf26bd695d58a27b19b875a47b" id="r_af77981cf26bd695d58a27b19b875a47b"><td class="memItemLeft" align="right" valign="top"><a id="af77981cf26bd695d58a27b19b875a47b" name="af77981cf26bd695d58a27b19b875a47b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writePowerSaveEnable</b> ()</td></tr>
+<tr class="memdesc:af77981cf26bd695d58a27b19b875a47b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write power save mode to enable. <br /></td></tr>
+<tr class="separator:af77981cf26bd695d58a27b19b875a47b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32c815a98a78ea942b007ada52aae1bf" id="r_a32c815a98a78ea942b007ada52aae1bf"><td class="memItemLeft" align="right" valign="top"><a id="a32c815a98a78ea942b007ada52aae1bf" name="a32c815a98a78ea942b007ada52aae1bf"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writePowerSaveDisable</b> ()</td></tr>
+<tr class="memdesc:a32c815a98a78ea942b007ada52aae1bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write power save mode to disable. <br /></td></tr>
+<tr class="separator:a32c815a98a78ea942b007ada52aae1bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">SpO2 Configuration</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><dl class="section warning"><dt>Warning</dt><dd>Note that there are different combinations that can be set depending on the mode See also SpO2Configuration </dd></dl>
 </div></td></tr>
 <tr class="memitem:a1651de3f7ef6dcb00832064bd0e7e139" id="r_a1651de3f7ef6dcb00832064bd0e7e139"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1651de3f7ef6dcb00832064bd0e7e139">readSpO2Configuration</a> (<a class="el" href="structm5_1_1unit_1_1max30100_1_1_sp_o2_configuration.html">max30100::SpO2Configuration</a> &amp;sc)</td></tr>
 <tr class="memdesc:a1651de3f7ef6dcb00832064bd0e7e139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read SpO2 configrartion.  <br /></td></tr>
 <tr class="separator:a1651de3f7ef6dcb00832064bd0e7e139"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3423d0e50f099dda87d2959c4acaa9cd" id="r_a3423d0e50f099dda87d2959c4acaa9cd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3423d0e50f099dda87d2959c4acaa9cd">setSpO2Configuration</a> (const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_sp_o2_configuration.html">max30100::SpO2Configuration</a> sc)</td></tr>
-<tr class="memdesc:a3423d0e50f099dda87d2959c4acaa9cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set SpO2 configrartion.  <br /></td></tr>
-<tr class="separator:a3423d0e50f099dda87d2959c4acaa9cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef4223e9d0a1eb8c8ab9edb0c6a10f30" id="r_aef4223e9d0a1eb8c8ab9edb0c6a10f30"><td class="memItemLeft" align="right" valign="top"><a id="aef4223e9d0a1eb8c8ab9edb0c6a10f30" name="aef4223e9d0a1eb8c8ab9edb0c6a10f30"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setSamplingRate</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0">max30100::Sampling</a> rate)</td></tr>
-<tr class="memdesc:aef4223e9d0a1eb8c8ab9edb0c6a10f30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set sampling rate. <br /></td></tr>
-<tr class="separator:aef4223e9d0a1eb8c8ab9edb0c6a10f30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73c7da1826d680b342537a5a72becca9" id="r_a73c7da1826d680b342537a5a72becca9"><td class="memItemLeft" align="right" valign="top"><a id="a73c7da1826d680b342537a5a72becca9" name="a73c7da1826d680b342537a5a72becca9"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setLedPulseWidth</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23e">max30100::LedPulseWidth</a> width)</td></tr>
-<tr class="memdesc:a73c7da1826d680b342537a5a72becca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set LED pulse width. <br /></td></tr>
-<tr class="separator:a73c7da1826d680b342537a5a72becca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c5fbf3d7fa3738697bd53f5a4fbf033" id="r_a0c5fbf3d7fa3738697bd53f5a4fbf033"><td class="memItemLeft" align="right" valign="top"><a id="a0c5fbf3d7fa3738697bd53f5a4fbf033" name="a0c5fbf3d7fa3738697bd53f5a4fbf033"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>enableHighResolution</b> ()</td></tr>
-<tr class="memdesc:a0c5fbf3d7fa3738697bd53f5a4fbf033"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable high resolution mode. <br /></td></tr>
-<tr class="separator:a0c5fbf3d7fa3738697bd53f5a4fbf033"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72786484553e6fd8c9ade112146b77ef" id="r_a72786484553e6fd8c9ade112146b77ef"><td class="memItemLeft" align="right" valign="top"><a id="a72786484553e6fd8c9ade112146b77ef" name="a72786484553e6fd8c9ade112146b77ef"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>disableHighResolution</b> ()</td></tr>
-<tr class="memdesc:a72786484553e6fd8c9ade112146b77ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable high resolution mode. <br /></td></tr>
-<tr class="separator:a72786484553e6fd8c9ade112146b77ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d7ab4bac94dcf1e14a4e9042b15e861" id="r_a5d7ab4bac94dcf1e14a4e9042b15e861"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5d7ab4bac94dcf1e14a4e9042b15e861">writeSpO2Configuration</a> (const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_sp_o2_configuration.html">max30100::SpO2Configuration</a> sc)</td></tr>
+<tr class="memdesc:a5d7ab4bac94dcf1e14a4e9042b15e861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write SpO2 configrartion.  <br /></td></tr>
+<tr class="separator:a5d7ab4bac94dcf1e14a4e9042b15e861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad95542d699be26623f5a155ccc5c8a5c" id="r_ad95542d699be26623f5a155ccc5c8a5c"><td class="memItemLeft" align="right" valign="top"><a id="ad95542d699be26623f5a155ccc5c8a5c" name="ad95542d699be26623f5a155ccc5c8a5c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writeSampleRate</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992c">max30100::Sample</a> rate)</td></tr>
+<tr class="memdesc:ad95542d699be26623f5a155ccc5c8a5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write sample rate. <br /></td></tr>
+<tr class="separator:ad95542d699be26623f5a155ccc5c8a5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea2b7fdc62ba5fc69d13f2abe12e4452" id="r_aea2b7fdc62ba5fc69d13f2abe12e4452"><td class="memItemLeft" align="right" valign="top"><a id="aea2b7fdc62ba5fc69d13f2abe12e4452" name="aea2b7fdc62ba5fc69d13f2abe12e4452"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writeLedPulseWidth</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23e">max30100::LedPulseWidth</a> width)</td></tr>
+<tr class="memdesc:aea2b7fdc62ba5fc69d13f2abe12e4452"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write LED pulse width. <br /></td></tr>
+<tr class="separator:aea2b7fdc62ba5fc69d13f2abe12e4452"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97780b27452292ed72712eac517f7025" id="r_a97780b27452292ed72712eac517f7025"><td class="memItemLeft" align="right" valign="top"><a id="a97780b27452292ed72712eac517f7025" name="a97780b27452292ed72712eac517f7025"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writeHighResolutionEnable</b> ()</td></tr>
+<tr class="memdesc:a97780b27452292ed72712eac517f7025"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writee SpO2 high resolution mode to enable. <br /></td></tr>
+<tr class="separator:a97780b27452292ed72712eac517f7025"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b6b2d83026839fc27f7d4949045d994" id="r_a5b6b2d83026839fc27f7d4949045d994"><td class="memItemLeft" align="right" valign="top"><a id="a5b6b2d83026839fc27f7d4949045d994" name="a5b6b2d83026839fc27f7d4949045d994"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writeHighResolutionDisable</b> ()</td></tr>
+<tr class="memdesc:a5b6b2d83026839fc27f7d4949045d994"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write SpO2 high resolution mode to disable. <br /></td></tr>
+<tr class="separator:a5b6b2d83026839fc27f7d4949045d994"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">LED Configuration</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><dl class="section warning"><dt>Warning</dt><dd>In the heart-rate only mode, the red LED is inactive. and only the IR LED is used to capture optical data and determine the heart rate. </dd></dl>
 </div></td></tr>
 <tr class="memitem:afb233ae72fde01462037a921a3544782" id="r_afb233ae72fde01462037a921a3544782"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb233ae72fde01462037a921a3544782">readLedConfiguration</a> (<a class="el" href="structm5_1_1unit_1_1max30100_1_1_led_configuration.html">max30100::LedConfiguration</a> &amp;lc)</td></tr>
 <tr class="memdesc:afb233ae72fde01462037a921a3544782"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read Led configrartion.  <br /></td></tr>
 <tr class="separator:afb233ae72fde01462037a921a3544782"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78734b9e1b167873a29fe6d3adea4f48" id="r_a78734b9e1b167873a29fe6d3adea4f48"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a78734b9e1b167873a29fe6d3adea4f48">setLedConfiguration</a> (const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_led_configuration.html">max30100::LedConfiguration</a> lc)</td></tr>
-<tr class="memdesc:a78734b9e1b167873a29fe6d3adea4f48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set Led configrartion.  <br /></td></tr>
-<tr class="separator:a78734b9e1b167873a29fe6d3adea4f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adccdd636bcfcd15ae2347de24efee202" id="r_adccdd636bcfcd15ae2347de24efee202"><td class="memItemLeft" align="right" valign="top"><a id="adccdd636bcfcd15ae2347de24efee202" name="adccdd636bcfcd15ae2347de24efee202"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>setLedCurrent</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> <a class="el" href="#af27fd009f478b263da19a2194a9121a9">ir</a>, const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> <a class="el" href="#aece1be0ba4051adbedb0551b4787bc8d">red</a>)</td></tr>
-<tr class="memdesc:adccdd636bcfcd15ae2347de24efee202"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set IR/RED current. <br /></td></tr>
-<tr class="separator:adccdd636bcfcd15ae2347de24efee202"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abed9d07ca7c1951c7bbe2ed756305f9d" id="r_abed9d07ca7c1951c7bbe2ed756305f9d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abed9d07ca7c1951c7bbe2ed756305f9d">writeLedConfiguration</a> (const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_led_configuration.html">max30100::LedConfiguration</a> lc)</td></tr>
+<tr class="memdesc:abed9d07ca7c1951c7bbe2ed756305f9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write Led configrartion.  <br /></td></tr>
+<tr class="separator:abed9d07ca7c1951c7bbe2ed756305f9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae707987d8076aa4a42e42b5fd7b2580f" id="r_ae707987d8076aa4a42e42b5fd7b2580f"><td class="memItemLeft" align="right" valign="top"><a id="ae707987d8076aa4a42e42b5fd7b2580f" name="ae707987d8076aa4a42e42b5fd7b2580f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>writeLedCurrent</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> <a class="el" href="#af27fd009f478b263da19a2194a9121a9">ir</a>, const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> <a class="el" href="#aece1be0ba4051adbedb0551b4787bc8d">red</a>)</td></tr>
+<tr class="memdesc:ae707987d8076aa4a42e42b5fd7b2580f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write IR/RED current. <br /></td></tr>
+<tr class="separator:ae707987d8076aa4a42e42b5fd7b2580f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Measurement temperature</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><dl class="section note"><dt>Note</dt><dd>The temperature sensor data can be used to compensate the SpO2 error with ambient temperature changes </dd></dl>
 </div></td></tr>
@@ -232,6 +242,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>setLedCurrent</b> (co
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
+<tr class="memitem:ad4064e39c601724abc54e6f3d6ad2d6a" id="r_ad4064e39c601724abc54e6f3d6ad2d6a"><td class="memItemLeft" align="right" valign="top"><a id="ad4064e39c601724abc54e6f3d6ad2d6a" name="ad4064e39c601724abc54e6f3d6ad2d6a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>start_periodic_measurement</b> ()</td></tr>
+<tr class="separator:ad4064e39c601724abc54e6f3d6ad2d6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a986f7264ea857ecddb478ebbf7ca8c95" id="r_a986f7264ea857ecddb478ebbf7ca8c95"><td class="memItemLeft" align="right" valign="top"><a id="a986f7264ea857ecddb478ebbf7ca8c95" name="a986f7264ea857ecddb478ebbf7ca8c95"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>start_periodic_measurement</b> (const <a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a> mode, const <a class="el" href="unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992c">max30100::Sample</a> sample_rate, const <a class="el" href="unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23e">max30100::LedPulseWidth</a> pulse_width, const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> ir_current, const bool high_resolution, const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a> red_current)</td></tr>
+<tr class="separator:a986f7264ea857ecddb478ebbf7ca8c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b676e7f0122c3184c9444a55594dec4" id="r_a8b676e7f0122c3184c9444a55594dec4"><td class="memItemLeft" align="right" valign="top"><a id="a8b676e7f0122c3184c9444a55594dec4" name="a8b676e7f0122c3184c9444a55594dec4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>stop_periodic_measurement</b> ()</td></tr>
+<tr class="separator:a8b676e7f0122c3184c9444a55594dec4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa733de98ddbab20dc54933a0ccaa74c8" id="r_aa733de98ddbab20dc54933a0ccaa74c8"><td class="memItemLeft" align="right" valign="top"><a id="aa733de98ddbab20dc54933a0ccaa74c8" name="aa733de98ddbab20dc54933a0ccaa74c8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_FIFO</b> ()</td></tr>
 <tr class="separator:aa733de98ddbab20dc54933a0ccaa74c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -244,53 +263,39 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_measurement_temp
 <tr class="memitem:aa5e932e11ce80ff9725aa7a5f1745375" id="r_aa5e932e11ce80ff9725aa7a5f1745375"><td class="memItemLeft" align="right" valign="top"><a id="aa5e932e11ce80ff9725aa7a5f1745375" name="aa5e932e11ce80ff9725aa7a5f1745375"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_mode_configration</b> (uint8_t &amp;c)</td></tr>
 <tr class="separator:aa5e932e11ce80ff9725aa7a5f1745375"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c60a5eac70a30a8e9befb9e42323fc3" id="r_a8c60a5eac70a30a8e9befb9e42323fc3"><td class="memItemLeft" align="right" valign="top"><a id="a8c60a5eac70a30a8e9befb9e42323fc3" name="a8c60a5eac70a30a8e9befb9e42323fc3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>set_mode_configration</b> (const uint8_t c)</td></tr>
-<tr class="separator:a8c60a5eac70a30a8e9befb9e42323fc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5edd90b53bcc6849f05b45011a33c3e5" id="r_a5edd90b53bcc6849f05b45011a33c3e5"><td class="memItemLeft" align="right" valign="top"><a id="a5edd90b53bcc6849f05b45011a33c3e5" name="a5edd90b53bcc6849f05b45011a33c3e5"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>write_mode_configration</b> (const uint8_t c)</td></tr>
+<tr class="separator:a5edd90b53bcc6849f05b45011a33c3e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abbc35d58f305ddfaad6853d41d77189b" id="r_abbc35d58f305ddfaad6853d41d77189b"><td class="memItemLeft" align="right" valign="top"><a id="abbc35d58f305ddfaad6853d41d77189b" name="abbc35d58f305ddfaad6853d41d77189b"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_power_save</b> (const bool enabled)</td></tr>
 <tr class="separator:abbc35d58f305ddfaad6853d41d77189b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7beb01a5b90cb9bff7f76ffa9d128a51" id="r_a7beb01a5b90cb9bff7f76ffa9d128a51"><td class="memItemLeft" align="right" valign="top"><a id="a7beb01a5b90cb9bff7f76ffa9d128a51" name="a7beb01a5b90cb9bff7f76ffa9d128a51"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_spo2_configration</b> (uint8_t &amp;c)</td></tr>
 <tr class="separator:a7beb01a5b90cb9bff7f76ffa9d128a51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58bdccbb54583001d052ecffca8014ca" id="r_a58bdccbb54583001d052ecffca8014ca"><td class="memItemLeft" align="right" valign="top"><a id="a58bdccbb54583001d052ecffca8014ca" name="a58bdccbb54583001d052ecffca8014ca"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>set_spo2_configration</b> (const uint8_t c)</td></tr>
-<tr class="separator:a58bdccbb54583001d052ecffca8014ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a949407dd575870700739168a488b98b2" id="r_a949407dd575870700739168a488b98b2"><td class="memItemLeft" align="right" valign="top"><a id="a949407dd575870700739168a488b98b2" name="a949407dd575870700739168a488b98b2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>write_spo2_configration</b> (const uint8_t c)</td></tr>
+<tr class="separator:a949407dd575870700739168a488b98b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa685e1c8856f3abfe328c25986bc3f4c" id="r_aa685e1c8856f3abfe328c25986bc3f4c"><td class="memItemLeft" align="right" valign="top"><a id="aa685e1c8856f3abfe328c25986bc3f4c" name="aa685e1c8856f3abfe328c25986bc3f4c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_high_resolution</b> (const bool enabled)</td></tr>
 <tr class="separator:aa685e1c8856f3abfe328c25986bc3f4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcecb08c91e0eb545aa99efc942c531f" id="r_afcecb08c91e0eb545aa99efc942c531f"><td class="memItemLeft" align="right" valign="top"><a id="afcecb08c91e0eb545aa99efc942c531f" name="afcecb08c91e0eb545aa99efc942c531f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_led_configration</b> (uint8_t &amp;c)</td></tr>
 <tr class="separator:afcecb08c91e0eb545aa99efc942c531f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6546ce932bca3163b6e701381aa0b20e" id="r_a6546ce932bca3163b6e701381aa0b20e"><td class="memItemLeft" align="right" valign="top"><a id="a6546ce932bca3163b6e701381aa0b20e" name="a6546ce932bca3163b6e701381aa0b20e"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>set_led_configration</b> (const uint8_t c)</td></tr>
-<tr class="separator:a6546ce932bca3163b6e701381aa0b20e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba5ed82b0fbc2f8458c072fe8879a70b" id="r_aba5ed82b0fbc2f8458c072fe8879a70b"><td class="memItemLeft" align="right" valign="top"><a id="aba5ed82b0fbc2f8458c072fe8879a70b" name="aba5ed82b0fbc2f8458c072fe8879a70b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>write_led_configration</b> (const uint8_t c)</td></tr>
+<tr class="separator:aba5ed82b0fbc2f8458c072fe8879a70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53bbe6876d322baaf8c881ca053e558b" id="r_a53bbe6876d322baaf8c881ca053e558b"><td class="memItemLeft" align="right" valign="top"><a id="a53bbe6876d322baaf8c881ca053e558b" name="a53bbe6876d322baaf8c881ca053e558b"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_register</b> (const uint8_t reg, uint8_t *buf, const size_t len)</td></tr>
 <tr class="separator:a53bbe6876d322baaf8c881ca053e558b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1723de0c53cc3da6587b75555d3bfc02" id="r_a1723de0c53cc3da6587b75555d3bfc02"><td class="memItemLeft" align="right" valign="top"><a id="a1723de0c53cc3da6587b75555d3bfc02" name="a1723de0c53cc3da6587b75555d3bfc02"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>read_register8</b> (const uint8_t reg, uint8_t &amp;v)</td></tr>
 <tr class="separator:a1723de0c53cc3da6587b75555d3bfc02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Periodic measurement</div></td></tr>
-<tr><td colspan="2"><div class="groupText"><dl class="section note"><dt>Note</dt><dd>Call via startPeriodicMeasurement/stopPeriodicMeasurement </dd>
-<dd>
-MAX30100 is always measured periodic </dd></dl>
-</div></td></tr>
-<tr class="memitem:ad4064e39c601724abc54e6f3d6ad2d6a" id="r_ad4064e39c601724abc54e6f3d6ad2d6a"><td class="memItemLeft" align="right" valign="top"><a id="ad4064e39c601724abc54e6f3d6ad2d6a" name="ad4064e39c601724abc54e6f3d6ad2d6a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>start_periodic_measurement</b> ()</td></tr>
-<tr class="separator:ad4064e39c601724abc54e6f3d6ad2d6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b676e7f0122c3184c9444a55594dec4" id="r_a8b676e7f0122c3184c9444a55594dec4"><td class="memItemLeft" align="right" valign="top"><a id="a8b676e7f0122c3184c9444a55594dec4" name="a8b676e7f0122c3184c9444a55594dec4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>stop_periodic_measurement</b> ()</td></tr>
-<tr class="separator:a8b676e7f0122c3184c9444a55594dec4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a4c845fc32e3ccd89bb5e92c72a03e842" id="r_a4c845fc32e3ccd89bb5e92c72a03e842"><td class="memItemLeft" align="right" valign="top"><a id="a4c845fc32e3ccd89bb5e92c72a03e842" name="a4c845fc32e3ccd89bb5e92c72a03e842"></a>
-<a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_mode</b> {}</td></tr>
+<a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_mode</b> {<a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4a6adf97f83acf6453d4a6a4b1070f3754">max30100::Mode::None</a>}</td></tr>
 <tr class="separator:a4c845fc32e3ccd89bb5e92c72a03e842"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a430dbc3b7c40a543fc7b135561d5ecdf" id="r_a430dbc3b7c40a543fc7b135561d5ecdf"><td class="memItemLeft" align="right" valign="top"><a id="a430dbc3b7c40a543fc7b135561d5ecdf" name="a430dbc3b7c40a543fc7b135561d5ecdf"></a>
-<a class="el" href="unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0">max30100::Sampling</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_samplingRate</b> {}</td></tr>
-<tr class="separator:a430dbc3b7c40a543fc7b135561d5ecdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8973f763a6e737f3a6c1efcae8279a2" id="r_ac8973f763a6e737f3a6c1efcae8279a2"><td class="memItemLeft" align="right" valign="top"><a id="ac8973f763a6e737f3a6c1efcae8279a2" name="ac8973f763a6e737f3a6c1efcae8279a2"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>_retrived</b> {}</td></tr>
 <tr class="separator:ac8973f763a6e737f3a6c1efcae8279a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -456,7 +461,7 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
       </table>
 </div><div class="memdoc">
 
-<p>Software reset. </p>
+<p>Reset. </p>
 <dl class="section return"><dt>Returns</dt><dd>True if successful </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Blocked until the reset process is completed </dd></dl>
 
@@ -511,14 +516,134 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
 
 </div>
 </div>
-<a id="a78734b9e1b167873a29fe6d3adea4f48" name="a78734b9e1b167873a29fe6d3adea4f48"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a78734b9e1b167873a29fe6d3adea4f48">&#9670;&#160;</a></span>setLedConfiguration()</h2>
+<a id="a6283588544dc6948738c6ce7b7a50979" name="a6283588544dc6948738c6ce7b7a50979"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6283588544dc6948738c6ce7b7a50979">&#9670;&#160;</a></span>startPeriodicMeasurement() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool m5::unit::UnitMAX30100::startPeriodicMeasurement </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Start periodic measurement in the current settings. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if successful </dd></dl>
+
+</div>
+</div>
+<a id="a9b1412ed280b4bd1a205946dd3aa5600" name="a9b1412ed280b4bd1a205946dd3aa5600"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b1412ed280b4bd1a205946dd3aa5600">&#9670;&#160;</a></span>startPeriodicMeasurement() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool m5::unit::UnitMAX30100::startPeriodicMeasurement </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4">max30100::Mode</a></td>          <td class="paramname"><span class="paramname"><em>mode</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="unit___m_a_x30100_8hpp.html#a158eb4cca29f9119e1d91fe9345b992c">max30100::Sample</a></td>          <td class="paramname"><span class="paramname"><em>sample_rate</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23e">max30100::LedPulseWidth</a></td>          <td class="paramname"><span class="paramname"><em>pulse_width</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a></td>          <td class="paramname"><span class="paramname"><em>ir_current</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bool</td>          <td class="paramname"><span class="paramname"><em>high_resolution</em></span><span class="paramdefsep"> = </span><span class="paramdefval">false</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21a">max30100::CurrentControl</a></td>          <td class="paramname"><span class="paramname"><em>red_current</em></span><span class="paramdefsep"> = </span><span class="paramdefval"><a class="el" href="unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa8594cd1acf4f7f4d531203a97120b72b">max30100::CurrentControl::mA0_0</a></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Start periodic measurement. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mode</td><td>Operation mode </td></tr>
+    <tr><td class="paramname">sample_rate</td><td>Sample rate </td></tr>
+    <tr><td class="paramname">pulse_width</td><td>Pulse width </td></tr>
+    <tr><td class="paramname">ir_current</td><td>IR Led control </td></tr>
+    <tr><td class="paramname">high_resolution</td><td>(only SpO2) </td></tr>
+    <tr><td class="paramname">red_current</td><td>RED Led control (only SpO2) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if successful </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Note that some combinations of sample_rate and pulse_width are invalid. See also datasheet </dd></dl>
+
+</div>
+</div>
+<a id="ab4f6d3f5c815871d66426f1572ec95e1" name="ab4f6d3f5c815871d66426f1572ec95e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab4f6d3f5c815871d66426f1572ec95e1">&#9670;&#160;</a></span>stopPeriodicMeasurement()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool m5::unit::UnitMAX30100::stopPeriodicMeasurement </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Stop periodic measurement. </p>
+<dl class="section return"><dt>Returns</dt><dd>True if successful </dd></dl>
+
+</div>
+</div>
+<a id="abed9d07ca7c1951c7bbe2ed756305f9d" name="abed9d07ca7c1951c7bbe2ed756305f9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abed9d07ca7c1951c7bbe2ed756305f9d">&#9670;&#160;</a></span>writeLedConfiguration()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool m5::unit::UnitMAX30100::setLedConfiguration </td>
+          <td class="memname">bool m5::unit::UnitMAX30100::writeLedConfiguration </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_led_configuration.html">max30100::LedConfiguration</a></td>          <td class="paramname"><span class="paramname"><em>lc</em></span></td><td>)</td>
           <td></td>
@@ -526,7 +651,7 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
       </table>
 </div><div class="memdoc">
 
-<p>Set Led configrartion. </p>
+<p>Write Led configrartion. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">lc</td><td>LedConfigration </td></tr>
@@ -537,14 +662,14 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
 
 </div>
 </div>
-<a id="ab25199b31184d407e711484fb3b1d753" name="ab25199b31184d407e711484fb3b1d753"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab25199b31184d407e711484fb3b1d753">&#9670;&#160;</a></span>setModeConfiguration()</h2>
+<a id="a816a267c6e9d0bcf354997482e6da000" name="a816a267c6e9d0bcf354997482e6da000"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a816a267c6e9d0bcf354997482e6da000">&#9670;&#160;</a></span>writeModeConfiguration()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool m5::unit::UnitMAX30100::setModeConfiguration </td>
+          <td class="memname">bool m5::unit::UnitMAX30100::writeModeConfiguration </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_mode_configuration.html">max30100::ModeConfiguration</a></td>          <td class="paramname"><span class="paramname"><em>mc</em></span></td><td>)</td>
           <td></td>
@@ -552,8 +677,8 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
       </table>
 </div><div class="memdoc">
 
-<p>Set Mode configuration. </p>
-<p>read Mode configuration </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Write Mode configuration. </p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">mc</td><td>ModeConfigration </td></tr>
   </table>
@@ -563,14 +688,14 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
 
 </div>
 </div>
-<a id="a3423d0e50f099dda87d2959c4acaa9cd" name="a3423d0e50f099dda87d2959c4acaa9cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3423d0e50f099dda87d2959c4acaa9cd">&#9670;&#160;</a></span>setSpO2Configuration()</h2>
+<a id="a5d7ab4bac94dcf1e14a4e9042b15e861" name="a5d7ab4bac94dcf1e14a4e9042b15e861"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d7ab4bac94dcf1e14a4e9042b15e861">&#9670;&#160;</a></span>writeSpO2Configuration()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool m5::unit::UnitMAX30100::setSpO2Configuration </td>
+          <td class="memname">bool m5::unit::UnitMAX30100::writeSpO2Configuration </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structm5_1_1unit_1_1max30100_1_1_sp_o2_configuration.html">max30100::SpO2Configuration</a></td>          <td class="paramname"><span class="paramname"><em>sc</em></span></td><td>)</td>
           <td></td>
@@ -578,7 +703,7 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
       </table>
 </div><div class="memdoc">
 
-<p>Set SpO2 configrartion. </p>
+<p>Write SpO2 configrartion. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">sc</td><td>SpO2Configration </td></tr>

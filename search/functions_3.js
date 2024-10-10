@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fahrenheit_0',['fahrenheit',['../structm5_1_1unit_1_1max30100_1_1_temperature_data.html#a566afbb35379635d40d7082863070adc',1,'m5::unit::max30100::TemperatureData']]]
+  ['heartrate_0',['HeartRate',['../classm5_1_1max30100_1_1_heart_rate.html#a94310128ffa935d3f4741b47c590b408',1,'m5::max30100::HeartRate']]]
 ];

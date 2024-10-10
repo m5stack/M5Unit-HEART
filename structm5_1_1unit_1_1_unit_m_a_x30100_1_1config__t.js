@@ -1,9 +1,10 @@
 var structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t =
 [
-    [ "highResolution", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ae2838bb46857b3e38bde60cdbfb7209f", null ],
-    [ "irCurrent", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a76f13c3aeadfe97ac34191b98293bdce", null ],
+    [ "high_resolution", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ae9c107d6a5fc993f527ca1801cf5140b", null ],
+    [ "ir_current", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a85185c8903e1d8a11f1cd5db4740103f", null ],
     [ "mode", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ade41c1e4e080a1667870adaba20469a8", null ],
-    [ "pulseWidth", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a1a5f7975a3d2b94e5cac7e3ff01b9885", null ],
-    [ "redCurrent", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#aadb6aa9346ec2ec760409782b9ac5398", null ],
-    [ "samplingRate", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#aa6a1543ca64a6d632e6ae7a28bf1b497", null ]
+    [ "pulse_width", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a72307e7a034c6aeb4274e36f9d63ef62", null ],
+    [ "red_current", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a7fdb6fe67cb5ee738fbd1b2e6ad6613f", null ],
+    [ "sample_rate", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#afaa3c98b7b895de344bd32440b02d676", null ],
+    [ "start_periodic", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ac6491a779f24c177cf0e376f11443d30", null ]
 ];
