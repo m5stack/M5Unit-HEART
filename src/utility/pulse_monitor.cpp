@@ -23,9 +23,12 @@ void PulseMonitor::setSamplingRate(const float samplingRate)
     _max_samples   = (size_t)samplingRate * _range;
 
     _filterIR.setSamplingRate(5.0f, samplingRate);
-    _filterRED.setSamplingRate(5.0f, samplingRate);
+    clear();
+}
+
+void PulseMonitor::clear()
+{
     _dataIR.clear();
-    _dataRED.clear();
     _beat = false;
     _bpm = _SpO2 = 0.0f;
 
@@ -44,10 +47,6 @@ void PulseMonitor::push_back(const float ir)
 void PulseMonitor::push_back(const float ir, const float red)
 {
     push_back(ir);
-    _dataRED.push_back(_filterRED.process(red));
-    if (_dataRED.size() > _max_samples) {
-        _dataRED.pop_front();
-    }
 
     // For SpO2 (each second)
     _avered = _avered * 0.95f + red * (1.0f - 0.95f);
@@ -57,7 +56,7 @@ void PulseMonitor::push_back(const float ir, const float red)
     if (++_count == (uint32_t)_sampling_rate) {
         float R    = (std::sqrt(_sumredrms) / _avered) / (std::sqrt(_sumirrms) / _aveir);
         _SpO2      = -23.3f * (R - 0.4f) + 100;
-        _SpO2 = std::fmax(std::fmin(100.0f, _SpO2), 80.0f); // clamp 80-100
+        _SpO2      = std::fmax(std::fmin(100.0f, _SpO2), 80.0f);  // clamp 80-100
         _sumredrms = _sumirrms = 0;
         _count                 = 0;
     }

@@ -95,43 +95,73 @@ private:
  */
 class PulseMonitor {
 public:
+    /*!
+      @brief Costructor
+      @param samplingRate sampling rate
+      @param sec Seconds of data to be stored
+     */
     PulseMonitor(const float samplingRate, const uint32_t sec = 5)
         : _range{sec},
           _sampling_rate{samplingRate},
           _max_samples{(size_t)samplingRate * sec},
-          _filterIR(5.0f, samplingRate),
-          _filterRED(5.0f, samplingRate)
+          _filterIR(5.0f, samplingRate)
     {
-        assert(samplingRate >= 1.0f && "SamplingRate must be greater equal than 1.0f");
+        assert(sec >= 1 && "sec must be greater or eaual than 1");
+        assert(samplingRate >= 1.0f && "SamplingRate must be greater or equal than 1.0f");
     }
 
-    void setSamplingRate(const float samplingRate);
-
-    void push_back(const float ir);
-    void push_back(const float ir, const float red);
-
-    void update();
-
+    //! @brief Detect beat?
     bool isBeat() const
     {
         return _beat;
     }
+    //! @brief Gets the BPM
     float bpm() const
     {
         return _bpm;
     }
+    /*!
+      @brief Gets the SpO2
+      @warning IR and RED must be pushed back
+    */
     float SpO2() const
     {
         return _SpO2;
     }
+    
+    /*!
+      @brief Set the sampling rate
+      @param samplingRate sampling rate
+      @note clear stored data
+     */
+    void setSamplingRate(const float samplingRate);
+
+    /*!
+      @brief Push back IR
+      @param ir IR data
+     */
+    void push_back(const float ir);
+    /*!
+      @brief Push back IR and RED
+      @param ir IR data
+      @param red RED data
+      @note Calclate SpO2
+     */
+    void push_back(const float ir, const float red);
+
+    /*!
+      @brief Update status
+      @note Calclate BPM
+     */
+    void update();
+
+    //! @brief Clear inner data
+    void clear();
+
+    // filterd ir value
     float latestIR() const
     {
         return !_dataIR.empty() ? _dataIR.back() : std::numeric_limits<float>::quiet_NaN();
-    }
-
-    float latestRED() const
-    {
-        return !_dataRED.empty() ? _dataRED.back() : std::numeric_limits<float>::quiet_NaN();
     }
 
 protected:
@@ -141,11 +171,9 @@ private:
     uint32_t _range{};  // Sec.
     float _sampling_rate{};
     size_t _max_samples{};
-    Filter _filterIR{0.5f, 100.f};
-    Filter _filterRED{0.5f, 100.f};
 
+    Filter _filterIR{0.5f, 100.f};
     std::deque<float> _dataIR;
-    std::deque<float> _dataRED;
 
     bool _beat{};
     float _bpm{};
