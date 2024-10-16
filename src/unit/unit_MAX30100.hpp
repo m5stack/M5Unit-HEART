@@ -81,11 +81,11 @@ struct ModeConfiguration {
 };
 
 /*!
-  @enum Sample
-  @brief Sample rate for pulse
+  @enum Sampling
+  @brief Sampling rate for pulse
   @details Unit is the number of sample per second
  */
-enum class Sample : uint8_t {
+enum class Sampling : uint8_t {
     Rate50,    //!< 50 sps
     Rate100,   //!< 100 sps
     Rate167,   //!< 167 sps
@@ -95,6 +95,13 @@ enum class Sample : uint8_t {
     Rate800,   //!< 800 sps
     Rate1000,  //!< 1000 sps
 };
+
+/*!
+  @brief Enum to sampling rate value
+  @param rate Enum value
+  @return sampling rate
+ */
+uint32_t getSamplingRate(const Sampling rate);
 
 /*!
   @enum LedPulseWidth
@@ -114,7 +121,7 @@ enum class LedPulseWidth {
   on the mode
 
   - Mode:SPO2
-  |Sample\PulseWidth|200 |400 |800 |1600|
+  |Sampling\PulseWidth|200 |400 |800 |1600|
   |---|---|---|---|---|
   |  50|o|o|o|o|
   | 100|o|o|o|o|
@@ -125,7 +132,7 @@ enum class LedPulseWidth {
   | 800|o|x|x|x|
   |1000|o|x|x|x|
   - Mode:HROnly
-  |Sample\PulseWidth|200 |400 |800 |1600|
+  |Sampling\PulseWidth|200 |400 |800 |1600|
   |---|---|---|---|---|
   |  50|o|o|o|o|
   | 100|o|o|o|o|
@@ -143,9 +150,9 @@ struct SpO2Configuration {
     {  // for SpO2
         return value & (1U << 6);
     }
-    Sample sampleRate() const
+    Sampling samplingRate() const
     {
-        return static_cast<Sample>((value >> 2) & 0x07);
+        return static_cast<Sampling>((value >> 2) & 0x07);
     }
     LedPulseWidth ledPulseWidth() const
     {
@@ -159,7 +166,7 @@ struct SpO2Configuration {
     {  // for SpO2
         value = (value & ~(1U << 6)) | ((b ? 1 : 0) << 6);
     }
-    void sampleRate(const Sample rate)
+    void samplingRate(const Sampling rate)
     {
         value = (value & ~(0x07 << 2)) | ((m5::stl::to_underlying(rate) & 0x07) << 2);
     }
@@ -268,15 +275,15 @@ public:
     /*!
       @struct config_t
       @brief Settings for begin
-      @warning Note that some combinations of sample_rate and pulse_width are invalid. See also datasheet
+      @warning Note that some combinations of sampling_rate and pulse_width are invalid. See also datasheet
      */
     struct config_t {
         //! Start periodic measurement on begin?
         bool start_periodic{true};
         //! Operating mode if start on begin
         max30100::Mode mode{max30100::Mode::SPO2};
-        //! Sample rate if start on begin
-        max30100::Sample sample_rate{m5::unit::max30100::Sample::Rate100};
+        //! Sampling rate if start on begin
+        max30100::Sampling sampling_rate{m5::unit::max30100::Sampling::Rate100};
         //! Led pulse width if start on begin
         max30100::LedPulseWidth pulse_width{m5::unit::max30100::LedPulseWidth::PW1600};
         //!  Led current for IR if start on begin
@@ -361,7 +368,7 @@ public:
     /*!
       @brief Start periodic measurement
       @param mode Operation mode
-      @param sample_rate  Sample rate
+      @param sample_rate  Sampling rate
       @param pulse_width Pulse width
       @param ir_current IR Led control
       @param high_resolution (only SpO2)
@@ -369,7 +376,7 @@ public:
       @return True if successful
       @warning Note that some combinations of sample_rate and pulse_width are invalid. See also datasheet
     */
-    inline bool startPeriodicMeasurement(const max30100::Mode mode, const max30100::Sample sample_rate,
+    inline bool startPeriodicMeasurement(const max30100::Mode mode, const max30100::Sampling sample_rate,
                                          const max30100::LedPulseWidth pulse_width,
                                          const max30100::CurrentControl ir_current, const bool high_resolution = false,
                                          const max30100::CurrentControl red_current = max30100::CurrentControl::mA0_0)
@@ -433,7 +440,7 @@ public:
     */
     bool writeSpO2Configuration(const max30100::SpO2Configuration sc);
     //! @brief Write sample rate
-    bool writeSampleRate(const max30100::Sample rate);
+    bool writeSamplingRate(const max30100::Sampling rate);
     //! @brief Write LED pulse width
     bool writeLedPulseWidth(const max30100::LedPulseWidth width);
     //! @brief Writee SpO2 high resolution mode to enable
@@ -496,7 +503,7 @@ public:
 
 protected:
     bool start_periodic_measurement();
-    bool start_periodic_measurement(const max30100::Mode mode, const max30100::Sample sample_rate,
+    bool start_periodic_measurement(const max30100::Mode mode, const max30100::Sampling sample_rate,
                                     const max30100::LedPulseWidth pulse_width,
                                     const max30100::CurrentControl ir_current, const bool high_resolution,
                                     const max30100::CurrentControl red_current);
