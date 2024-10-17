@@ -92,7 +92,7 @@ void loop()
         // MAX30100 is equipped with a FIFO, so multiple data may be stored
         while (unit.available()) {
             monitor.push_back(unit.ir(), unit.red());  // Push back the oldest data
-            //M5_LOGI("\n>MIR:%f\n>MRED:%f", monitor.latestIR(), monitor.latestRED());
+            // M5_LOGI("\n>MIR:%f\n>MRED:%f", monitor.latestIR(), monitor.latestRED());
             monitor.update();
             beat = monitor.isBeat();
             unit.discard();  // Discard the oldest data
