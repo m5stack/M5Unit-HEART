@@ -50,7 +50,7 @@ INSTANTIATE_TEST_SUITE_P(ParamValues, TestMAX30100, ::testing::Values(false));
 
 namespace {
 
-bool is_allowed_settings(const Mode mode, const Sample rate, const LedPulseWidth pw)
+bool is_allowed_settings(const Mode mode, const Sampling rate, const LedPulseWidth pw)
 {
     constexpr uint8_t spo2_table[] = {
         // LSB:200 MSB:1600
@@ -69,9 +69,9 @@ constexpr Mode mode_table[] = {
     Mode::HROnly,
 };
 
-constexpr Sample sr_table[] = {
-    Sample::Rate50,  Sample::Rate100, Sample::Rate167, Sample::Rate200,
-    Sample::Rate400, Sample::Rate600, Sample::Rate800, Sample::Rate1000,
+constexpr Sampling sr_table[] = {
+    Sampling::Rate50,  Sampling::Rate100, Sampling::Rate167, Sampling::Rate200,
+    Sampling::Rate400, Sampling::Rate600, Sampling::Rate800, Sampling::Rate1000,
 };
 
 constexpr LedPulseWidth pw_table[] = {
@@ -144,11 +144,11 @@ TEST_P(TestMAX30100, Configration)
 
             SpO2Configuration sc{};
             EXPECT_TRUE(unit->readSpO2Configuration(sc));
-            sc.sampleRate(rate);
+            sc.samplingRate(rate);
             sc.ledPulseWidth(pw);
             if (is_allowed_settings(Mode::SPO2, rate, pw)) {
                 EXPECT_TRUE(unit->writeSpO2Configuration(sc));
-                EXPECT_TRUE(unit->writeSampleRate(rate));
+                EXPECT_TRUE(unit->writeSamplingRate(rate));
                 EXPECT_TRUE(unit->writeLedPulseWidth(pw));
             } else {
                 EXPECT_FALSE(unit->writeSpO2Configuration(sc));
@@ -165,11 +165,11 @@ TEST_P(TestMAX30100, Configration)
 
             SpO2Configuration sc{};
             EXPECT_TRUE(unit->readSpO2Configuration(sc));
-            sc.sampleRate(rate);
+            sc.samplingRate(rate);
             sc.ledPulseWidth(pw);
             if (is_allowed_settings(Mode::HROnly, rate, pw)) {
                 EXPECT_TRUE(unit->writeSpO2Configuration(sc));
-                EXPECT_TRUE(unit->writeSampleRate(rate));
+                EXPECT_TRUE(unit->writeSamplingRate(rate));
                 EXPECT_TRUE(unit->writeLedPulseWidth(pw));
             } else {
                 EXPECT_FALSE(unit->writeSpO2Configuration(sc));
@@ -248,7 +248,7 @@ TEST_P(TestMAX30100, Temperature)
     EXPECT_TRUE(unit->writeMode(Mode::SPO2));
     EXPECT_TRUE(unit->writePowerSaveDisable());
     SpO2Configuration sc{};
-    sc.sampleRate(Sample::Rate100);
+    sc.samplingRate(Sampling::Rate100);
     sc.ledPulseWidth(LedPulseWidth::PW1600);
     sc.highResolution(true);
     EXPECT_TRUE(unit->writeSpO2Configuration(sc));
@@ -276,7 +276,7 @@ TEST_P(TestMAX30100, Reset)
     EXPECT_TRUE(unit->writePowerSaveEnable());
 
     SpO2Configuration sc{};
-    sc.sampleRate(Sample::Rate100);
+    sc.samplingRate(Sampling::Rate100);
     sc.ledPulseWidth(LedPulseWidth::PW1600);
     sc.highResolution(true);
     EXPECT_TRUE(unit->writeSpO2Configuration(sc));
@@ -317,7 +317,7 @@ TEST_P(TestMAX30100, Periodic)
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
 
-    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SPO2, Sample::Rate100, LedPulseWidth::PW1600,
+    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SPO2, Sampling::Rate100, LedPulseWidth::PW1600,
                                                CurrentControl::mA7_6, true, CurrentControl::mA7_6));
     EXPECT_TRUE(unit->inPeriodic());
 
@@ -343,7 +343,7 @@ TEST_P(TestMAX30100, Periodic)
         unit->discard();
     }
 
-    m5::utility::delay(100);  // Sample about 10 times (not overflow)
+    m5::utility::delay(100);  // Sampling about 10 times (not overflow)
 
     unit->update();
     EXPECT_TRUE(unit->updated());
@@ -365,7 +365,7 @@ TEST_P(TestMAX30100, Periodic)
     EXPECT_FALSE(unit->full());
     EXPECT_TRUE(unit->empty());
 
-    m5::utility::delay(200);  // Sample about 20 times (overflow!)
+    m5::utility::delay(200);  // Sampling about 20 times (overflow!)
 
     unit->update();
     EXPECT_TRUE(unit->updated());
