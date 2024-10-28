@@ -24,6 +24,8 @@ constexpr elapsed_time_t interval_table[] = {
     1000 / 50, 1000 / 100, 1000 / 167, 1000 / 200, 1000 / 400, 1000 / 600, 1000 / 800, 1000 / 1000,
 };
 
+constexpr uint32_t sr_table[] = {50, 100, 167, 200, 400, 600, 800, 1000};
+
 constexpr uint32_t MEASURE_TEMPERATURE_DURATION{29};  // 29ms
 
 constexpr uint8_t allowed_spo2_table[] = {
@@ -34,7 +36,7 @@ constexpr uint8_t allowed_hr_table[] = {
     // LSB:200 MSB:1600
     0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x03, 0x03,
 };
-bool is_allowed_settings(const Mode mode, const Sample rate, const LedPulseWidth pw)
+bool is_allowed_settings(const Mode mode, const Sampling rate, const LedPulseWidth pw)
 {
     return (mode != Mode::None)
                ? (mode == Mode::SPO2 ? allowed_spo2_table : allowed_hr_table)[m5::stl::to_underlying(rate)] &
@@ -48,6 +50,11 @@ namespace m5 {
 namespace unit {
 
 namespace max30100 {
+uint32_t getSamplingRate(Sampling rate)
+{
+    return sr_table[m5::stl::to_underlying(rate)];
+}
+
 uint16_t Data::ir() const
 {
     return m5::types::big_uint16_t(raw[0], raw[1]).get();
@@ -100,7 +107,7 @@ bool UnitMAX30100::begin()
         return false;
     }
 
-    return _cfg.start_periodic ? startPeriodicMeasurement(_cfg.mode, _cfg.sample_rate, _cfg.pulse_width,
+    return _cfg.start_periodic ? startPeriodicMeasurement(_cfg.mode, _cfg.sampling_rate, _cfg.pulse_width,
                                                           _cfg.ir_current, _cfg.high_resolution, _cfg.red_current)
                                : true;
 }
@@ -111,7 +118,11 @@ void UnitMAX30100::update(const bool force)
     if (inPeriodic()) {
         auto at = m5::utility::millis();
         if (force || !_latest || at >= _latest + _interval) {
+            // Reduce interval if overflow
             _updated = read_FIFO();
+            if (_interval && overflow()) {
+                --_interval;
+            }
             if (_updated) {
                 _latest = at;
             }
@@ -141,7 +152,7 @@ bool UnitMAX30100::start_periodic_measurement()
     return false;
 }
 
-bool UnitMAX30100::start_periodic_measurement(const max30100::Mode mode, const max30100::Sample sample_rate,
+bool UnitMAX30100::start_periodic_measurement(const max30100::Mode mode, const max30100::Sampling sampling_rate,
                                               const max30100::LedPulseWidth pulse_width,
                                               const max30100::CurrentControl ir_current, const bool high_resolution,
                                               const max30100::CurrentControl red_current)
@@ -151,7 +162,7 @@ bool UnitMAX30100::start_periodic_measurement(const max30100::Mode mode, const m
     }
 
     SpO2Configuration sc{};
-    sc.sampleRate(sample_rate);
+    sc.samplingRate(sampling_rate);
     sc.ledPulseWidth(pulse_width);
     sc.highResolution(high_resolution);
 
@@ -220,11 +231,11 @@ bool UnitMAX30100::writeSpO2Configuration(const max30100::SpO2Configuration sc)
     return write_spo2_configration(sc.value);
 }
 
-bool UnitMAX30100::writeSampleRate(const max30100::Sample rate)
+bool UnitMAX30100::writeSamplingRate(const max30100::Sampling rate)
 {
     max30100::SpO2Configuration sc{};
     if (read_spo2_configration(sc.value)) {
-        sc.sampleRate(rate);
+        sc.samplingRate(rate);
         return write_spo2_configration(sc.value);
     }
     return false;
@@ -363,13 +374,13 @@ bool UnitMAX30100::write_spo2_configration(const uint8_t c)
     max30100::SpO2Configuration sc;
     sc.value = c;
 
-    if (!is_allowed_settings(_mode, sc.sampleRate(), sc.ledPulseWidth())) {
-        M5_LIB_LOGW("Invalid combination %u:%u:%u", _mode, sc.sampleRate(), sc.ledPulseWidth());
+    if (!is_allowed_settings(_mode, sc.samplingRate(), sc.ledPulseWidth())) {
+        M5_LIB_LOGW("Invalid combination %u:%u:%u", _mode, sc.samplingRate(), sc.ledPulseWidth());
         return false;
     }
 
     if (writeRegister8(SPO2_CONFIGURATION, c) && read_spo2_configration(chk) && (chk == c)) {
-        _interval = interval_table[m5::stl::to_underlying(sc.sampleRate())];
+        _interval = interval_table[m5::stl::to_underlying(sc.samplingRate())];
         return true;
     }
     return false;

@@ -11,11 +11,9 @@
         "url": "https://github.com/m5stack/M5Unit-HEART.git"
     },
     "dependencies": {
-        "M5UnitUnified": "https://github.com/m5stack/M5UnitUnified.git",
-        "M5Utility": "https://github.com/m5stack/M5Utility.git",
-        "M5HAL": "https://github.com/m5stack/M5HAL.git"
+        "M5UnitUnified": "https://github.com/m5stack/M5UnitUnified.git"
     },
-    "version": "0.0.1",
+    "version": "0.0.2",
     "frameworks": [
         "arduino"
     ],
@@ -25,8 +23,7 @@
     "headers": "M5UnitUnifiedHEART.h",
     "license": "MIT",
     "export": {
-        "exclude":
-        [
+        "exclude": [
             "docs/html"
         ]
     }
