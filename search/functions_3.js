@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['heartrate_0',['HeartRate',['../classm5_1_1max30100_1_1_heart_rate.html#a94310128ffa935d3f4741b47c590b408',1,'m5::max30100::HeartRate']]]
+  ['getsamplingrate_0',['getSamplingRate',['../unit___m_a_x30100_8cpp.html#aa7a59564469186349a1473f1159fa97f',1,'m5::unit::max30100']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['push_5fback_0',['push_back',['../classm5_1_1max30100_1_1_heart_rate.html#a2f8fd5fc8b72c951e7f3cf9ab3e7e75a',1,'m5::max30100::HeartRate']]]
+  ['pulsemonitor_0',['PulseMonitor',['../classm5_1_1heart_1_1_pulse_monitor.html#a5678348c3dc39279d637b1e6602fda1f',1,'m5::heart::PulseMonitor']]],
+  ['push_5fback_1',['push_back',['../classm5_1_1heart_1_1_pulse_monitor.html#a8bddab5ad9aa6e63c6d297f4471084b5',1,'m5::heart::PulseMonitor::push_back(const float ir)'],['../classm5_1_1heart_1_1_pulse_monitor.html#a0d43801deeabeb8c87975059997592ce',1,'m5::heart::PulseMonitor::push_back(const float ir, const float red)']]]
 ];

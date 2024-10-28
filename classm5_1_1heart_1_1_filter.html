@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.11.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>M5Unit-HEART: m5::max30100::butterworthFilter_t Struct Reference</title>
+<title>M5Unit-HEART: m5::heart::Filter Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.1 git rev:01d9d0e</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.2 git rev:70607f7</span>
    </div>
   </td>
  </tr>
@@ -70,7 +70,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function(){initNavTree('structm5_1_1max30100_1_1butterworth_filter__t.html',''); initResizable(true); });
+$(function(){initNavTree('classm5_1_1heart_1_1_filter.html',''); initResizable(true); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -97,36 +97,37 @@ $(function(){initNavTree('structm5_1_1max30100_1_1butterworth_filter__t.html',''
 
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structm5_1_1max30100_1_1butterworth_filter__t-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">m5::max30100::butterworthFilter_t Struct Reference</div></div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="classm5_1_1heart_1_1_filter-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">m5::heart::Filter Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Apply a high-pass filter and reverse polarity.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="pulse__monitor_8hpp_source.html">pulse_monitor.hpp</a>&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:abb97310b64c02fe1932d6d665bdf2893" id="r_abb97310b64c02fe1932d6d665bdf2893"><td class="memItemLeft" align="right" valign="top"><a id="abb97310b64c02fe1932d6d665bdf2893" name="abb97310b64c02fe1932d6d665bdf2893"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>v</b> [2]</td></tr>
-<tr class="separator:abb97310b64c02fe1932d6d665bdf2893"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2615573cba09b3f88bf4ba6db501de11" id="r_a2615573cba09b3f88bf4ba6db501de11"><td class="memItemLeft" align="right" valign="top"><a id="a2615573cba09b3f88bf4ba6db501de11" name="a2615573cba09b3f88bf4ba6db501de11"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>result</b></td></tr>
-<tr class="separator:a2615573cba09b3f88bf4ba6db501de11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b42c81ec31ab59a11e22028628d4aa3" id="r_a0b42c81ec31ab59a11e22028628d4aa3"><td class="memItemLeft" align="right" valign="top"><a id="a0b42c81ec31ab59a11e22028628d4aa3" name="a0b42c81ec31ab59a11e22028628d4aa3"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>a0</b></td></tr>
-<tr class="separator:a0b42c81ec31ab59a11e22028628d4aa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac580abeb5ca835950642eba9a55e640" id="r_aac580abeb5ca835950642eba9a55e640"><td class="memItemLeft" align="right" valign="top"><a id="aac580abeb5ca835950642eba9a55e640" name="aac580abeb5ca835950642eba9a55e640"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>a1</b></td></tr>
-<tr class="separator:aac580abeb5ca835950642eba9a55e640"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4ce55091f767f32ce7093bae0bdd26a" id="r_aa4ce55091f767f32ce7093bae0bdd26a"><td class="memItemLeft" align="right" valign="top"><a id="aa4ce55091f767f32ce7093bae0bdd26a" name="aa4ce55091f767f32ce7093bae0bdd26a"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>b1</b></td></tr>
-<tr class="separator:aa4ce55091f767f32ce7093bae0bdd26a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:aa992f9acbe9a26463a7eaeb91c8b2052" id="r_aa992f9acbe9a26463a7eaeb91c8b2052"><td class="memItemLeft" align="right" valign="top"><a id="aa992f9acbe9a26463a7eaeb91c8b2052" name="aa992f9acbe9a26463a7eaeb91c8b2052"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Filter</b> (const float cutoff, const float sampling_rate)</td></tr>
+<tr class="separator:aa992f9acbe9a26463a7eaeb91c8b2052"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7deabe43e3e7d895eaf0ff3d8278aa0" id="r_aa7deabe43e3e7d895eaf0ff3d8278aa0"><td class="memItemLeft" align="right" valign="top"><a id="aa7deabe43e3e7d895eaf0ff3d8278aa0" name="aa7deabe43e3e7d895eaf0ff3d8278aa0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setSamplingRate</b> (const float cutoff, const float sampling_rate)</td></tr>
+<tr class="separator:aa7deabe43e3e7d895eaf0ff3d8278aa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b901f350e1212f42e582f38dcd89a55" id="r_a1b901f350e1212f42e582f38dcd89a55"><td class="memItemLeft" align="right" valign="top"><a id="a1b901f350e1212f42e582f38dcd89a55" name="a1b901f350e1212f42e582f38dcd89a55"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>process</b> (const float value)</td></tr>
+<tr class="separator:a1b901f350e1212f42e582f38dcd89a55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-</div><!-- contents -->
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Apply a high-pass filter and reverse polarity. </p>
+</div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespacem5.html">m5</a></li><li class="navelem"><b>max30100</b></li><li class="navelem"><a class="el" href="structm5_1_1max30100_1_1butterworth_filter__t.html">butterworthFilter_t</a></li>
+    <li class="navelem"><a class="el" href="namespacem5.html">m5</a></li><li class="navelem"><a class="el" href="namespacem5_1_1heart.html">heart</a></li><li class="navelem"><a class="el" href="classm5_1_1heart_1_1_filter.html">Filter</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.11.0 </li>
   </ul>
 </div>

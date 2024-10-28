@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['getsamplerate_0',['getSampleRate',['../classm5_1_1max30100_1_1_heart_rate.html#aadcbfd40f3be469e70bf93a3dfab9aa0',1,'m5::max30100::HeartRate']]]
+  ['fahrenheit_0',['fahrenheit',['../structm5_1_1unit_1_1max30100_1_1_temperature_data.html#a566afbb35379635d40d7082863070adc',1,'m5::unit::max30100::TemperatureData']]]
 ];

@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.1 git rev:01d9d0e</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.2 git rev:70607f7</span>
    </div>
   </td>
  </tr>
@@ -98,10 +98,14 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 <div class="contents">
 <div class="textblock">Here is a list of all documented class members with links to the class documentation for each member:</div>
 
+<h3><a id="index_b" name="index_b"></a>- b -</h3><ul>
+<li>bpm()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#ad7631d051b37deac024943955a0598ee">m5::heart::PulseMonitor</a></li>
+</ul>
+
+
 <h3><a id="index_c" name="index_c"></a>- c -</h3><ul>
-<li>calculate()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a491ddcba145a6c066f174aa045aa4baf">m5::max30100::HeartRate</a></li>
 <li>celsius()&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1max30100_1_1_temperature_data.html#a5d17fa6aff256355def7f32c7d462e58">m5::unit::max30100::TemperatureData</a></li>
-<li>clear()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a3993116e1e9ae439141af29fa9d55afe">m5::max30100::HeartRate</a></li>
+<li>clear()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#a9a8505a9900627ea22e75675d6a24d25">m5::heart::PulseMonitor</a></li>
 <li>config()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#a7c0fec8c9fb297284743f940853dc2db">m5::unit::UnitMAX30100</a></li>
 </ul>
 
@@ -111,13 +115,7 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 </ul>
 
 
-<h3><a id="index_g" name="index_g"></a>- g -</h3><ul>
-<li>getSampleRate()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#aadcbfd40f3be469e70bf93a3dfab9aa0">m5::max30100::HeartRate</a></li>
-</ul>
-
-
 <h3><a id="index_h" name="index_h"></a>- h -</h3><ul>
-<li>HeartRate()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a94310128ffa935d3f4741b47c590b408">m5::max30100::HeartRate</a></li>
 <li>high_resolution&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ae9c107d6a5fc993f527ca1801cf5140b">m5::unit::UnitMAX30100::config_t</a></li>
 </ul>
 
@@ -125,6 +123,7 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 <h3><a id="index_i" name="index_i"></a>- i -</h3><ul>
 <li>ir()&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1max30100_1_1_data.html#ad7bb7fd983defe86a96b678d99848aff">m5::unit::max30100::Data</a>, <a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#af27fd009f478b263da19a2194a9121a9">m5::unit::UnitMAX30100</a></li>
 <li>ir_current&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a85185c8903e1d8a11f1cd5db4740103f">m5::unit::UnitMAX30100::config_t</a></li>
+<li>isBeat()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#a6e3b822b13c9edc57e5d98e251ebc63e">m5::heart::PulseMonitor</a></li>
 </ul>
 
 
@@ -141,7 +140,8 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 
 <h3><a id="index_p" name="index_p"></a>- p -</h3><ul>
 <li>pulse_width&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a72307e7a034c6aeb4274e36f9d63ef62">m5::unit::UnitMAX30100::config_t</a></li>
-<li>push_back()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a2f8fd5fc8b72c951e7f3cf9ab3e7e75a">m5::max30100::HeartRate</a></li>
+<li>PulseMonitor()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#a5678348c3dc39279d637b1e6602fda1f">m5::heart::PulseMonitor</a></li>
+<li>push_back()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#a8bddab5ad9aa6e63c6d297f4471084b5">m5::heart::PulseMonitor</a></li>
 </ul>
 
 
@@ -158,12 +158,10 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 
 
 <h3><a id="index_s" name="index_s"></a>- s -</h3><ul>
-<li>sample_rate&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#afaa3c98b7b895de344bd32440b02d676">m5::unit::UnitMAX30100::config_t</a></li>
-<li>setSampleRate()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a5290a39b98211dceab86eebf87dcc705">m5::max30100::HeartRate</a></li>
-<li>setSpO2Coefficients()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#ac83bf3a6604c95d9857cabdbedd81a05">m5::max30100::HeartRate</a></li>
-<li>setThreshold()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a24a399a253fb79b2eeccb4c1b7a209fd">m5::max30100::HeartRate</a></li>
+<li>sampling_rate&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ae4f419225831de883a6f63c32d7e45cd">m5::unit::UnitMAX30100::config_t</a></li>
+<li>setSamplingRate()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#aeb0d700551df1f36461ea53cc2b52afc">m5::heart::PulseMonitor</a></li>
 <li>shdn()&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1max30100_1_1_mode_configuration.html#aaee6f37d8f9a83a37b6469f30c7a8e06">m5::unit::max30100::ModeConfiguration</a></li>
-<li>SpO2()&#160;:&#160;<a class="el" href="classm5_1_1max30100_1_1_heart_rate.html#a151dbaab22f6f93e777de01892c8a01e">m5::max30100::HeartRate</a></li>
+<li>SpO2()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#aaf7fabca5a04fd8e086d5b69e004eb41">m5::heart::PulseMonitor</a></li>
 <li>start_periodic&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ac6491a779f24c177cf0e376f11443d30">m5::unit::UnitMAX30100::config_t</a></li>
 <li>startPeriodicMeasurement()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#a6283588544dc6948738c6ce7b7a50979">m5::unit::UnitMAX30100</a></li>
 <li>stopPeriodicMeasurement()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#ab4f6d3f5c815871d66426f1572ec95e1">m5::unit::UnitMAX30100</a></li>
@@ -172,6 +170,11 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 
 <h3><a id="index_t" name="index_t"></a>- t -</h3><ul>
 <li>temperature()&#160;:&#160;<a class="el" href="structm5_1_1unit_1_1max30100_1_1_mode_configuration.html#ac4852463df4e6bf2e06a9617198cc75d">m5::unit::max30100::ModeConfiguration</a>, <a class="el" href="structm5_1_1unit_1_1max30100_1_1_temperature_data.html#a62b0e3c0981b9e2a2a36def7dc73090f">m5::unit::max30100::TemperatureData</a></li>
+</ul>
+
+
+<h3><a id="index_u" name="index_u"></a>- u -</h3><ul>
+<li>update()&#160;:&#160;<a class="el" href="classm5_1_1heart_1_1_pulse_monitor.html#ad28bdce1fd897cad4c9b3b1a8b5c4681">m5::heart::PulseMonitor</a></li>
 </ul>
 
 
@@ -185,7 +188,7 @@ $(function(){initNavTree('functions.html',''); initResizable(true); });
 <li>writeModeConfiguration()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#a816a267c6e9d0bcf354997482e6da000">m5::unit::UnitMAX30100</a></li>
 <li>writePowerSaveDisable()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#a32c815a98a78ea942b007ada52aae1bf">m5::unit::UnitMAX30100</a></li>
 <li>writePowerSaveEnable()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#af77981cf26bd695d58a27b19b875a47b">m5::unit::UnitMAX30100</a></li>
-<li>writeSampleRate()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#ad95542d699be26623f5a155ccc5c8a5c">m5::unit::UnitMAX30100</a></li>
+<li>writeSamplingRate()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#a1e5efbe3ff87c01c1d42908c5f3eb18e">m5::unit::UnitMAX30100</a></li>
 <li>writeSpO2Configuration()&#160;:&#160;<a class="el" href="classm5_1_1unit_1_1_unit_m_a_x30100.html#a5d7ab4bac94dcf1e14a4e9042b15e861">m5::unit::UnitMAX30100</a></li>
 </ul>
 </div><!-- contents -->

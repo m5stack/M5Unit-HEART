@@ -14,7 +14,7 @@ var classm5_1_1unit_1_1_unit_m_a_x30100 =
     [ "resetFIFO", "classm5_1_1unit_1_1_unit_m_a_x30100.html#ae8370da23151de33de185696ae19221d", null ],
     [ "retrived", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a6fe4cd9ef0e1fee537c81de675e54607", null ],
     [ "startPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a6283588544dc6948738c6ce7b7a50979", null ],
-    [ "startPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a9b1412ed280b4bd1a205946dd3aa5600", null ],
+    [ "startPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a720a06de9d861c5f0ae9dc28d1dccff5", null ],
     [ "stopPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30100.html#ab4f6d3f5c815871d66426f1572ec95e1", null ],
     [ "writeHighResolutionDisable", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a5b6b2d83026839fc27f7d4949045d994", null ],
     [ "writeHighResolutionEnable", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a97780b27452292ed72712eac517f7025", null ],
@@ -25,6 +25,6 @@ var classm5_1_1unit_1_1_unit_m_a_x30100 =
     [ "writeModeConfiguration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a816a267c6e9d0bcf354997482e6da000", null ],
     [ "writePowerSaveDisable", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a32c815a98a78ea942b007ada52aae1bf", null ],
     [ "writePowerSaveEnable", "classm5_1_1unit_1_1_unit_m_a_x30100.html#af77981cf26bd695d58a27b19b875a47b", null ],
-    [ "writeSampleRate", "classm5_1_1unit_1_1_unit_m_a_x30100.html#ad95542d699be26623f5a155ccc5c8a5c", null ],
+    [ "writeSamplingRate", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a1e5efbe3ff87c01c1d42908c5f3eb18e", null ],
     [ "writeSpO2Configuration", "classm5_1_1unit_1_1_unit_m_a_x30100.html#a5d7ab4bac94dcf1e14a4e9042b15e861", null ]
 ];

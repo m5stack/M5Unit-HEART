@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['config_5ft_0',['config_t',['../structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html',1,'m5::unit::UnitMAX30100']]]
+  ['data_0',['Data',['../structm5_1_1unit_1_1max30100_1_1_data.html',1,'m5::unit::max30100']]]
 ];

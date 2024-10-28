@@ -1,4 +1,29 @@
 var searchData=
 [
-  ['none_0',['None',['../unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4a6adf97f83acf6453d4a6a4b1070f3754',1,'m5::unit::max30100']]]
+  ['m5_0',['m5',['../namespacem5.html',1,'']]],
+  ['m5_3a_3aheart_1',['heart',['../namespacem5_1_1heart.html',1,'m5']]],
+  ['m5unit_20heart_2',['M5Unit-HEART',['../index.html',1,'']]],
+  ['m5unitunifiedheart_2ehpp_3',['M5UnitUnifiedHEART.hpp',['../_m5_unit_unified_h_e_a_r_t_8hpp.html',1,'']]],
+  ['ma0_5f0_4',['mA0_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa8594cd1acf4f7f4d531203a97120b72b',1,'m5::unit::max30100']]],
+  ['ma11_5f0_5',['mA11_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa1ed455ee951b0d5df08661a3f4b6690a',1,'m5::unit::max30100']]],
+  ['ma14_5f2_6',['mA14_2',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa316afb4c8933c5db8b459dcfb2a4e4b3',1,'m5::unit::max30100']]],
+  ['ma17_5f4_7',['mA17_4',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa5a2e06a5afcb34fe11410779d24e4a7d',1,'m5::unit::max30100']]],
+  ['ma20_5f8_8',['mA20_8',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aaa691794e93faeeb6183acc61c4b28084',1,'m5::unit::max30100']]],
+  ['ma24_5f0_9',['mA24_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa435afda857ad41c79906c5557d6c00a7',1,'m5::unit::max30100']]],
+  ['ma27_5f1_10',['mA27_1',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa0aba1b0f2c55c38e26fe2165b6fc3623',1,'m5::unit::max30100']]],
+  ['ma30_5f6_11',['mA30_6',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa68129ac8fa4809ff6c94576cf6a9c5d1',1,'m5::unit::max30100']]],
+  ['ma33_5f8_12',['mA33_8',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa845dea28a00d4e1326d8adf9f288bbce',1,'m5::unit::max30100']]],
+  ['ma37_5f0_13',['mA37_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aaf4197b6bb003c1d8ae44daadbb9f939b',1,'m5::unit::max30100']]],
+  ['ma40_5f2_14',['mA40_2',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aad4cc716a864b67a637cd0899e9b6a158',1,'m5::unit::max30100']]],
+  ['ma43_5f6_15',['mA43_6',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa1c8c7c73cf1d7ea4749f5f6337f34a2c',1,'m5::unit::max30100']]],
+  ['ma46_5f8_16',['mA46_8',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa27abb540af9a5a4b60ba486c362ba521',1,'m5::unit::max30100']]],
+  ['ma4_5f4_17',['mA4_4',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aa3977716bb3869bff24e163d15e2aca8f',1,'m5::unit::max30100']]],
+  ['ma50_5f0_18',['mA50_0',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aab722d0ad668d1db18dec041e7ef3d3a9',1,'m5::unit::max30100']]],
+  ['ma7_5f6_19',['mA7_6',['../unit___m_a_x30100_8hpp.html#aa7b8f325e684db745cd86ca98e34d21aaf000e83ff994e1db345f67bea687c8b6',1,'m5::unit::max30100']]],
+  ['max30100_20',['max30100',['../namespacemax30100.html',1,'']]],
+  ['max_5ffifo_5fdepth_21',['MAX_FIFO_DEPTH',['../unit___m_a_x30100_8hpp.html#a84301d0fc3e9f55470ecc6780544c0b1',1,'m5::unit::max30100']]],
+  ['measuretemperaturesingleshot_22',['measureTemperatureSingleshot',['../classm5_1_1unit_1_1_unit_m_a_x30100.html#a402e11d0c7fbb2b6545bfece1d6af96a',1,'m5::unit::UnitMAX30100']]],
+  ['mode_23',['Mode',['../unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4',1,'m5::unit::max30100']]],
+  ['mode_24',['mode',['../structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ade41c1e4e080a1667870adaba20469a8',1,'m5::unit::UnitMAX30100::config_t::mode'],['../structm5_1_1unit_1_1max30100_1_1_mode_configuration.html#ac60dde99c6ccc2b982e376960e63192d',1,'m5::unit::max30100::ModeConfiguration::mode() const'],['../structm5_1_1unit_1_1max30100_1_1_mode_configuration.html#a3bc6385dcf0ffffc4b6bb21ff0b793af',1,'m5::unit::max30100::ModeConfiguration::mode(const Mode m)']]],
+  ['modeconfiguration_25',['ModeConfiguration',['../structm5_1_1unit_1_1max30100_1_1_mode_configuration.html',1,'m5::unit::max30100']]]
 ];

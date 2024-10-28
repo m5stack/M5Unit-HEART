@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['heartrate_0',['HeartRate',['../classm5_1_1max30100_1_1_heart_rate.html',1,'m5::max30100']]]
+  ['filter_0',['Filter',['../classm5_1_1heart_1_1_filter.html',1,'m5::heart']]]
 ];

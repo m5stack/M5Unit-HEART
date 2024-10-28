@@ -1,11 +1,10 @@
 var annotated_dup =
 [
     [ "m5", "namespacem5.html", [
-      [ "max30100", null, [
-        [ "butterworthFilter_t", "structm5_1_1max30100_1_1butterworth_filter__t.html", null ],
-        [ "dcFilter_t", "structm5_1_1max30100_1_1dc_filter__t.html", null ],
-        [ "HeartRate", "classm5_1_1max30100_1_1_heart_rate.html", "classm5_1_1max30100_1_1_heart_rate" ],
-        [ "meanDiffFilter_t", "structm5_1_1max30100_1_1mean_diff_filter__t.html", null ]
+      [ "heart", "namespacem5_1_1heart.html", [
+        [ "EMA", "classm5_1_1heart_1_1_e_m_a.html", null ],
+        [ "Filter", "classm5_1_1heart_1_1_filter.html", null ],
+        [ "PulseMonitor", "classm5_1_1heart_1_1_pulse_monitor.html", "classm5_1_1heart_1_1_pulse_monitor" ]
       ] ],
       [ "unit", null, [
         [ "max30100", null, [

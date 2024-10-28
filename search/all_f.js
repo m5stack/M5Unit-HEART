@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['unit_0',['unit',['../namespaceunit.html',1,'']]],
-  ['unit_5fmax30100_2ecpp_1',['unit_MAX30100.cpp',['../unit___m_a_x30100_8cpp.html',1,'']]],
-  ['unit_5fmax30100_2ehpp_2',['unit_MAX30100.hpp',['../unit___m_a_x30100_8hpp.html',1,'']]],
-  ['unitmax30100_3',['UnitMAX30100',['../classm5_1_1unit_1_1_unit_m_a_x30100.html',1,'m5::unit']]]
+  ['temperature_0',['temperature',['../structm5_1_1unit_1_1max30100_1_1_mode_configuration.html#ac4852463df4e6bf2e06a9617198cc75d',1,'m5::unit::max30100::ModeConfiguration::temperature() const'],['../structm5_1_1unit_1_1max30100_1_1_mode_configuration.html#ab2d6a14b93b3da4e472813d78b72563d',1,'m5::unit::max30100::ModeConfiguration::temperature(const bool b)'],['../structm5_1_1unit_1_1max30100_1_1_temperature_data.html#a62b0e3c0981b9e2a2a36def7dc73090f',1,'m5::unit::max30100::TemperatureData::temperature()']]],
+  ['temperaturedata_1',['TemperatureData',['../structm5_1_1unit_1_1max30100_1_1_temperature_data.html',1,'m5::unit::max30100']]]
 ];
