@@ -60,7 +60,7 @@ jobs:
           - PlotToSerial
 
         unit:
-          - ''
+          - UnitHeart
 
         board:
           - m5stack-atom

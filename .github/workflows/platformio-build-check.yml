@@ -56,7 +56,7 @@ jobs:
           - PlotToSerial
 
         unit:
-          - ''
+          - UnitHeart
 
         board:
           - Core
@@ -111,6 +111,20 @@ jobs:
 #            espressif32: '5_4_0'
 #          - board: Paper
 #            espressif32: '4_4_0'
+
+        include:
+          # Specific sketches for sticks only
+          - example: PlotToSerial
+            unit: HatHeart
+            board: StickCPlus
+            framework: Arduino
+            espressif32: latest
+          - example: PlotToSerial
+            unit: HatHeart
+            board: StickCPlus2
+            framework: Arduino
+            espressif32: latest
+
 
     steps:
       - name: Checkout

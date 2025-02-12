@@ -60,7 +60,7 @@ jobs:
           - PlotToSerial
 
         unit:
-          - ''
+          - UnitHeart
 
         board:
           - m5stack_atom
@@ -97,6 +97,21 @@ jobs:
 
         archi:
           - esp32
+
+        include:
+          # Specific sketches for sticks only
+          - sketch: HatHeart
+            platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 2.1.2
+            board: m5stack_stickc_plus
+          - sketch: HatHeart
+            platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 2.1.2
+            board: m5stack_stickc_plus2
 
     steps:
       - name: Checkout
