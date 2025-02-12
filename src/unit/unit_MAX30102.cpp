@@ -276,7 +276,7 @@ bool UnitMAX30102::start_periodic_measurement()
     FIFOSampling avg{};
     bool rollover{};
     uint8_t almostFull{};
-    ADC range{};
+    max30102::ADC range{};
     Sampling rate{};
     LEDPulse width{};
 
