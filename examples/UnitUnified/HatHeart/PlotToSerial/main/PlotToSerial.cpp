@@ -55,7 +55,7 @@ void setup()
         cfg.start_periodic = false;  // Ignore auto start
         hat.config(cfg);
     }
-    
+
     // Using TwoWire
     if (using_wire1) {
         Wire1.end();

@@ -46,9 +46,7 @@ constexpr uint8_t none_table[] = {
     // LSB:200 MSB::1600
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
-constexpr const uint8_t* allowed_setting_table[] = {
-    none_table, none_table, hr_table, spo2_table
-};
+constexpr const uint8_t* allowed_setting_table[] = {none_table, none_table, hr_table, spo2_table};
 
 inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse width)
 {
