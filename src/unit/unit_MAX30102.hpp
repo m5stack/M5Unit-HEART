@@ -30,26 +30,26 @@ namespace max30102 {
 enum class Mode : uint8_t {
     None,             //!< None
     HROnly = 0x02,    //!< Heart Rate mode (Red only)
-    SPO2,             //!< SpO2 mode (Red and IR)
+    SpO2,             //!< SpO2 mode (Red and IR)
     MultiLED = 0x07,  //!< Multi-LED mode (Red and IR)
 };
 
 /*!
-  @enum SpO2ADCRange
+  @enum ADC
   @brief SpO2 ADC Range Control
   @warning If the ambient environment is very bright or the sensor is exposed to strong light, setting a smaller value
   may cause the IR/RED to overflow
  */
-enum class SpO2ADCRange : uint8_t {
-    nA2048,   //!< LSB size  7.81 Full scale 2048
-    nA4096,   //!< LSB size 15.63 Full scale 4096
-    nA8192,   //!< LSB size 31.25 Full scale 8192
-    nA16384,  //!< LSB size 62.5  Full scale 16384
+enum class ADC : uint8_t {
+    Range2048nA,   //!< LSB size  7.81 Full scale 2048
+    Range4096nA,   //!< LSB size 15.63 Full scale 4096
+    Range8192nA,   //!< LSB size 31.25 Full scale 8192
+    Range16384nA,  //!< LSB size 62.5  Full scale 16384
 };
 
 /*!
   @enum Sampling
-  @brief Sampling rate for pulse
+  @brief Sampling rate for pulse/conversion
   @details Unit is the number of sample per second
  */
 enum class Sampling : uint8_t {
@@ -64,14 +64,14 @@ enum class Sampling : uint8_t {
 };
 
 /*!
-  @enum LEDPulseWidth
+  @enum LEDPulse
   @brief  LED pulse width (the IR and RED have the same pulse width)
 */
-enum class LEDPulseWidth : uint8_t {
-    PW69,   //!<  68.95 us (ADC 15 bits)
-    PW118,  //!< 117.78 us (ADC 16 bits)
-    PW215,  //!< 215.44 us (ADC 17 bits)
-    PW411,  //!< 410.75 us (ADC 18 bits)
+enum class LEDPulse : uint8_t {
+    Width69,   //!<  68.95 us (ADC 15 bits)
+    Width118,  //!< 117.78 us (ADC 16 bits)
+    Width215,  //!< 215.44 us (ADC 17 bits)
+    Width411,  //!< 410.75 us (ADC 18 bits)
 };
 
 /*!
@@ -98,9 +98,6 @@ enum class FIFOSampling : uint8_t {
     //    Average32, duplicated
     //    Average32, duplicated
 };
-
-struct ModeConfiguration;
-struct SpO2Configuration;
 
 constexpr uint8_t MAX_FIFO_DEPTH{32};  //!< @brief FIFO depth
 
@@ -176,6 +173,9 @@ constexpr uint8_t READ_REVISION_ID{0xFE};
 constexpr uint8_t READ_PART_ID{0xFF};
 
 }  // namespace command
+
+struct ModeConfiguration;
+struct SpO2Configuration;
 ///@endcond
 
 }  // namespace max30102
@@ -200,15 +200,15 @@ public:
           @warning In MultiLED mode, only the mode setting is performed
           @warning The other settings are ignored, so you need to set and start them yourself
          */
-        max30102::Mode mode{max30102::Mode::SPO2};
+        max30102::Mode mode{max30102::Mode::SpO2};
         //! Start periodic measurement on begin?
         bool start_periodic{true};
         //! ADC range if start on begin
-        max30102::SpO2ADCRange adc_range{max30102::SpO2ADCRange::nA4096};
+        max30102::ADC adc_range{max30102::ADC::Range4096nA};
         //! Sampling rate if start on begin
         max30102::Sampling sampling_rate{max30102::Sampling::Rate400};
         //! LED pulse width if start on begin
-        max30102::LEDPulseWidth pulse_width{max30102::LEDPulseWidth::PW411};
+        max30102::LEDPulse pulse_width{max30102::LEDPulse::Width411};
         //!  LED current for IR if start on begin
         uint8_t ir_current{0x1F};
         //! LED current for Red if start on begin (only SpO2 MODE)
@@ -307,8 +307,8 @@ public:
       @return True if successful
       @warning Note that some combinations of rate and width are invalid. See also datasheet
     */
-    inline bool startPeriodicMeasurement(const max30102::Mode mode, const max30102::SpO2ADCRange range,
-                                         const max30102::Sampling rate, const max30102::LEDPulseWidth width,
+    inline bool startPeriodicMeasurement(const max30102::Mode mode, const max30102::ADC range,
+                                         const max30102::Sampling rate, const max30102::LEDPulse width,
                                          const max30102::FIFOSampling avg, const uint8_t ir_current,
                                          const uint8_t red_current)
     {
@@ -390,25 +390,25 @@ public:
       @param[out] width LED pulse width
       @return True if successful
      */
-    bool readSpO2Configuration(max30102::SpO2ADCRange& range, max30102::Sampling& rate, max30102::LEDPulseWidth& width);
+    bool readSpO2Configuration(max30102::ADC& range, max30102::Sampling& rate, max30102::LEDPulse& width);
     //! @brief Read the ADC range
-    inline bool readSpO2ADCRange(max30102::SpO2ADCRange& range)
+    inline bool readSpO2ADCRange(max30102::ADC& range)
     {
         max30102::Sampling rate{};
-        max30102::LEDPulseWidth width{};
+        max30102::LEDPulse width{};
         return readSpO2Configuration(range, rate, width);
     }
     //! @brief Read the sampling rate
     inline bool readSpO2SamplingRate(max30102::Sampling& rate)
     {
-        max30102::SpO2ADCRange range{};
-        max30102::LEDPulseWidth width{};
+        max30102::ADC range{};
+        max30102::LEDPulse width{};
         return readSpO2Configuration(range, rate, width);
     }
     //! @brief Read the LED pulse width
-    inline bool readSpO2LEDPulseWidth(max30102::LEDPulseWidth& width)
+    inline bool readSpO2LEDPulseWidth(max30102::LEDPulse& width)
     {
-        max30102::SpO2ADCRange range{};
+        max30102::ADC range{};
         max30102::Sampling rate{};
         return readSpO2Configuration(range, rate, width);
     }
@@ -420,14 +420,14 @@ public:
       @return True if successful
       @warning During periodic detection runs, an error is returned
      */
-    bool writeSpO2Configuration(const max30102::SpO2ADCRange range, const max30102::Sampling rate,
-                                const max30102::LEDPulseWidth width);
+    bool writeSpO2Configuration(const max30102::ADC range, const max30102::Sampling rate,
+                                const max30102::LEDPulse width);
     //! @brief Write the ADC range
-    bool writeSpO2ADCRange(const max30102::SpO2ADCRange range);
+    bool writeSpO2ADCRange(const max30102::ADC range);
     //! @brief Write the sampling rate
     bool writeSpO2SamplingRate(const max30102::Sampling rate);
     //! @brief Write the LED pulse width
-    bool writeSpO2LEDPulseWidth(const max30102::LEDPulseWidth width);
+    bool writeSpO2LEDPulseWidth(const max30102::LEDPulse width);
     ///@}
 
     ///@note Note that the target LEDs differ depending on the mode
@@ -581,10 +581,9 @@ protected:
     bool read_register8(const uint8_t reg, uint8_t& v);
 
     bool start_periodic_measurement();
-    bool start_periodic_measurement(const max30102::Mode mode, const max30102::SpO2ADCRange range,
-                                    const max30102::Sampling rate, const max30102::LEDPulseWidth width,
-                                    const max30102::FIFOSampling avg, const uint8_t ir_current,
-                                    const uint8_t red_current);
+    bool start_periodic_measurement(const max30102::Mode mode, const max30102::ADC range, const max30102::Sampling rate,
+                                    const max30102::LEDPulse width, const max30102::FIFOSampling avg,
+                                    const uint8_t ir_current, const uint8_t red_current);
     bool stop_periodic_measurement();
 
     bool write_mode_configuration(const max30102::ModeConfiguration& sc);

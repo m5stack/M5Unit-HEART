@@ -15,10 +15,10 @@ namespace {
 auto& lcd = M5.Display;
 m5::unit::UnitUnified Units;
 m5::unit::HatHeart hat;
-
 m5::heart::PulseMonitor monitor{};
 
-constexpr bool using_multi_led_mode{true};
+constexpr bool using_multi_led_mode{false};  // Using multiLED mode if true
+constexpr bool using_wire1{false};           // Using Wire1 if true
 
 }  // namespace
 
@@ -27,10 +27,12 @@ using namespace m5::unit::max30102;
 void setup()
 {
     // Configuration if using Wire1
-    auto m5cfg         = M5.config();
-    m5cfg.pmic_button  = false;  // Disable BtnPWR
-    m5cfg.internal_imu = false;  // Disable internal IMU
-    m5cfg.internal_rtc = false;  // Disable internal RTC
+    auto m5cfg = M5.config();
+    if (using_wire1) {
+        m5cfg.pmic_button  = false;  // Disable BtnPWR
+        m5cfg.internal_imu = false;  // Disable internal IMU
+        m5cfg.internal_rtc = false;  // Disable internal RTC
+    }
     M5.begin(m5cfg);
 
     auto board = M5.getBoard();
@@ -55,27 +57,27 @@ void setup()
     }
 
     // Using TwoWire
-#if 1
-    Wire1.end();
-    Wire1.begin(0, 26, 400 * 1000U);  // Hat port 0,26
-    if (!Units.add(hat, Wire1) || !Units.begin()) {
-        M5_LOGE("Failed to begin");
-        lcd.clear(TFT_RED);
-        while (true) {
-            m5::utility::delay(10000);
+    if (using_wire1) {
+        Wire1.end();
+        Wire1.begin(0, 26, 400 * 1000U);
+        if (!Units.add(hat, Wire1) || !Units.begin()) {
+            M5_LOGE("Failed to begin");
+            lcd.clear(TFT_RED);
+            while (true) {
+                m5::utility::delay(10000);
+            }
+        }
+    } else {
+        Wire.end();
+        Wire.begin(0, 26, 400 * 1000U);
+        if (!Units.add(hat, Wire) || !Units.begin()) {
+            M5_LOGE("Failed to begin");
+            lcd.clear(TFT_RED);
+            while (true) {
+                m5::utility::delay(10000);
+            }
         }
     }
-#else
-    Wire.end();
-    Wire.begin(0, 26, 400 * 1000U);  // Hat port 0,26
-    if (!Units.add(hat, Wire) || !Units.begin()) {
-        M5_LOGE("Failed to begin");
-        lcd.clear(TFT_RED);
-        while (true) {
-            m5::utility::delay(10000);
-        }
-    }
-#endif
 
     M5_LOGI("M5UnitUnified has been begun");
     M5_LOGI("%s", Units.debugInfo().c_str());
@@ -83,7 +85,7 @@ void setup()
     // In MultiLED mode, you need to set and start them yourself
     if (using_multi_led_mode) {
         hat.writeMode(Mode::MultiLED);
-        hat.writeSpO2Configuration(SpO2ADCRange::nA4096, Sampling::Rate400, LEDPulseWidth::PW411);
+        hat.writeSpO2Configuration(ADC::Range4096nA, Sampling::Rate400, LEDPulse::Width411);
         hat.writeFIFOConfiguration(FIFOSampling::Average4, true, 15);
         // hat.writeMultiLEDModeControl(Slot::Red, Slot::IR); // (A)
         hat.writeMultiLEDModeControl(Slot::IR, Slot::Red);  // (B)

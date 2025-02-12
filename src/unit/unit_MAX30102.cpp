@@ -86,7 +86,7 @@ constexpr const uint8_t* allowed_setting_table[] = {
     none_table, none_table, hr_table, spo2_table, none_table, none_table, none_table, spo2_table,
 };
 
-inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulseWidth pw)
+inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse pw)
 {
     return allowed_setting_table[m5::stl::to_underlying(mode)][m5::stl::to_underlying(rate)] &
            (1U << m5::stl::to_underlying(pw));
@@ -184,19 +184,19 @@ struct ModeConfiguration {
 };
 
 struct SpO2Configuration {
-    inline SpO2ADCRange range() const
+    inline ADC range() const
     {
-        return static_cast<SpO2ADCRange>((value >> 5) & 0x03);
+        return static_cast<ADC>((value >> 5) & 0x03);
     }
     inline Sampling rate() const
     {
         return static_cast<Sampling>((value >> 2) & 0x07);
     }
-    inline LEDPulseWidth width() const
+    inline LEDPulse width() const
     {
-        return static_cast<LEDPulseWidth>(value & 0x03);
+        return static_cast<LEDPulse>(value & 0x03);
     }
-    inline void range(const SpO2ADCRange range)
+    inline void range(const ADC range)
     {
         value = (value & ~(0x03 << 5)) | ((m5::stl::to_underlying(range) & 0x03) << 5);
     }
@@ -204,7 +204,7 @@ struct SpO2Configuration {
     {
         value = (value & ~(0x07 << 2)) | ((m5::stl::to_underlying(rate) & 0x07) << 2);
     }
-    inline void width(const LEDPulseWidth width)
+    inline void width(const LEDPulse width)
     {
         value = (value & ~0x03) | (m5::stl::to_underlying(width) & 0x03);
     }
@@ -247,7 +247,7 @@ bool UnitMAX30102::begin()
         return false;
     }
 
-    return (_cfg.start_periodic && (_cfg.mode == Mode::SPO2 || _cfg.mode == Mode::MultiLED))
+    return (_cfg.start_periodic && (_cfg.mode == Mode::SpO2 || _cfg.mode == Mode::HROnly))
                ? startPeriodicMeasurement(_cfg.mode, _cfg.adc_range, _cfg.sampling_rate, _cfg.pulse_width,
                                           _cfg.fifo_sampling_average, _cfg.ir_current, _cfg.red_current)
                : true;
@@ -277,9 +277,9 @@ bool UnitMAX30102::start_periodic_measurement()
     FIFOSampling avg{};
     bool rollover{};
     uint8_t almostFull{};
-    SpO2ADCRange range{};
+    ADC range{};
     Sampling rate{};
-    LEDPulseWidth width{};
+    LEDPulse width{};
 
     if (readFIFOConfiguration(avg, rollover, almostFull) && readSpO2Configuration(range, rate, width)) {
         _periodic = writeFIFOConfiguration(avg, true /* rollover always true */, almostFull) &&
@@ -295,8 +295,8 @@ bool UnitMAX30102::start_periodic_measurement()
     return _periodic;
 }
 
-bool UnitMAX30102::start_periodic_measurement(const max30102::Mode mode, const SpO2ADCRange range,
-                                              const max30102::Sampling rate, const max30102::LEDPulseWidth width,
+bool UnitMAX30102::start_periodic_measurement(const max30102::Mode mode, const max30102::ADC range,
+                                              const max30102::Sampling rate, const max30102::LEDPulse width,
                                               const max30102::FIFOSampling avg, const uint8_t ir_current,
                                               const uint8_t red_current)
 {
@@ -380,8 +380,7 @@ bool UnitMAX30102::write_mode_configuration(const max30102::ModeConfiguration& m
     return writeRegister8(MODE_CONFIGURATION, mc.value);
 }
 
-bool UnitMAX30102::readSpO2Configuration(max30102::SpO2ADCRange& range, max30102::Sampling& rate,
-                                         max30102::LEDPulseWidth& width)
+bool UnitMAX30102::readSpO2Configuration(max30102::ADC& range, max30102::Sampling& rate, max30102::LEDPulse& width)
 {
     SpO2Configuration sc{};
     if (read_register8(SPO2_CONFIGURATION, sc.value)) {
@@ -407,8 +406,8 @@ bool UnitMAX30102::write_spo2_configuration(const SpO2Configuration& sc)
     return writeRegister8(SPO2_CONFIGURATION, sc.value);
 }
 
-bool UnitMAX30102::writeSpO2Configuration(const max30102::SpO2ADCRange range, const max30102::Sampling rate,
-                                          const max30102::LEDPulseWidth width)
+bool UnitMAX30102::writeSpO2Configuration(const max30102::ADC range, const max30102::Sampling rate,
+                                          const max30102::LEDPulse width)
 {
     SpO2Configuration sc{};
     sc.range(range);
@@ -417,7 +416,7 @@ bool UnitMAX30102::writeSpO2Configuration(const max30102::SpO2ADCRange range, co
     return write_spo2_configuration(sc);
 }
 
-bool UnitMAX30102::writeSpO2ADCRange(const max30102::SpO2ADCRange range)
+bool UnitMAX30102::writeSpO2ADCRange(const max30102::ADC range)
 {
     SpO2Configuration sc{};
     if (read_register8(SPO2_CONFIGURATION, sc.value)) {
@@ -437,7 +436,7 @@ bool UnitMAX30102::writeSpO2SamplingRate(const max30102::Sampling rate)
     return false;
 }
 
-bool UnitMAX30102::writeSpO2LEDPulseWidth(const max30102::LEDPulseWidth width)
+bool UnitMAX30102::writeSpO2LEDPulseWidth(const max30102::LEDPulse width)
 {
     SpO2Configuration sc{};
     if (read_register8(SPO2_CONFIGURATION, sc.value)) {
@@ -622,7 +621,7 @@ bool UnitMAX30102::read_FIFO()
 
 #if 1
     uint32_t dlen = (_mode == Mode::HROnly)     ? 3
-                    : (_mode == Mode::SPO2)     ? 6
+                    : (_mode == Mode::SpO2)     ? 6
                     : (_mode == Mode::MultiLED) ? 3 * ((_slot[0] != Slot::None) + (_slot[1] != Slot::None))
                                                 : 0;
     if (dlen && readCount) {

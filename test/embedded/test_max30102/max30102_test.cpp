@@ -97,23 +97,23 @@ constexpr uint32_t adc_resolution_bits_table[] = {
     0x03FFFF,  // 18 bits
 };
 
-bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulseWidth pw)
+bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse pw)
 {
     return allowed_setting_table[m5::stl::to_underlying(mode)][m5::stl::to_underlying(rate)] &
            (1U << m5::stl::to_underlying(pw));
 }
 
 constexpr Mode mode_table[] = {
-    Mode::SPO2,
+    Mode::SpO2,
     Mode::HROnly,
     Mode::MultiLED,
 };
 
-constexpr SpO2ADCRange range_table[] = {
-    SpO2ADCRange::nA2048,
-    SpO2ADCRange::nA4096,
-    SpO2ADCRange::nA8192,
-    SpO2ADCRange::nA16384,
+constexpr ADC range_table[] = {
+    ADC::Range2048nA,
+    ADC::Range4096nA,
+    ADC::Range8192nA,
+    ADC::Range16384nA,
 };
 
 constexpr Sampling sr_table[] = {
@@ -121,11 +121,11 @@ constexpr Sampling sr_table[] = {
     Sampling::Rate800, Sampling::Rate1000, Sampling::Rate1600, Sampling::Rate3200,
 };
 
-constexpr LEDPulseWidth pw_table[] = {
-    LEDPulseWidth::PW69,
-    LEDPulseWidth::PW118,
-    LEDPulseWidth::PW215,
-    LEDPulseWidth::PW411,
+constexpr LEDPulse pw_table[] = {
+    LEDPulse::Width69,
+    LEDPulse::Width118,
+    LEDPulse::Width215,
+    LEDPulse::Width411,
 };
 
 constexpr std::array<Slot, 2> slots_table[] = {
@@ -156,9 +156,9 @@ void test_spo2_config(UnitMAX30102* unit, const Mode mode)
                 auto s = m5::utility::formatString("Mode:%u Rate:%u Width:%u", mode, sr, pw);
                 SCOPED_TRACE(s);
 
-                SpO2ADCRange range{};
+                ADC range{};
                 Sampling rate{};
-                LEDPulseWidth width{};
+                LEDPulse width{};
 
                 if (is_allowed_settings(mode, sr, pw)) {
                     EXPECT_TRUE(unit->writeSpO2Configuration(rg, sr, pw));
@@ -172,9 +172,9 @@ void test_spo2_config(UnitMAX30102* unit, const Mode mode)
 
                     EXPECT_FALSE(unit->writeSpO2Configuration(rg, sr, pw));
 
-                    SpO2ADCRange range2{};
+                    ADC range2{};
                     Sampling rate2{};
-                    LEDPulseWidth width2{};
+                    LEDPulse width2{};
                     EXPECT_TRUE(unit->readSpO2Configuration(range2, rate2, width2));
                     EXPECT_EQ(range2, range);
                     EXPECT_EQ(rate2, rate2);
@@ -191,13 +191,13 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
     SCOPED_TRACE(s);
 
     EXPECT_TRUE(unit->writeMode(mode));
-    EXPECT_TRUE(unit->writeSpO2Configuration(SpO2ADCRange::nA2048, Sampling::Rate50, LEDPulseWidth::PW69));
+    EXPECT_TRUE(unit->writeSpO2Configuration(ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width69));
 
     for (auto& rg : range_table) {
         auto s = m5::utility::formatString("Range:%u", rg);
         SCOPED_TRACE(s);
 
-        SpO2ADCRange range{};
+        ADC range{};
         EXPECT_TRUE(unit->writeSpO2ADCRange(rg));
         EXPECT_TRUE(unit->readSpO2ADCRange(range));
         EXPECT_EQ(range, rg);
@@ -206,7 +206,7 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
             auto s = m5::utility::formatString("Rate:%u", sr);
             SCOPED_TRACE(s);
 
-            if (is_allowed_settings(mode, sr, LEDPulseWidth::PW69)) {
+            if (is_allowed_settings(mode, sr, LEDPulse::Width69)) {
                 Sampling rate{};
 
                 EXPECT_TRUE(unit->writeSpO2SamplingRate(sr));
@@ -217,7 +217,7 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
                 for (auto&& pw : pw_table) {
                     auto s = m5::utility::formatString("Width:%u", pw);
                     SCOPED_TRACE(s);
-                    LEDPulseWidth width{};
+                    LEDPulse width{};
 
                     if (is_allowed_settings(mode, sr, pw)) {
                         EXPECT_TRUE(unit->writeSpO2LEDPulseWidth(pw));
@@ -225,7 +225,7 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
                         EXPECT_TRUE(unit->readSpO2LEDPulseWidth(width));
                         EXPECT_EQ(width, pw);
                     } else {
-                        LEDPulseWidth width2{};
+                        LEDPulse width2{};
                         EXPECT_TRUE(unit->readSpO2LEDPulseWidth(width));
 
                         EXPECT_FALSE(unit->writeSpO2LEDPulseWidth(pw));
@@ -234,7 +234,7 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
                         EXPECT_EQ(width2, width);
                     }
                 }
-                EXPECT_TRUE(unit->writeSpO2LEDPulseWidth(LEDPulseWidth::PW69));
+                EXPECT_TRUE(unit->writeSpO2LEDPulseWidth(LEDPulse::Width69));
             } else {
                 Sampling rate{}, rate2{};
                 EXPECT_TRUE(unit->readSpO2SamplingRate(rate));
@@ -245,7 +245,7 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
                 EXPECT_EQ(rate2, rate);
             }
         }
-        EXPECT_TRUE(unit->writeSpO2Configuration(rg, Sampling::Rate50, LEDPulseWidth::PW69));
+        EXPECT_TRUE(unit->writeSpO2Configuration(rg, Sampling::Rate50, LEDPulse::Width69));
     }
 }
 
@@ -291,62 +291,62 @@ elapsed_time_t test_periodic(U* unit, const uint32_t times, const uint32_t measu
 void test_periodic_spo2(UnitMAX30102* unit)
 {
     // Pairwise
-    constexpr std::tuple<SpO2ADCRange, Sampling, LEDPulseWidth, FIFOSampling> cond_table[] = {
-        {SpO2ADCRange::nA2048, Sampling::Rate50, LEDPulseWidth::PW118, FIFOSampling::Average1},
-        {SpO2ADCRange::nA8192, Sampling::Rate100, LEDPulseWidth::PW215, FIFOSampling::Average16},
-        {SpO2ADCRange::nA4096, Sampling::Rate100, LEDPulseWidth::PW411, FIFOSampling::Average4},
-        {SpO2ADCRange::nA4096, Sampling::Rate200, LEDPulseWidth::PW215, FIFOSampling::Average8},
-        {SpO2ADCRange::nA8192, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA4096, Sampling::Rate800, LEDPulseWidth::PW69, FIFOSampling::Average1},
-        {SpO2ADCRange::nA16384, Sampling::Rate400, LEDPulseWidth::PW118, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate200, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA16384, Sampling::Rate800, LEDPulseWidth::PW215, FIFOSampling::Average32},
-        {SpO2ADCRange::nA16384, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average1},
-        {SpO2ADCRange::nA8192, Sampling::Rate200, LEDPulseWidth::PW411, FIFOSampling::Average1},
-        {SpO2ADCRange::nA2048, Sampling::Rate50, LEDPulseWidth::PW411, FIFOSampling::Average2},
-        {SpO2ADCRange::nA8192, Sampling::Rate800, LEDPulseWidth::PW118, FIFOSampling::Average4},
-        {SpO2ADCRange::nA2048, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average4},
-        {SpO2ADCRange::nA4096, Sampling::Rate1000, LEDPulseWidth::PW118, FIFOSampling::Average32},
-        {SpO2ADCRange::nA4096, Sampling::Rate50, LEDPulseWidth::PW215, FIFOSampling::Average4},
-        {SpO2ADCRange::nA8192, Sampling::Rate400, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA2048, Sampling::Rate800, LEDPulseWidth::PW215, FIFOSampling::Average8},
-        {SpO2ADCRange::nA16384, Sampling::Rate100, LEDPulseWidth::PW411, FIFOSampling::Average1},
-        {SpO2ADCRange::nA16384, Sampling::Rate1000, LEDPulseWidth::PW118, FIFOSampling::Average16},
-        {SpO2ADCRange::nA8192, Sampling::Rate200, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA16384, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average4},
-        {SpO2ADCRange::nA4096, Sampling::Rate400, LEDPulseWidth::PW215, FIFOSampling::Average1},
-        {SpO2ADCRange::nA4096, Sampling::Rate800, LEDPulseWidth::PW215, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate100, LEDPulseWidth::PW118, FIFOSampling::Average8},
-        {SpO2ADCRange::nA16384, Sampling::Rate50, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA8192, Sampling::Rate50, LEDPulseWidth::PW411, FIFOSampling::Average16},
-        {SpO2ADCRange::nA8192, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA2048, Sampling::Rate400, LEDPulseWidth::PW411, FIFOSampling::Average8},
-        {SpO2ADCRange::nA4096, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average1},
-        {SpO2ADCRange::nA2048, Sampling::Rate100, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA4096, Sampling::Rate800, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA16384, Sampling::Rate200, LEDPulseWidth::PW411, FIFOSampling::Average32},
-        {SpO2ADCRange::nA2048, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate100, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA16384, Sampling::Rate50, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA2048, Sampling::Rate400, LEDPulseWidth::PW69, FIFOSampling::Average4},
-        {SpO2ADCRange::nA2048, Sampling::Rate400, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate200, LEDPulseWidth::PW118, FIFOSampling::Average4},
+    constexpr std::tuple<ADC, Sampling, LEDPulse, FIFOSampling> cond_table[] = {
+        {ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width118, FIFOSampling::Average1},
+        {ADC::Range8192nA, Sampling::Rate100, LEDPulse::Width215, FIFOSampling::Average16},
+        {ADC::Range4096nA, Sampling::Rate100, LEDPulse::Width411, FIFOSampling::Average4},
+        {ADC::Range4096nA, Sampling::Rate200, LEDPulse::Width215, FIFOSampling::Average8},
+        {ADC::Range8192nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range4096nA, Sampling::Rate800, LEDPulse::Width69, FIFOSampling::Average1},
+        {ADC::Range16384nA, Sampling::Rate400, LEDPulse::Width118, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate200, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range16384nA, Sampling::Rate800, LEDPulse::Width215, FIFOSampling::Average32},
+        {ADC::Range16384nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average1},
+        {ADC::Range8192nA, Sampling::Rate200, LEDPulse::Width411, FIFOSampling::Average1},
+        {ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width411, FIFOSampling::Average2},
+        {ADC::Range8192nA, Sampling::Rate800, LEDPulse::Width118, FIFOSampling::Average4},
+        {ADC::Range2048nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average4},
+        {ADC::Range4096nA, Sampling::Rate1000, LEDPulse::Width118, FIFOSampling::Average32},
+        {ADC::Range4096nA, Sampling::Rate50, LEDPulse::Width215, FIFOSampling::Average4},
+        {ADC::Range8192nA, Sampling::Rate400, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range2048nA, Sampling::Rate800, LEDPulse::Width215, FIFOSampling::Average8},
+        {ADC::Range16384nA, Sampling::Rate100, LEDPulse::Width411, FIFOSampling::Average1},
+        {ADC::Range16384nA, Sampling::Rate1000, LEDPulse::Width118, FIFOSampling::Average16},
+        {ADC::Range8192nA, Sampling::Rate200, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range16384nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average4},
+        {ADC::Range4096nA, Sampling::Rate400, LEDPulse::Width215, FIFOSampling::Average1},
+        {ADC::Range4096nA, Sampling::Rate800, LEDPulse::Width215, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate100, LEDPulse::Width118, FIFOSampling::Average8},
+        {ADC::Range16384nA, Sampling::Rate50, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range8192nA, Sampling::Rate50, LEDPulse::Width411, FIFOSampling::Average16},
+        {ADC::Range8192nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range2048nA, Sampling::Rate400, LEDPulse::Width411, FIFOSampling::Average8},
+        {ADC::Range4096nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average1},
+        {ADC::Range2048nA, Sampling::Rate100, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range4096nA, Sampling::Rate800, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range16384nA, Sampling::Rate200, LEDPulse::Width411, FIFOSampling::Average32},
+        {ADC::Range2048nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate100, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range16384nA, Sampling::Rate50, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range2048nA, Sampling::Rate400, LEDPulse::Width69, FIFOSampling::Average4},
+        {ADC::Range2048nA, Sampling::Rate400, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate200, LEDPulse::Width118, FIFOSampling::Average4},
     };
 
     for (auto&& cond : cond_table) {
-        SpO2ADCRange range{};
+        ADC range{};
         Sampling rate{};
-        LEDPulseWidth width{};
+        LEDPulse width{};
         FIFOSampling avg{};
         std::tie(range, rate, width, avg) = cond;
 
         auto s = m5::utility::formatString("SPO2 RNG:%u SR:%u WID:%u AVG:%u", range, rate, width, avg);
         SCOPED_TRACE(s);
 
-        EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SPO2, range, rate, width, avg, 0x1f, 0x1f));
+        EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SpO2, range, rate, width, avg, 0x1f, 0x1f));
         auto it = unit->interval() ? unit->interval() : 1;
 
         auto elapsed = test_periodic(unit, STORED_SIZE, it);
@@ -403,61 +403,61 @@ void test_periodic_spo2(UnitMAX30102* unit)
 void test_periodic_hr(UnitMAX30102* unit)
 {
     // Pairwise
-    constexpr std::tuple<SpO2ADCRange, Sampling, LEDPulseWidth, FIFOSampling> cond_table[] = {
-        {SpO2ADCRange::nA8192, Sampling::Rate3200, LEDPulseWidth::PW69, FIFOSampling::Average4},
-        {SpO2ADCRange::nA2048, Sampling::Rate50, LEDPulseWidth::PW118, FIFOSampling::Average1},
-        {SpO2ADCRange::nA8192, Sampling::Rate100, LEDPulseWidth::PW215, FIFOSampling::Average16},
-        {SpO2ADCRange::nA4096, Sampling::Rate100, LEDPulseWidth::PW411, FIFOSampling::Average4},
-        {SpO2ADCRange::nA4096, Sampling::Rate200, LEDPulseWidth::PW215, FIFOSampling::Average8},
-        {SpO2ADCRange::nA8192, Sampling::Rate1000, LEDPulseWidth::PW118, FIFOSampling::Average8},
-        {SpO2ADCRange::nA4096, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average1},
-        {SpO2ADCRange::nA16384, Sampling::Rate400, LEDPulseWidth::PW118, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate200, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA8192, Sampling::Rate800, LEDPulseWidth::PW411, FIFOSampling::Average32},
-        {SpO2ADCRange::nA16384, Sampling::Rate1000, LEDPulseWidth::PW215, FIFOSampling::Average32},
-        {SpO2ADCRange::nA2048, Sampling::Rate1600, LEDPulseWidth::PW215, FIFOSampling::Average1},
-        {SpO2ADCRange::nA16384, Sampling::Rate200, LEDPulseWidth::PW411, FIFOSampling::Average1},
-        {SpO2ADCRange::nA2048, Sampling::Rate50, LEDPulseWidth::PW411, FIFOSampling::Average2},
-        {SpO2ADCRange::nA8192, Sampling::Rate400, LEDPulseWidth::PW215, FIFOSampling::Average1},
-        {SpO2ADCRange::nA8192, Sampling::Rate200, LEDPulseWidth::PW118, FIFOSampling::Average32},
-        {SpO2ADCRange::nA4096, Sampling::Rate1600, LEDPulseWidth::PW118, FIFOSampling::Average4},
-        {SpO2ADCRange::nA4096, Sampling::Rate3200, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA4096, Sampling::Rate50, LEDPulseWidth::PW215, FIFOSampling::Average4},
-        {SpO2ADCRange::nA2048, Sampling::Rate800, LEDPulseWidth::PW118, FIFOSampling::Average4},
-        {SpO2ADCRange::nA4096, Sampling::Rate800, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA16384, Sampling::Rate800, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA16384, Sampling::Rate3200, LEDPulseWidth::PW69, FIFOSampling::Average1},
-        {SpO2ADCRange::nA2048, Sampling::Rate3200, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA16384, Sampling::Rate100, LEDPulseWidth::PW118, FIFOSampling::Average1},
-        {SpO2ADCRange::nA4096, Sampling::Rate1000, LEDPulseWidth::PW411, FIFOSampling::Average16},
-        {SpO2ADCRange::nA8192, Sampling::Rate200, LEDPulseWidth::PW215, FIFOSampling::Average2},
-        {SpO2ADCRange::nA16384, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average4},
-        {SpO2ADCRange::nA16384, Sampling::Rate1600, LEDPulseWidth::PW118, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate800, LEDPulseWidth::PW215, FIFOSampling::Average1},
-        {SpO2ADCRange::nA2048, Sampling::Rate400, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA4096, Sampling::Rate400, LEDPulseWidth::PW411, FIFOSampling::Average8},
-        {SpO2ADCRange::nA2048, Sampling::Rate100, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA16384, Sampling::Rate50, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA8192, Sampling::Rate50, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA8192, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA2048, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate800, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate1000, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate100, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate1600, LEDPulseWidth::PW69, FIFOSampling::Average32},
-        {SpO2ADCRange::nA2048, Sampling::Rate3200, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate400, LEDPulseWidth::PW69, FIFOSampling::Average4},
-        {SpO2ADCRange::nA2048, Sampling::Rate100, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA2048, Sampling::Rate3200, LEDPulseWidth::PW69, FIFOSampling::Average2},
-        {SpO2ADCRange::nA2048, Sampling::Rate50, LEDPulseWidth::PW69, FIFOSampling::Average8},
-        {SpO2ADCRange::nA2048, Sampling::Rate400, LEDPulseWidth::PW69, FIFOSampling::Average16},
-        {SpO2ADCRange::nA2048, Sampling::Rate200, LEDPulseWidth::PW69, FIFOSampling::Average4},
+    constexpr std::tuple<ADC, Sampling, LEDPulse, FIFOSampling> cond_table[] = {
+        {ADC::Range8192nA, Sampling::Rate3200, LEDPulse::Width69, FIFOSampling::Average4},
+        {ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width118, FIFOSampling::Average1},
+        {ADC::Range8192nA, Sampling::Rate100, LEDPulse::Width215, FIFOSampling::Average16},
+        {ADC::Range4096nA, Sampling::Rate100, LEDPulse::Width411, FIFOSampling::Average4},
+        {ADC::Range4096nA, Sampling::Rate200, LEDPulse::Width215, FIFOSampling::Average8},
+        {ADC::Range8192nA, Sampling::Rate1000, LEDPulse::Width118, FIFOSampling::Average8},
+        {ADC::Range4096nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average1},
+        {ADC::Range16384nA, Sampling::Rate400, LEDPulse::Width118, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate200, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range8192nA, Sampling::Rate800, LEDPulse::Width411, FIFOSampling::Average32},
+        {ADC::Range16384nA, Sampling::Rate1000, LEDPulse::Width215, FIFOSampling::Average32},
+        {ADC::Range2048nA, Sampling::Rate1600, LEDPulse::Width215, FIFOSampling::Average1},
+        {ADC::Range16384nA, Sampling::Rate200, LEDPulse::Width411, FIFOSampling::Average1},
+        {ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width411, FIFOSampling::Average2},
+        {ADC::Range8192nA, Sampling::Rate400, LEDPulse::Width215, FIFOSampling::Average1},
+        {ADC::Range8192nA, Sampling::Rate200, LEDPulse::Width118, FIFOSampling::Average32},
+        {ADC::Range4096nA, Sampling::Rate1600, LEDPulse::Width118, FIFOSampling::Average4},
+        {ADC::Range4096nA, Sampling::Rate3200, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range4096nA, Sampling::Rate50, LEDPulse::Width215, FIFOSampling::Average4},
+        {ADC::Range2048nA, Sampling::Rate800, LEDPulse::Width118, FIFOSampling::Average4},
+        {ADC::Range4096nA, Sampling::Rate800, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range16384nA, Sampling::Rate800, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range16384nA, Sampling::Rate3200, LEDPulse::Width69, FIFOSampling::Average1},
+        {ADC::Range2048nA, Sampling::Rate3200, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range16384nA, Sampling::Rate100, LEDPulse::Width118, FIFOSampling::Average1},
+        {ADC::Range4096nA, Sampling::Rate1000, LEDPulse::Width411, FIFOSampling::Average16},
+        {ADC::Range8192nA, Sampling::Rate200, LEDPulse::Width215, FIFOSampling::Average2},
+        {ADC::Range16384nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average4},
+        {ADC::Range16384nA, Sampling::Rate1600, LEDPulse::Width118, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate800, LEDPulse::Width215, FIFOSampling::Average1},
+        {ADC::Range2048nA, Sampling::Rate400, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range4096nA, Sampling::Rate400, LEDPulse::Width411, FIFOSampling::Average8},
+        {ADC::Range2048nA, Sampling::Rate100, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range16384nA, Sampling::Rate50, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range8192nA, Sampling::Rate50, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range8192nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range2048nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate800, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate1000, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate100, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate1600, LEDPulse::Width69, FIFOSampling::Average32},
+        {ADC::Range2048nA, Sampling::Rate3200, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate400, LEDPulse::Width69, FIFOSampling::Average4},
+        {ADC::Range2048nA, Sampling::Rate100, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range2048nA, Sampling::Rate3200, LEDPulse::Width69, FIFOSampling::Average2},
+        {ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width69, FIFOSampling::Average8},
+        {ADC::Range2048nA, Sampling::Rate400, LEDPulse::Width69, FIFOSampling::Average16},
+        {ADC::Range2048nA, Sampling::Rate200, LEDPulse::Width69, FIFOSampling::Average4},
     };
 
     for (auto&& cond : cond_table) {
-        SpO2ADCRange range{};
+        ADC range{};
         Sampling rate{};
-        LEDPulseWidth width{};
+        LEDPulse width{};
         FIFOSampling avg{};
         std::tie(range, rate, width, avg) = cond;
 
@@ -638,8 +638,8 @@ TEST_P(TestMAX30102, SpO2Cfg)
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
 
-    test_spo2_config(unit.get(), Mode::SPO2);
-    test_spo2_config_each(unit.get(), Mode::SPO2);
+    test_spo2_config(unit.get(), Mode::SpO2);
+    test_spo2_config_each(unit.get(), Mode::SpO2);
 
     test_spo2_config(unit.get(), Mode::HROnly);
     test_spo2_config_each(unit.get(), Mode::HROnly);
@@ -719,7 +719,7 @@ TEST_P(TestMAX30102, MultiLEDMode)
 
     // All invalid (slots can be set for MutiLED mode only).
     constexpr Mode m_table[] = {
-        Mode::SPO2,
+        Mode::SpO2,
         Mode::HROnly,
     };
     for (auto&& mode : m_table) {
@@ -814,7 +814,7 @@ TEST_P(TestMAX30102, Reset)
 
     //
     EXPECT_TRUE(unit->writeMode(Mode::MultiLED));
-    EXPECT_TRUE(unit->writeSpO2Configuration(SpO2ADCRange::nA16384, Sampling::Rate400, LEDPulseWidth::PW411));
+    EXPECT_TRUE(unit->writeSpO2Configuration(ADC::Range16384nA, Sampling::Rate400, LEDPulse::Width411));
     EXPECT_TRUE(unit->writeLEDCurrent(0, 255));
     EXPECT_TRUE(unit->writeLEDCurrent(1, 255));
     EXPECT_TRUE(unit->writeMultiLEDModeControl(Slot::IR, Slot::Red));
@@ -835,13 +835,13 @@ TEST_P(TestMAX30102, Reset)
     EXPECT_TRUE(unit->readMode(mode));
     EXPECT_EQ(mode, Mode::None);
 
-    SpO2ADCRange range{};
+    ADC range{};
     Sampling rate{};
-    LEDPulseWidth width{};
+    LEDPulse width{};
     EXPECT_TRUE(unit->readSpO2Configuration(range, rate, width));
-    EXPECT_EQ(range, SpO2ADCRange::nA2048);
+    EXPECT_EQ(range, ADC::Range2048nA);
     EXPECT_EQ(rate, Sampling::Rate50);
-    EXPECT_EQ(width, LEDPulseWidth::PW69);
+    EXPECT_EQ(width, LEDPulse::Width69);
 
     uint8_t led1{}, led2{};
     EXPECT_TRUE(unit->readLEDCurrent(led1, 0));
@@ -880,8 +880,8 @@ TEST_P(TestMAX30102, Periodic)
     EXPECT_FALSE(unit->inPeriodic());
 
     // 100 sps
-    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SPO2, SpO2ADCRange::nA4096, Sampling::Rate100,
-                                               LEDPulseWidth::PW411, FIFOSampling::Average1, 0x1F, 0x1F));
+    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SpO2, ADC::Range4096nA, Sampling::Rate100, LEDPulse::Width411,
+                                               FIFOSampling::Average1, 0x1F, 0x1F));
 
     // Wait first updated
     auto start_at = m5::utility::millis();
@@ -977,7 +977,7 @@ TEST_P(TestMAX30102, Periodic_MultiLED)
     EXPECT_FALSE(unit->inPeriodic());
 
     EXPECT_TRUE(unit->writeMode(Mode::MultiLED));
-    EXPECT_TRUE(unit->writeSpO2Configuration(SpO2ADCRange::nA4096, Sampling::Rate400, LEDPulseWidth::PW411));
+    EXPECT_TRUE(unit->writeSpO2Configuration(ADC::Range4096nA, Sampling::Rate400, LEDPulse::Width411));
     EXPECT_TRUE(unit->writeFIFOConfiguration(FIFOSampling::Average4, true, 15));
     EXPECT_TRUE(unit->writeLEDCurrent(0, 0x40));
     EXPECT_TRUE(unit->writeLEDCurrent(1, 0x1F));
