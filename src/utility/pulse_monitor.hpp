@@ -14,7 +14,7 @@
 #include <cmath>
 #include <cassert>
 #include <deque>
-#include "../unit/unit_MAX30100.hpp"
+#include <m5_utility/log/library_log.hpp>
 
 namespace m5 {
 /*!
@@ -54,7 +54,7 @@ private:
 
 /*!
   @class Filter
-  @brief Apply a high-pass filter and reverse polarity
+  @brief Apply a high-pass filter and invert polarity
  */
 class Filter {
 public:
@@ -100,9 +100,9 @@ public:
       @param samplingRate sampling rate
       @param sec Seconds of data to be stored
      */
-    PulseMonitor(const float samplingRate, const uint32_t sec = 5)
+    explicit PulseMonitor(const uint32_t samplingRate = 100, const uint32_t sec = 5)
         : _range{sec},
-          _sampling_rate{samplingRate},
+          _sampling_rate{(float)samplingRate},
           _max_samples{(size_t)samplingRate * sec},
           _filterIR(5.0f, samplingRate)
     {
@@ -128,7 +128,7 @@ public:
     {
         return _SpO2;
     }
-    
+
     /*!
       @brief Set the sampling rate
       @param samplingRate sampling rate
@@ -158,7 +158,7 @@ public:
     //! @brief Clear inner data
     void clear();
 
-    // filterd ir value
+    // Filterd ir value
     float latestIR() const
     {
         return !_dataIR.empty() ? _dataIR.back() : std::numeric_limits<float>::quiet_NaN();
