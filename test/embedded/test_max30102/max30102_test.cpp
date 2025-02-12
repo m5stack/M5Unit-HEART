@@ -14,6 +14,7 @@
 #include <unit/unit_MAX30102.hpp>
 #include <chrono>
 #include <cmath>
+#include <random>
 
 using namespace m5::unit::googletest;
 using namespace m5::unit;
@@ -70,6 +71,8 @@ protected:
 INSTANTIATE_TEST_SUITE_P(ParamValues, TestMAX30102, ::testing::Values(false));
 
 namespace {
+auto rng = std::default_random_engine{};
+
 constexpr uint32_t STORED_SIZE{4};
 
 // Same as unit_MAX30102.cpp
@@ -128,6 +131,11 @@ constexpr LEDPulse pw_table[] = {
     LEDPulse::Width411,
 };
 
+constexpr FIFOSampling fs_table[] = {
+    FIFOSampling::Average1, FIFOSampling::Average2,  FIFOSampling::Average4,
+    FIFOSampling::Average8, FIFOSampling::Average16, FIFOSampling::Average32,
+};
+
 constexpr std::array<Slot, 2> slots_table[] = {
     //
     {Slot::None, Slot::None},
@@ -153,7 +161,7 @@ void test_spo2_config(UnitMAX30102* unit, const Mode mode)
     for (auto& rg : range_table) {
         for (auto&& sr : sr_table) {
             for (auto&& pw : pw_table) {
-                auto s = m5::utility::formatString("Mode:%u Rate:%u Width:%u", mode, sr, pw);
+                auto s = m5::utility::formatString("Mode:%u RNG:%u Rate:%u Width:%u", mode, rg, sr, pw);
                 SCOPED_TRACE(s);
 
                 ADC range{};
@@ -603,13 +611,20 @@ void test_periodic_multi(UnitMAX30102* unit)
 
 TEST_P(TestMAX30102, Mode)
 {
-    SCOPED_TRACE(ustr);
+    constexpr bool bool_table[] = {true, false};
 
+    SCOPED_TRACE(ustr);
     EXPECT_TRUE(unit->inPeriodic());
+
+    // Failed if in periodic
     for (auto&& m : mode_table) {
         EXPECT_FALSE(unit->writeMode(m));
     }
+    for (auto&& shdn : bool_table) {
+        EXPECT_FALSE(unit->writeShutdownControl(shdn));
+    }
 
+    //
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
 
@@ -622,7 +637,6 @@ TEST_P(TestMAX30102, Mode)
     }
 
     // SHDN
-    constexpr bool bool_table[] = {true, false};
     for (auto&& shdn : bool_table) {
         EXPECT_TRUE(unit->writeShutdownControl(shdn));
         bool shdn2{};
@@ -631,9 +645,12 @@ TEST_P(TestMAX30102, Mode)
     }
 }
 
-TEST_P(TestMAX30102, SpO2Cfg)
+TEST_P(TestMAX30102, SpO2Configuration)
 {
     SCOPED_TRACE(ustr);
+
+    // Failed if in periodic
+    EXPECT_FALSE(unit->writeSpO2Configuration(ADC::Range2048nA, Sampling::Rate50, LEDPulse::Width69));
 
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
@@ -748,6 +765,33 @@ TEST_P(TestMAX30102, MultiLEDMode)
             EXPECT_EQ(s1, slot1);
             EXPECT_EQ(s2, slot2);
         }
+    }
+}
+
+TEST_P(TestMAX30102, FIFOConfiguration)
+{
+    SCOPED_TRACE(ustr);
+
+    // Failed if in periodic
+    EXPECT_FALSE(unit->writeFIFOConfiguration(FIFOSampling::Average1, true, 15));
+
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_FALSE(unit->inPeriodic());
+
+    for (auto&& fs : fs_table) {
+        bool ro    = rng() % 1;
+        uint8_t af = rng() % 0x0F;
+        auto s     = m5::utility::formatString("FS:%u RO:%u AF:%u", fs, ro, af);
+        SCOPED_TRACE(s);
+        EXPECT_TRUE(unit->writeFIFOConfiguration(fs, ro, af));
+
+        FIFOSampling avg{};
+        bool rollover{};
+        uint8_t almostFull{};
+        EXPECT_TRUE(unit->readFIFOConfiguration(avg, rollover, almostFull));
+        EXPECT_EQ(avg, fs);
+        EXPECT_EQ(rollover, ro);
+        EXPECT_EQ(almostFull, af);
     }
 }
 

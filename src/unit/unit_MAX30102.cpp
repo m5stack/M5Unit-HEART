@@ -86,10 +86,10 @@ constexpr const uint8_t* allowed_setting_table[] = {
     none_table, none_table, hr_table, spo2_table, none_table, none_table, none_table, spo2_table,
 };
 
-inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse pw)
+inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse width)
 {
     return allowed_setting_table[m5::stl::to_underlying(mode)][m5::stl::to_underlying(rate)] &
-           (1U << m5::stl::to_underlying(pw));
+           (1U << m5::stl::to_underlying(width));
 }
 
 struct MultiLEDControl {
@@ -138,14 +138,14 @@ constexpr uint32_t adc_resolution_bits_table[] = {
 };
 
 // Calculate the interval per data
-uint32_t caluculate_interval_time(const FIFOSampling avg, const Sampling rate)
+inline uint32_t caluculate_interval_time(const FIFOSampling avg, const Sampling rate)
 {
     float freq = sampling_rate_table[m5::stl::to_underlying(rate)] / (float)average_table[m5::stl::to_underlying(avg)];
 
     // M5_LIB_LOGE(">>>>>>>>>> avg:%u %u rate:%u %u => %f %f", avg, average_table[m5::stl::to_underlying(avg)], rate,
     //             sampling_rate_table[m5::stl::to_underlying(rate)], freq, std::ceil(1000.f / freq));
 
-    return std::ceil(1000.f / freq);
+    return std::floor(1000.f / freq);
 }
 
 }  // namespace
@@ -262,7 +262,6 @@ void UnitMAX30102::update(const bool force)
             _updated = (read_FIFO() && _retrived);
             if (_updated) {
                 _latest = m5::utility::millis();
-                //_latest = at;
             }
         }
     }
@@ -312,7 +311,7 @@ bool UnitMAX30102::stop_periodic_measurement()
     ModeConfiguration mc{};
     if (read_register8(MODE_CONFIGURATION, mc.value)) {
         mc.shdn(true);
-        if (write_mode_configuration(mc)) {
+        if (writeRegister8(MODE_CONFIGURATION, mc.value)) {
             _periodic = false;
             return true;
         }
@@ -322,7 +321,6 @@ bool UnitMAX30102::stop_periodic_measurement()
 bool UnitMAX30102::readMode(max30102::Mode& mode)
 {
     mode = Mode::None;
-
     ModeConfiguration mc{};
     if (read_register8(MODE_CONFIGURATION, mc.value)) {
         mode = mc.mode();
@@ -375,13 +373,12 @@ bool UnitMAX30102::writeShutdownControl(const bool shdn)
     return false;
 }
 
-bool UnitMAX30102::write_mode_configuration(const max30102::ModeConfiguration& mc)
-{
-    return writeRegister8(MODE_CONFIGURATION, mc.value);
-}
-
 bool UnitMAX30102::readSpO2Configuration(max30102::ADC& range, max30102::Sampling& rate, max30102::LEDPulse& width)
 {
+    range = ADC::Range2048nA;
+    rate  = Sampling::Rate50;
+    width = LEDPulse::Width69;
+
     SpO2Configuration sc{};
     if (read_register8(SPO2_CONFIGURATION, sc.value)) {
         range = sc.range();
@@ -455,7 +452,6 @@ bool UnitMAX30102::read_led_current(const uint8_t idx, uint8_t& raw)
 bool UnitMAX30102::read_led_current(const uint8_t idx, float& mA)
 {
     mA = std::numeric_limits<float>::quiet_NaN();
-
     uint8_t raw{};
     if (read_led_current(idx, raw)) {
         mA = 0.2f * raw;
@@ -536,7 +532,7 @@ bool UnitMAX30102::measureTemperatureSingleshot(TemperatureData& td)
             }
             m5::utility::delay(1);
         } while (m5::utility::millis() <= timeout_at);
-        M5_LIB_LOGE("timeout");
+        M5_LIB_LOGW("timeout");
     }
     return false;
 }
@@ -565,6 +561,11 @@ bool UnitMAX30102::readFIFOConfiguration(max30102::FIFOSampling& avg, bool& roll
 bool UnitMAX30102::writeFIFOConfiguration(const max30102::FIFOSampling avg, const bool rollover,
                                           const uint8_t almostFull)
 {
+    if (inPeriodic()) {
+        M5_LIB_LOGD("Periodic measurements are running");
+        return false;
+    }
+
     FIFOConfiguration fc{};
     fc.average(avg);
     fc.rollover(rollover);
@@ -718,7 +719,6 @@ uint32_t UnitMAX30102::caluculateSamplingRate()
     FIFOSampling avg{};
     bool rollover{};
     uint8_t almostFull{};
-
     Sampling rate{};
 
     if (readFIFOConfiguration(avg, rollover, almostFull) && readSpO2SamplingRate(rate)) {

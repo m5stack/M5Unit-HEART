@@ -174,7 +174,6 @@ constexpr uint8_t READ_PART_ID{0xFF};
 
 }  // namespace command
 
-struct ModeConfiguration;
 struct SpO2Configuration;
 ///@endcond
 
@@ -279,8 +278,7 @@ public:
 
     /*!
       @brief Calculate the sampling rate from the current settings
-      @retval
-      @retval >= 0 Sampling rate
+      @return >= 0 Sampling rate
       @note Calculate by FIFO average and SpO2 sampling rate
      */
     uint32_t caluculateSamplingRate();
@@ -506,18 +504,33 @@ public:
     ///@{
     /*!
       @brief Measure tempeature single shot
-      @param[out] temp Temperature(Celsius)
+      @param[out] td TemperatureData
       @return True if successful
       @warning Blocking until measured about 29 ms
       @warning Does not work in power-save mode
-      @sa m5::unit::MAX30102readShutdownControl
+      @sa m5::unit::MAX30102::readShutdownControl
      */
     bool measureTemperatureSingleshot(max30102::TemperatureData& td);
     ///@}
 
     ///@name FIFO
     ///@{
+    /*!
+      @brief Read the FIFO configuration
+      @param[out] avg FIFO sampling average
+      @param[out] rolllover FIFO Rolls on Full if true
+      @param[out] almostFull FIFO Almost Full Value for interrupt
+      @return True if successful
+     */
     bool readFIFOConfiguration(max30102::FIFOSampling& avg, bool& rollover, uint8_t& almostFull);
+    /*!
+      @brief Write the FIFO configuration
+      @param avg FIFO sampling average
+      @param rolllover FIFO Rolls on Full if true
+      @param almostFull FIFO Almost Full Value for interrupt
+      @return True if successful
+      @warning During periodic detection runs, an error is returned
+     */
     bool writeFIFOConfiguration(const max30102::FIFOSampling avg, const bool rollover, const uint8_t almostFull);
 
     //! @brief Read the FIFO read pointer
@@ -586,7 +599,6 @@ protected:
                                     const uint8_t ir_current, const uint8_t red_current);
     bool stop_periodic_measurement();
 
-    bool write_mode_configuration(const max30102::ModeConfiguration& sc);
     bool write_spo2_configuration(const max30102::SpO2Configuration& sc);
 
     bool read_led_current(const uint8_t idx, uint8_t& raw);

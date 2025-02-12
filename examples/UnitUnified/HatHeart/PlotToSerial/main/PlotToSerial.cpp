@@ -55,7 +55,7 @@ void setup()
         cfg.start_periodic = false;  // Ignore auto start
         hat.config(cfg);
     }
-
+    
     // Using TwoWire
     if (using_wire1) {
         Wire1.end();
@@ -142,7 +142,7 @@ void loop()
 
     // Measure tempeature
     if (M5.BtnA.wasClicked()) {
-        m5::unit::max30102::TemperatureData td{};
+        TemperatureData td{};
         if (hat.measureTemperatureSingleshot(td)) {
             M5.Log.printf("\n>Temp:%f", td.celsius());
         }
