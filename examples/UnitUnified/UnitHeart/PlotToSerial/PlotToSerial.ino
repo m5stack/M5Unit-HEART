@@ -4,6 +4,6 @@
  * SPDX-License-Identifier: MIT
  */
 /*
-  Example using M5UnitUnified for UnitHEART
+  Example using M5UnitUnified for UnitHeart
 */
 #include "main/PlotToSerial.cpp"

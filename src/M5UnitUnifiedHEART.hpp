@@ -14,6 +14,7 @@
 #define M5_UNIT_HEART_HPP
 
 #include "unit/unit_MAX30100.hpp"
+#include "unit/unit_MAX30102.hpp"
 #include "utility/pulse_monitor.hpp"
 
 /*!
@@ -28,7 +29,10 @@ namespace m5 {
  */
 namespace unit {
 
-using UnitHEART = m5::unit::UnitMAX30100;
+using UnitHEART [[deprecated("Please use UnitHeart")]] = m5::unit::UnitMAX30100;
+
+using UnitHeart = m5::unit::UnitMAX30100;
+using HatHeart  = m5::unit::UnitMAX30102;
 
 }  // namespace unit
 }  // namespace m5
