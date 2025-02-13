@@ -98,7 +98,7 @@ jobs:
           - esp32
 
         include:
-          # Specific sketches for sticks only
+          # Specific sketches
           - sketch: PlotToSerial
             unit: HatHeart
             platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
@@ -108,6 +108,39 @@ jobs:
             board: m5stack_stickc_plus
           - sketch: PlotToSerial
             unit: HatHeart
+            platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 3.0.4
+            board: m5stack_stickc_plus2
+          - sketch: GraphicalMeter
+            unit:UnitHeart
+            platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 3.0.4
+            board: m5stack_core
+          - sketch: GraphicalMeter
+            unit: HatHeart
+            platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 3.0.4
+            board: m5stack_stickc_plus
+          - sketch: GraphicalMeter
+            unit: HatHeart
+            platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 3.0.4
+            board: m5stack_stickc_plus2
+          - sketch: DualSensor
+            platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+            platform: esp32
+            archi: esp32
+            platform-version: 3.0.4
+            board: m5stack_stickc_plus
+          - sketch: DualSensor
             platform-url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
             platform: esp32
             archi: esp32
