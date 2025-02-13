@@ -22,6 +22,7 @@ using namespace m5::unit::googletest;
 using namespace m5::unit;
 using namespace m5::unit::max30100;
 using namespace m5::unit::max30100::command;
+using m5::unit::types::elapsed_time_t;
 
 const ::testing::Environment* global_fixture = ::testing::AddGlobalTestEnvironment(new GlobalFixture<400000U>());
 
@@ -49,23 +50,30 @@ protected:
 INSTANTIATE_TEST_SUITE_P(ParamValues, TestMAX30100, ::testing::Values(false));
 
 namespace {
+constexpr uint32_t STORED_SIZE{6};
 
-bool is_allowed_settings(const Mode mode, const Sampling rate, const LedPulseWidth pw)
+constexpr uint8_t spo2_table[] = {
+    // LSB:200 MSB:1600
+    0x0F, 0x0F, 0x07, 0x07, 0x03, 0x01, 0x01, 0x01,
+};
+constexpr uint8_t hr_table[] = {
+    // LSB:200 MSB:1600
+    0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x03, 0x03,
+};
+constexpr uint8_t none_table[] = {
+    // LSB:200 MSB::1600
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+constexpr const uint8_t* allowed_setting_table[] = {none_table, none_table, hr_table, spo2_table};
+
+inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse width)
 {
-    constexpr uint8_t spo2_table[] = {
-        // LSB:200 MSB:1600
-        0x0F, 0x0F, 0x07, 0x07, 0x03, 0x01, 0x01, 0x01,
-    };
-    constexpr uint8_t hr_table[] = {
-        // LSB:200 MSB:1600
-        0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x03, 0x03,
-    };
-    return (mode == Mode::SPO2 ? spo2_table : hr_table)[m5::stl::to_underlying(rate)] &
-           (1U << m5::stl::to_underlying(pw));
+    return allowed_setting_table[m5::stl::to_underlying(mode)][m5::stl::to_underlying(rate)] &
+           (1U << m5::stl::to_underlying(width));
 }
 
 constexpr Mode mode_table[] = {
-    Mode::SPO2,
+    Mode::SpO2,
     Mode::HROnly,
 };
 
@@ -74,169 +82,412 @@ constexpr Sampling sr_table[] = {
     Sampling::Rate400, Sampling::Rate600, Sampling::Rate800, Sampling::Rate1000,
 };
 
-constexpr LedPulseWidth pw_table[] = {
-    LedPulseWidth::PW200,
-    LedPulseWidth::PW400,
-    LedPulseWidth::PW800,
-    LedPulseWidth::PW1600,
+constexpr LEDPulse pw_table[] = {
+    LEDPulse::Width200,
+    LEDPulse::Width400,
+    LEDPulse::Width800,
+    LEDPulse::Width1600,
 };
 
-constexpr bool hr_table[] = {true, false};
+constexpr bool res_table[] = {true, false};
 
-constexpr CurrentControl cc_table[] = {
-    CurrentControl::mA0_0,  CurrentControl::mA4_4,  CurrentControl::mA7_6,  CurrentControl::mA11_0,
-    CurrentControl::mA14_2, CurrentControl::mA17_4, CurrentControl::mA20_8, CurrentControl::mA24_0,
-    CurrentControl::mA27_1, CurrentControl::mA30_6, CurrentControl::mA33_8, CurrentControl::mA37_0,
-    CurrentControl::mA40_2, CurrentControl::mA43_6, CurrentControl::mA46_8, CurrentControl::mA50_0,
+constexpr LED cur_table[] = {
+    LED::Current0_0,  LED::Current4_4,  LED::Current7_6,  LED::Current11_0, LED::Current14_2, LED::Current17_4,
+    LED::Current20_8, LED::Current24_0, LED::Current27_1, LED::Current30_6, LED::Current33_8, LED::Current37_0,
+    LED::Current40_2, LED::Current43_6, LED::Current46_8, LED::Current50_0,
 };
+
+void test_spo2_config(UnitMAX30100* unit, const Mode mode)
+{
+    EXPECT_TRUE(unit->writeMode(mode));
+
+    for (auto& res : res_table) {
+        for (auto&& sr : sr_table) {
+            for (auto&& pw : pw_table) {
+                auto s = m5::utility::formatString("Mode:%u RES:%u Rate:%u Width:%u", mode, res, sr, pw);
+                SCOPED_TRACE(s);
+
+                bool resolution{};
+                Sampling rate{};
+                LEDPulse width{};
+
+                if (is_allowed_settings(mode, sr, pw)) {
+                    EXPECT_TRUE(unit->writeSpO2Configuration(res, sr, pw));
+
+                    EXPECT_TRUE(unit->readSpO2Configuration(resolution, rate, width));
+                    EXPECT_EQ(resolution, res);
+                    EXPECT_EQ(rate, sr);
+                    EXPECT_EQ(width, pw);
+                } else {
+                    EXPECT_TRUE(unit->readSpO2Configuration(resolution, rate, width));
+
+                    EXPECT_FALSE(unit->writeSpO2Configuration(res, sr, pw));
+
+                    bool resolution2{};
+                    Sampling rate2{};
+                    LEDPulse width2{};
+                    EXPECT_TRUE(unit->readSpO2Configuration(resolution2, rate2, width2));
+                    EXPECT_EQ(resolution2, resolution);
+                    EXPECT_EQ(rate2, rate2);
+                    EXPECT_EQ(width2, width2);
+                }
+            }
+        }
+    }
+}
+
+void test_spo2_config_each(UnitMAX30100* unit, const Mode mode)
+{
+    auto s = m5::utility::formatString("Mode:%u", mode);
+    SCOPED_TRACE(s);
+
+    EXPECT_TRUE(unit->writeMode(mode));
+    EXPECT_TRUE(unit->writeSpO2Configuration(false, Sampling::Rate50, LEDPulse::Width200));
+
+    for (auto& res : res_table) {
+        auto s = m5::utility::formatString("RES:%u", res);
+        SCOPED_TRACE(s);
+
+        bool resolution{};
+        EXPECT_TRUE(unit->writeSpO2HighResolution(res));
+        EXPECT_TRUE(unit->readSpO2HighResolution(resolution));
+        EXPECT_EQ(resolution, res);
+
+        for (auto&& sr : sr_table) {
+            auto s = m5::utility::formatString("Rate:%u", sr);
+            SCOPED_TRACE(s);
+
+            if (is_allowed_settings(mode, sr, LEDPulse::Width200)) {
+                Sampling rate{};
+
+                EXPECT_TRUE(unit->writeSpO2SamplingRate(sr));
+
+                EXPECT_TRUE(unit->readSpO2SamplingRate(rate));
+                EXPECT_EQ(rate, sr);
+
+                for (auto&& pw : pw_table) {
+                    auto s = m5::utility::formatString("Width:%u", pw);
+                    SCOPED_TRACE(s);
+                    LEDPulse width{};
+
+                    if (is_allowed_settings(mode, sr, pw)) {
+                        EXPECT_TRUE(unit->writeSpO2LEDPulseWidth(pw));
+
+                        EXPECT_TRUE(unit->readSpO2LEDPulseWidth(width));
+                        EXPECT_EQ(width, pw);
+                    } else {
+                        LEDPulse width2{};
+                        EXPECT_TRUE(unit->readSpO2LEDPulseWidth(width));
+
+                        EXPECT_FALSE(unit->writeSpO2LEDPulseWidth(pw));
+
+                        EXPECT_TRUE(unit->readSpO2LEDPulseWidth(width2));
+                        EXPECT_EQ(width2, width);
+                    }
+                }
+                EXPECT_TRUE(unit->writeSpO2LEDPulseWidth(LEDPulse::Width200));
+            } else {
+                Sampling rate{}, rate2{};
+                EXPECT_TRUE(unit->readSpO2SamplingRate(rate));
+
+                EXPECT_FALSE(unit->writeSpO2SamplingRate(sr));
+
+                EXPECT_TRUE(unit->readSpO2SamplingRate(rate2));
+                EXPECT_EQ(rate2, rate);
+            }
+        }
+        EXPECT_TRUE(unit->writeSpO2Configuration(res, Sampling::Rate50, LEDPulse::Width200));
+    }
+}
+
+template <class U>
+elapsed_time_t test_periodic(U* unit, const uint32_t times, const uint32_t measure_duration = 0)
+{
+    auto tm         = unit->interval();
+    auto timeout_at = m5::utility::millis() + 10 * 1000;
+
+    do {
+        unit->update();
+        if (unit->updated()) {
+            break;
+        }
+        std::this_thread::yield();
+    } while (!unit->updated() && m5::utility::millis() <= timeout_at);
+    // timeout
+    if (!unit->updated()) {
+        return 0;
+    }
+
+    unit->flush();
+
+    //
+    uint32_t measured{};
+    auto start_at = m5::utility::millis();
+    timeout_at    = start_at + (times * (tm + measure_duration) * 2);
+
+    do {
+        unit->update();
+        measured += unit->updated() ? 1 : 0;
+        if (measured >= times) {
+            break;
+        }
+        // std::this_thread::yield();
+        m5::utility::delay(1);
+
+    } while (measured < times && m5::utility::millis() <= timeout_at);
+    return (measured == times) ? m5::utility::millis() - start_at : 0;
+    // return (measured == times) ? unit->updatedMillis() - start_at : 0;
+}
+
+void test_periodic_spo2(UnitMAX30100* unit)
+{
+    // Pairwise
+    // clang-format off
+    constexpr std::tuple<bool, Sampling, LEDPulse> cond_table[] = {
+        {false, Sampling::Rate100, LEDPulse::Width1600 },
+        {true, Sampling::Rate167, LEDPulse::Width400 },
+        {true, Sampling::Rate200, LEDPulse::Width200 },
+        {true, Sampling::Rate100, LEDPulse::Width800 },
+        {false, Sampling::Rate1000, LEDPulse::Width200 },
+        {true, Sampling::Rate800, LEDPulse::Width200 },
+        {true, Sampling::Rate400, LEDPulse::Width200 },
+        {true, Sampling::Rate600, LEDPulse::Width200 },
+        {false, Sampling::Rate50, LEDPulse::Width400 },
+        {true, Sampling::Rate50, LEDPulse::Width800 },
+        {false, Sampling::Rate100, LEDPulse::Width400 },
+        {true, Sampling::Rate50, LEDPulse::Width1600 },
+        {false, Sampling::Rate100, LEDPulse::Width200 },
+        {false, Sampling::Rate200, LEDPulse::Width800 },
+        {false, Sampling::Rate400, LEDPulse::Width400 },
+        {false, Sampling::Rate50, LEDPulse::Width200 },
+        {false, Sampling::Rate200, LEDPulse::Width400 },
+        {false, Sampling::Rate167, LEDPulse::Width800 },
+        {false, Sampling::Rate800, LEDPulse::Width200 },
+        {false, Sampling::Rate600, LEDPulse::Width200 },
+        {true, Sampling::Rate1000, LEDPulse::Width200 },
+        {false, Sampling::Rate167, LEDPulse::Width200 },
+    };
+    // clang-format on
+
+    for (auto&& cond : cond_table) {
+        bool res{};
+        Sampling rate{};
+        LEDPulse width{};
+        std::tie(res, rate, width) = cond;
+
+        auto s = m5::utility::formatString("SPO2 RES:%u SR:%u WID:%u", res, rate, width);
+        SCOPED_TRACE(s);
+
+        EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SpO2, rate, width, LED::Current27_1, res, LED::Current27_1));
+        auto it = unit->interval() ? unit->interval() : 1;
+
+        auto elapsed = test_periodic(unit, STORED_SIZE, it);
+
+        EXPECT_TRUE(unit->stopPeriodicMeasurement());
+        EXPECT_FALSE(unit->inPeriodic());
+
+        EXPECT_NE(elapsed, 0);
+        EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
+        // M5_LOGI(">>> %s>elapsed: %ld/%u retrived:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+        //         unit->retrived(), unit->overflow());
+
+        EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)
+        EXPECT_FALSE(unit->empty());
+        if (unit->available() == MAX_FIFO_DEPTH) {
+            EXPECT_TRUE(unit->full());
+        } else {
+            EXPECT_FALSE(unit->full());
+        }
+
+        uint32_t cnt{unit->available() / 2};
+        uint32_t left = unit->available() - cnt;
+        uint32_t air{}, ared{};
+        while (cnt-- && unit->available()) {
+            air += unit->ir();
+            ared += unit->red();
+            EXPECT_EQ(unit->oldest().ir(), unit->ir());
+            EXPECT_EQ(unit->oldest().red(), unit->red());
+
+            EXPECT_FALSE(unit->empty());
+            unit->discard();
+        }
+        EXPECT_NE(air, 0);
+        EXPECT_NE(ared, 0);
+
+        EXPECT_EQ(unit->available(), left);
+        EXPECT_FALSE(unit->empty());
+        EXPECT_FALSE(unit->full());
+
+        unit->flush();
+        EXPECT_EQ(unit->available(), 0);
+        EXPECT_TRUE(unit->empty());
+        EXPECT_FALSE(unit->full());
+
+        EXPECT_EQ(unit->ir(), 0);
+        EXPECT_EQ(unit->red(), 0);
+    }
+}
+
+void test_periodic_hr(UnitMAX30100* unit)
+{
+    // Pairwise
+    // clang-format off
+    constexpr std::tuple<bool, Sampling, LEDPulse> cond_table[] = {
+        {true, Sampling::Rate600, LEDPulse::Width400 },
+        {false, Sampling::Rate1000, LEDPulse::Width400 },
+        {false, Sampling::Rate100, LEDPulse::Width1600 },
+        {true, Sampling::Rate167, LEDPulse::Width400 },
+        {true, Sampling::Rate200, LEDPulse::Width200 },
+        {true, Sampling::Rate100, LEDPulse::Width800 },
+        {false, Sampling::Rate1000, LEDPulse::Width200 },
+        {true, Sampling::Rate800, LEDPulse::Width200 },
+        {true, Sampling::Rate400, LEDPulse::Width200 },
+        {false, Sampling::Rate600, LEDPulse::Width200 },
+        {false, Sampling::Rate50, LEDPulse::Width400 },
+        {true, Sampling::Rate50, LEDPulse::Width800 },
+        {false, Sampling::Rate100, LEDPulse::Width400 },
+        {true, Sampling::Rate50, LEDPulse::Width1600 },
+        {false, Sampling::Rate100, LEDPulse::Width200 },
+        {false, Sampling::Rate200, LEDPulse::Width800 },
+        {false, Sampling::Rate400, LEDPulse::Width400 },
+        {false, Sampling::Rate50, LEDPulse::Width200 },
+        {false, Sampling::Rate800, LEDPulse::Width400 },
+        {false, Sampling::Rate200, LEDPulse::Width400 },
+        {false, Sampling::Rate167, LEDPulse::Width800 },
+        {true, Sampling::Rate1000, LEDPulse::Width200 },
+        {false, Sampling::Rate167, LEDPulse::Width200 },
+    };
+    // clang-format on
+
+    for (auto&& cond : cond_table) {
+        bool res{};
+        Sampling rate{};
+        LEDPulse width{};
+        std::tie(res, rate, width) = cond;
+
+        auto s = m5::utility::formatString("HR RES:%u SR:%u WID:%u", res, rate, width);
+        SCOPED_TRACE(s);
+
+        EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::HROnly, rate, width, LED::Current27_1, res));
+        auto it = unit->interval() ? unit->interval() : 1;
+
+        auto elapsed = test_periodic(unit, STORED_SIZE, it);
+
+        EXPECT_TRUE(unit->stopPeriodicMeasurement());
+        EXPECT_FALSE(unit->inPeriodic());
+
+        EXPECT_NE(elapsed, 0);
+        EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
+        // M5_LOGI(">>> %s>elapsed: %ld/%u retrived:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+        //         unit->retrived(), unit->overflow());
+
+        EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)
+        EXPECT_FALSE(unit->empty());
+        if (unit->available() == MAX_FIFO_DEPTH) {
+            EXPECT_TRUE(unit->full());
+        } else {
+            EXPECT_FALSE(unit->full());
+        }
+
+        uint32_t cnt{unit->available() / 2};
+        uint32_t left = unit->available() - cnt;
+        uint32_t air{}, ared{};
+        while (cnt-- && unit->available()) {
+            air += unit->ir();
+            ared += unit->red();
+            EXPECT_EQ(unit->oldest().ir(), unit->ir());
+            EXPECT_EQ(unit->oldest().red(), unit->red());
+
+            EXPECT_FALSE(unit->empty());
+            unit->discard();
+        }
+        EXPECT_NE(air, 0);
+        EXPECT_EQ(ared, 0);
+
+        EXPECT_EQ(unit->available(), left);
+        EXPECT_FALSE(unit->empty());
+        EXPECT_FALSE(unit->full());
+
+        unit->flush();
+        EXPECT_EQ(unit->available(), 0);
+        EXPECT_TRUE(unit->empty());
+        EXPECT_FALSE(unit->full());
+
+        EXPECT_EQ(unit->ir(), 0);
+        EXPECT_EQ(unit->red(), 0);
+    }
+}
 
 }  // namespace
 
-TEST_P(TestMAX30100, Configration)
+TEST_P(TestMAX30100, Mode)
+{
+    constexpr bool bool_table[] = {true, false};
+
+    SCOPED_TRACE(ustr);
+    EXPECT_TRUE(unit->inPeriodic());
+
+    // Failed if in periodic
+    EXPECT_TRUE(unit->inPeriodic());
+    for (auto&& m : mode_table) {
+        EXPECT_FALSE(unit->writeMode(m));
+    }
+    for (auto&& shdn : bool_table) {
+        EXPECT_FALSE(unit->writeShutdownControl(shdn));
+    }
+
+    //
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_FALSE(unit->inPeriodic());
+
+    // Mode
+    for (auto&& m : mode_table) {
+        EXPECT_TRUE(unit->writeMode(m));
+        Mode m2{};
+        EXPECT_TRUE(unit->readMode(m2));
+        EXPECT_EQ(m2, m);
+    }
+
+    // SHDN
+    for (auto&& shdn : bool_table) {
+        EXPECT_TRUE(unit->writeShutdownControl(shdn));
+        bool shdn2{};
+        EXPECT_TRUE(unit->readShutdownControl(shdn2));
+        EXPECT_EQ(shdn2, shdn);
+    }
+}
+
+TEST_P(TestMAX30100, SpO2Configuration)
 {
     SCOPED_TRACE(ustr);
 
-    for (auto&& m : mode_table) {
-        auto s = m5::utility::formatString("Mode:%u", m);
-        SCOPED_TRACE(s.c_str());
-        // M5_LOGI("%s", s.c_str());
+    // Failed if in periodic
+    EXPECT_FALSE(unit->writeSpO2Configuration(true, Sampling::Rate50, LEDPulse::Width200));
 
-        ModeConfiguration mc{};
-        EXPECT_TRUE(unit->writeMode(m));
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_FALSE(unit->inPeriodic());
 
-        EXPECT_TRUE(unit->readModeConfiguration(mc));
-        EXPECT_EQ(mc.mode(), m);
+    test_spo2_config(unit.get(), Mode::SpO2);
+    test_spo2_config_each(unit.get(), Mode::SpO2);
 
-        auto mm = (m == Mode::HROnly ? Mode::SPO2 : Mode::HROnly);
-        mc.mode(mm);
-        EXPECT_TRUE(unit->writeModeConfiguration(mc));
+    test_spo2_config(unit.get(), Mode::HROnly);
+    test_spo2_config_each(unit.get(), Mode::HROnly);
+}
 
-        EXPECT_TRUE(unit->readModeConfiguration(mc));
-        EXPECT_EQ(mc.mode(), mm);
-    }
+TEST_P(TestMAX30100, LEDCurrent)
+{
+    SCOPED_TRACE(ustr);
 
-    constexpr bool ps_table[] = {true, false};
-    for (auto&& ps : ps_table) {
-        auto s = m5::utility::formatString("PowerSave:%u", ps);
-        SCOPED_TRACE(s.c_str());
-        // M5_LOGI("%s", s.c_str());
+    for (auto&& ir : cur_table) {
+        for (auto&& red : cur_table) {
+            auto s = m5::utility::formatString("IR:%u Red:%u", ir, red);
+            SCOPED_TRACE(s);
+            EXPECT_TRUE(unit->writeLEDCurrent(ir, red));
 
-        ModeConfiguration mc{};
-
-        EXPECT_TRUE(ps ? unit->writePowerSaveEnable() : unit->writePowerSaveDisable());
-        EXPECT_TRUE(unit->readModeConfiguration(mc));
-        EXPECT_EQ(mc.shdn(), ps);
-
-        bool f = !ps;
-        mc.shdn(f);
-        EXPECT_TRUE(unit->writeModeConfiguration(mc));
-
-        EXPECT_TRUE(unit->readModeConfiguration(mc));
-        EXPECT_EQ(mc.shdn(), f);
-    }
-
-    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
-    for (auto&& rate : sr_table) {
-        for (auto&& pw : pw_table) {
-            auto s = m5::utility::formatString("SPO2:Rate:%u:LPW:%u", rate, pw);
-            SCOPED_TRACE(s.c_str());
-            // M5_LOGI("%s", s.c_str());
-
-            SpO2Configuration sc{};
-            EXPECT_TRUE(unit->readSpO2Configuration(sc));
-            sc.samplingRate(rate);
-            sc.ledPulseWidth(pw);
-            if (is_allowed_settings(Mode::SPO2, rate, pw)) {
-                EXPECT_TRUE(unit->writeSpO2Configuration(sc));
-                EXPECT_TRUE(unit->writeSamplingRate(rate));
-                EXPECT_TRUE(unit->writeLedPulseWidth(pw));
-            } else {
-                EXPECT_FALSE(unit->writeSpO2Configuration(sc));
-            }
-        }
-    }
-
-    EXPECT_TRUE(unit->writeMode(Mode::HROnly));
-    for (auto&& rate : sr_table) {
-        for (auto&& pw : pw_table) {
-            auto s = m5::utility::formatString("HRONly:Rate:%u:LPW:%u", rate, pw);
-            SCOPED_TRACE(s.c_str());
-            // M5_LOGI("%s", s.c_str());
-
-            SpO2Configuration sc{};
-            EXPECT_TRUE(unit->readSpO2Configuration(sc));
-            sc.samplingRate(rate);
-            sc.ledPulseWidth(pw);
-            if (is_allowed_settings(Mode::HROnly, rate, pw)) {
-                EXPECT_TRUE(unit->writeSpO2Configuration(sc));
-                EXPECT_TRUE(unit->writeSamplingRate(rate));
-                EXPECT_TRUE(unit->writeLedPulseWidth(pw));
-            } else {
-                EXPECT_FALSE(unit->writeSpO2Configuration(sc));
-            }
-        }
-    }
-
-    for (auto&& hr : hr_table) {
-        auto s = m5::utility::formatString("HightRes:%u", hr);
-        SCOPED_TRACE(s.c_str());
-        // M5_LOGI("%s", s.c_str());
-
-        EXPECT_TRUE(hr ? unit->writeHighResolutionEnable() : unit->writeHighResolutionDisable());
-
-        SpO2Configuration sc{};
-        EXPECT_TRUE(unit->readSpO2Configuration(sc));
-        EXPECT_EQ(sc.highResolution(), hr);
-    }
-
-    // In the heart-rate only mode, the red LED is inactive,
-    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
-    for (auto&& ir : cc_table) {
-        for (auto&& red : cc_table) {
-            auto s = m5::utility::formatString("SPO2:IR:%u/RED:%u", ir, red);
-            SCOPED_TRACE(s.c_str());
-            // M5_LOGI("%s", s.c_str());
-
-            LedConfiguration lc{};
-
-            EXPECT_TRUE(unit->writeLedCurrent(ir, red));
-
-            EXPECT_TRUE(unit->readLedConfiguration(lc));
-            EXPECT_EQ(lc.ir(), ir);
-            EXPECT_EQ(lc.red(), red);
-
-            lc.ir(ir);
-            lc.red(red);
-            EXPECT_TRUE(unit->writeLedConfiguration(lc));
-
-            EXPECT_TRUE(unit->readLedConfiguration(lc));
-            EXPECT_EQ(lc.ir(), ir);
-            EXPECT_EQ(lc.red(), red);
-        }
-    }
-
-    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
-    for (auto&& ir : cc_table) {
-        for (auto&& red : cc_table) {
-            auto s = m5::utility::formatString("HRONLY:IR:%u/RED:%u", ir, red);
-            SCOPED_TRACE(s.c_str());
-            // M5_LOGI("%s", s.c_str());
-
-            LedConfiguration lc{};
-
-            EXPECT_TRUE(unit->writeLedCurrent(ir, red));
-
-            EXPECT_TRUE(unit->readLedConfiguration(lc));
-            EXPECT_EQ(lc.ir(), ir);
-            EXPECT_EQ(lc.red(), red);
-
-            lc.ir(ir);
-            lc.red(red);
-            EXPECT_TRUE(unit->writeLedConfiguration(lc));
-
-            EXPECT_TRUE(unit->readLedConfiguration(lc));
-            EXPECT_EQ(lc.ir(), ir);
-            EXPECT_EQ(lc.red(), red);
+            LED ir_current{}, red_current{};
+            EXPECT_TRUE(unit->readLEDCurrent(ir_current, red_current));
+            EXPECT_EQ(ir_current, ir);
+            EXPECT_EQ(red_current, red);
         }
     }
 }
@@ -245,22 +496,39 @@ TEST_P(TestMAX30100, Temperature)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
-    EXPECT_TRUE(unit->writePowerSaveDisable());
-    SpO2Configuration sc{};
-    sc.samplingRate(Sampling::Rate100);
-    sc.ledPulseWidth(LedPulseWidth::PW1600);
-    sc.highResolution(true);
-    EXPECT_TRUE(unit->writeSpO2Configuration(sc));
-    EXPECT_TRUE(unit->writeLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
-
     for (auto&& m : mode_table) {
         auto s = m5::utility::formatString("Mode:%u", m);
-        SCOPED_TRACE(s.c_str());
+        SCOPED_TRACE(s);
+
+        EXPECT_TRUE(unit->stopPeriodicMeasurement());  // to Power-save mode
+        EXPECT_FALSE(unit->inPeriodic());
         EXPECT_TRUE(unit->writeMode(m));
 
         TemperatureData td{};
-        uint32_t cnt{8};
+        uint32_t cnt{4};
+
+        // Does not work in power-save mode
+        while (cnt--) {
+            EXPECT_FALSE(unit->measureTemperatureSingleshot(td));
+            EXPECT_FALSE(std::isfinite(td.celsius()));
+            EXPECT_FALSE(std::isfinite(td.fahrenheit()));
+            // M5_LOGI("TempS>C:%f F:%f", td.celsius(), td.fahrenheit());
+        }
+
+        // Work in not power-save mode
+        EXPECT_TRUE(unit->writeShutdownControl(false));
+        cnt = 4;
+        while (cnt--) {
+            EXPECT_TRUE(unit->measureTemperatureSingleshot(td));
+            EXPECT_TRUE(std::isfinite(td.celsius()));
+            EXPECT_TRUE(std::isfinite(td.fahrenheit()));
+            // M5_LOGI("TempS>C:%f F:%f", td.celsius(), td.fahrenheit());
+        }
+
+        // Measurement is possible during periodic measurements
+        EXPECT_TRUE(unit->startPeriodicMeasurement());
+        EXPECT_TRUE(unit->inPeriodic());
+        cnt = 4;
         while (cnt--) {
             EXPECT_TRUE(unit->measureTemperatureSingleshot(td));
             EXPECT_TRUE(std::isfinite(td.celsius()));
@@ -270,43 +538,64 @@ TEST_P(TestMAX30100, Temperature)
     }
 }
 
+TEST_P(TestMAX30100, Revision)
+{
+    SCOPED_TRACE(ustr);
+
+    uint8_t rev{};
+    EXPECT_TRUE(unit->readRevisionID(rev));
+    EXPECT_NE(rev, 0);
+    // M5_LOGI("Rev:%02X", rev);
+}
+
 TEST_P(TestMAX30100, Reset)
 {
-    EXPECT_TRUE(unit->writeMode(Mode::SPO2));
-    EXPECT_TRUE(unit->writePowerSaveEnable());
+    SCOPED_TRACE(ustr);
 
-    SpO2Configuration sc{};
-    sc.samplingRate(Sampling::Rate100);
-    sc.ledPulseWidth(LedPulseWidth::PW1600);
-    sc.highResolution(true);
-    EXPECT_TRUE(unit->writeSpO2Configuration(sc));
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_FALSE(unit->inPeriodic());
 
-    EXPECT_TRUE(unit->writeLedCurrent(CurrentControl::mA7_6, CurrentControl::mA7_6));
+    //
+    EXPECT_TRUE(unit->writeMode(Mode::SpO2));
+    EXPECT_TRUE(unit->writeSpO2Configuration(true, Sampling::Rate400, LEDPulse::Width400));
+    EXPECT_TRUE(unit->writeLEDCurrent(LED::Current24_0, LED::Current17_4));
 
-    EXPECT_TRUE(unit->writeRegister8(FIFO_WRITE_POINTER, 1));
-    EXPECT_TRUE(unit->writeRegister8(FIFO_READ_POINTER, 1));
+    EXPECT_TRUE(unit->writeFIFOReadPointer(1));
+    EXPECT_TRUE(unit->writeFIFOWritePointer(1));
+    EXPECT_TRUE(unit->writeFIFOOverflowCounter(1));
 
-    // reset
+    EXPECT_TRUE(unit->startPeriodicMeasurement());
+    EXPECT_TRUE(unit->inPeriodic());
+
+    //
     EXPECT_TRUE(unit->reset());
 
-    {
-        ModeConfiguration mc{};
-        SpO2Configuration sc{};
-        LedConfiguration lc{};
+    //
+    Mode mode{};
+    EXPECT_TRUE(unit->readMode(mode));
+    EXPECT_EQ(mode, Mode::None);
 
-        EXPECT_TRUE(unit->readModeConfiguration(mc));
-        EXPECT_EQ(mc.value, 0);
-        EXPECT_TRUE(unit->readSpO2Configuration(sc));
-        EXPECT_EQ(sc.value, 0);
-        EXPECT_TRUE(unit->readLedConfiguration(lc));
-        EXPECT_EQ(lc.value, 0);
+    bool resolution{};
+    Sampling rate{};
+    LEDPulse width{};
+    EXPECT_TRUE(unit->readSpO2Configuration(resolution, rate, width));
+    EXPECT_FALSE(resolution);
+    EXPECT_EQ(rate, Sampling::Rate50);
+    EXPECT_EQ(width, LEDPulse::Width200);
 
-        uint8_t wptr{}, rptr{};
-        EXPECT_TRUE(unit->readRegister8(FIFO_WRITE_POINTER, wptr, 0));
-        EXPECT_TRUE(unit->readRegister8(FIFO_READ_POINTER, rptr, 0));
-        EXPECT_EQ(wptr, 0U);
-        EXPECT_EQ(rptr, 0U);
-    }
+    LED ir{}, red{};
+    EXPECT_TRUE(unit->readLEDCurrent(ir, red));
+    EXPECT_EQ(ir, LED::Current0_0);
+
+    EXPECT_EQ(red, LED::Current0_0);
+
+    uint8_t rptr{0xFF}, wptr{0xFF}, cnt{0xFF};
+    EXPECT_TRUE(unit->readFIFOReadPointer(rptr));
+    EXPECT_TRUE(unit->readFIFOWritePointer(wptr));
+    EXPECT_TRUE(unit->readFIFOOverflowCounter(cnt));
+    EXPECT_EQ(rptr, 0U);
+    EXPECT_EQ(wptr, 0U);
+    EXPECT_EQ(cnt, 0U);
 }
 
 TEST_P(TestMAX30100, Periodic)
@@ -317,33 +606,32 @@ TEST_P(TestMAX30100, Periodic)
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
 
-    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SPO2, Sampling::Rate100, LedPulseWidth::PW1600,
-                                               CurrentControl::mA7_6, true, CurrentControl::mA7_6));
-    EXPECT_TRUE(unit->inPeriodic());
+    // 100 sps
+    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SpO2, Sampling::Rate100, LEDPulse::Width1600, LED::Current27_1,
+                                               true, LED::Current27_1));
 
+    // Wait first updated
     auto start_at = m5::utility::millis();
-
-    // wait first read (timeout 1sec)
     do {
         unit->update();
         std::this_thread::yield();
     } while (!unit->updated() && m5::utility::millis() - start_at <= 1000);
     EXPECT_TRUE(unit->updated());
 
+    //    M5_LOGW("%u %u", unit->retrived(), unit->available());
+
     EXPECT_FALSE(unit->full());
     EXPECT_FALSE(unit->empty());
     EXPECT_GT(unit->available(), 0U);
 
     while (unit->available()) {
-        // M5_LOGI("IR:%u RED:%u", unit->ir(), unit->red());
-        EXPECT_NE(unit->ir(), 0U);
-        EXPECT_NE(unit->red(), 0U);
         EXPECT_EQ(unit->ir(), unit->oldest().ir());
         EXPECT_EQ(unit->red(), unit->oldest().red());
         unit->discard();
     }
 
-    m5::utility::delay(100);  // Sampling about 10 times (not overflow)
+    // Sampling about 10 times (not overflow)
+    m5::utility::delay(100);
 
     unit->update();
     EXPECT_TRUE(unit->updated());
@@ -365,13 +653,14 @@ TEST_P(TestMAX30100, Periodic)
     EXPECT_FALSE(unit->full());
     EXPECT_TRUE(unit->empty());
 
-    m5::utility::delay(200);  // Sampling about 20 times (overflow!)
+    // Sampling about 20 times (overflow!)
+    m5::utility::delay(200);
 
     unit->update();
     EXPECT_TRUE(unit->updated());
 
     EXPECT_EQ(unit->available(), MAX_FIFO_DEPTH);
-    EXPECT_GT(unit->retrived(), 0U);
+    EXPECT_EQ(unit->retrived(), MAX_FIFO_DEPTH);
     EXPECT_TRUE(unit->full());
     EXPECT_FALSE(unit->empty());
     EXPECT_GT(unit->overflow(), 0U);
@@ -386,102 +675,24 @@ TEST_P(TestMAX30100, Periodic)
     }
 }
 
-TEST_P(TestMAX30100, Periodic2)
+TEST_P(TestMAX30100, Periodic_SPO2)
 {
-    constexpr uint32_t sps_table[] = {5, 10, 16, 20, 40, 60, 80, 100};  // Number of measurements per 100 ms (approx.)
-
     SCOPED_TRACE(ustr);
 
     EXPECT_TRUE(unit->inPeriodic());
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
 
-    for (auto&& m : mode_table) {
-        for (auto&& sr : sr_table) {
-            for (auto&& pw : pw_table) {
-                if (!is_allowed_settings(m, sr, pw)) {
-                    continue;
-                }
-                for (auto&& cc : cc_table) {
-                    if (m == Mode::SPO2) {
-                        for (auto&& hr : hr_table) {
-                            std::string s =
-                                m5::utility::formatString("Mode:%u SR:%u PW:%u HR:%u CC:%u", m, sr, pw, hr, cc);
-                            SCOPED_TRACE(s.c_str());
-                            // M5_LOGI(">> %s", s.c_str());
+    test_periodic_spo2(unit.get());
+}
 
-                            uint32_t tcount{4};
-                            while (tcount--) {
-                                EXPECT_TRUE(unit->startPeriodicMeasurement(m, sr, pw, cc, hr, cc));
-                                EXPECT_TRUE(unit->inPeriodic());
+TEST_P(TestMAX30100, Periodic_HR)
+{
+    SCOPED_TRACE(ustr);
 
-                                // wait first read (timeout 1sec)
-                                auto start_at = m5::utility::millis();
-                                do {
-                                    unit->update();
-                                } while (!unit->updated() && m5::utility::millis() - start_at <= 1000);
-                                EXPECT_TRUE(unit->updated());
-                                unit->flush();
+    EXPECT_TRUE(unit->inPeriodic());
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_FALSE(unit->inPeriodic());
 
-                                auto to = m5::utility::millis() + 100U;
-                                size_t count{};
-                                do {
-                                    // m5::utility::delay(1);
-                                    unit->update();
-                                    count += unit->updated() ? unit->retrived() + unit->overflow() : 0;
-                                    // count += unit->available();
-                                    // unit->flush();
-                                } while (m5::utility::millis() <= to);
-                                EXPECT_TRUE(unit->stopPeriodicMeasurement());
-                                EXPECT_FALSE(unit->inPeriodic());
-
-                                // EXPECT_GE(count, sps_table[m5::stl::to_underlying(sr)]);
-                                if (count >= sps_table[m5::stl::to_underlying(sr)]) {
-                                    break;
-                                }
-                            }
-                            EXPECT_GT(tcount, 0);
-                        }
-                    } else {
-                        std::string s = m5::utility::formatString("Mode:%u SR:%u PW:%u CC:%u", m, sr, pw, cc);
-                        SCOPED_TRACE(s.c_str());
-                        // M5_LOGI(">> %s", s.c_str());
-
-                        uint32_t tcount{4};
-                        while (tcount--) {
-                            EXPECT_TRUE(unit->startPeriodicMeasurement(m, sr, pw, cc));
-                            EXPECT_TRUE(unit->inPeriodic());
-
-                            // wait first read (timeout 1sec)
-                            auto start_at = m5::utility::millis();
-                            do {
-                                unit->update();
-                            } while (!unit->updated() && m5::utility::millis() - start_at <= 1000);
-                            EXPECT_TRUE(unit->updated());
-                            unit->flush();
-
-                            auto to = m5::utility::millis() + 100U;
-                            size_t count{};
-                            do {
-                                // m5::utility::delay(1);
-                                unit->update();
-                                count += unit->updated() ? unit->retrived() + unit->overflow() : 0;
-                                // count += unit->available();
-                                // unit->flush();
-                            } while (m5::utility::millis() <= to);
-                            EXPECT_TRUE(unit->stopPeriodicMeasurement());
-                            EXPECT_FALSE(unit->inPeriodic());
-
-                            // EXPECT_GE(count, sps_table[m5::stl::to_underlying(sr)]);
-                            if (count >= sps_table[m5::stl::to_underlying(sr)]) {
-                                break;
-                            }
-                        }
-                        EXPECT_GT(tcount, 0);
-                    }
-                    // m5::utiity::delay(10);
-                }
-            }
-        }
-    }
+    test_periodic_hr(unit.get());
 }

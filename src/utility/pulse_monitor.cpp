@@ -13,13 +13,13 @@
 namespace m5 {
 namespace heart {
 
-void PulseMonitor::setSamplingRate(const float samplingRate)
+void PulseMonitor::setSamplingRate(const uint32_t samplingRate)
 {
-    if (samplingRate < 1.0f) {
+    if (!samplingRate) {
         M5_LIB_LOGE("SamplingRate must be greater equal than 1.0f");
         return;
     }
-    _sampling_rate = samplingRate;
+    _sampling_rate = (float)samplingRate;
     _max_samples   = (size_t)samplingRate * _range;
 
     _filterIR.setSamplingRate(5.0f, samplingRate);
