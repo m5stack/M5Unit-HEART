@@ -111,12 +111,12 @@ public:
     }
 
     //! @brief Detect beat?
-    bool isBeat() const
+    inline bool isBeat() const
     {
         return _beat;
     }
     //! @brief Gets the BPM
-    float bpm() const
+    inline float bpm() const
     {
         return _bpm;
     }
@@ -124,7 +124,7 @@ public:
       @brief Gets the SpO2
       @warning IR and RED must be pushed back
     */
-    float SpO2() const
+    inline float SpO2() const
     {
         return _SpO2;
     }
@@ -134,7 +134,7 @@ public:
       @param samplingRate sampling rate
       @note clear stored data
      */
-    void setSamplingRate(const float samplingRate);
+    void setSamplingRate(const uint32_t samplingRate);
 
     /*!
       @brief Push back IR
@@ -158,8 +158,8 @@ public:
     //! @brief Clear inner data
     void clear();
 
-    // Filterd ir value
-    float latestIR() const
+    //! @brief Filterd latest ir value
+    inline float latestIR() const
     {
         return !_dataIR.empty() ? _dataIR.back() : std::numeric_limits<float>::quiet_NaN();
     }

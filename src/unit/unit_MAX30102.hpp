@@ -126,17 +126,17 @@ struct Data {
  */
 struct TemperatureData {
     std::array<uint8_t, 2> raw{0xFF, 0xFF};  // [0]:integer [1]:fraction
-    //! Temperature (Celsius)
+    //! @brief Temperature (Celsius)
     inline float temperature() const
     {
         return celsius();
     }
-    //!< Temperature (Celsius)
+    //! @brief Temperature (Celsius)
     inline float celsius() const
     {
         return (raw[0] != 0xFF) ? (int8_t)raw[0] + raw[1] * 0.0625f : std::numeric_limits<float>::quiet_NaN();
     }
-    //!< temperature (Fahrenheit)
+    //! @brief temperature (Fahrenheit)
     inline float fahrenheit() const
     {
         return celsius() * 9.0f / 5.0f + 32.f;

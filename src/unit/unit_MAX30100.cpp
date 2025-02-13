@@ -67,6 +67,7 @@ namespace unit {
 
 namespace max30100 {
 
+///@cond
 struct ModeConfiguration {
     bool shdn() const
     {
@@ -150,11 +151,7 @@ struct LEDConfiguration {
     }
     uint8_t value{};
 };
-
-uint32_t getSamplingRate(Sampling rate)
-{
-    return sr_table[m5::stl::to_underlying(rate)];
-}
+///@endcond
 
 }  // namespace max30100
 

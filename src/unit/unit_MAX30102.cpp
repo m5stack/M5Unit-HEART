@@ -155,6 +155,7 @@ namespace unit {
 
 namespace max30102 {
 
+///@cond
 struct ModeConfiguration {
     inline bool shdn() const
     {
@@ -210,6 +211,7 @@ struct SpO2Configuration {
     }
     uint8_t value{};
 };
+///@endcond
 
 }  // namespace max30102
 
