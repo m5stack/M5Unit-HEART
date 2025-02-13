@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ledpulsewidth_0',['LedPulseWidth',['../unit___m_a_x30100_8hpp.html#aabe979141762569af20dadcef280b23e',1,'m5::unit::max30100']]]
+  ['fifosampling_0',['FIFOSampling',['../unit___m_a_x30102_8hpp.html#ae378595b96878e02548dd53ebc3ef38b',1,'m5::unit::max30102']]]
 ];

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['ir_0',['ir',['../structm5_1_1unit_1_1max30100_1_1_data.html#ad7bb7fd983defe86a96b678d99848aff',1,'m5::unit::max30100::Data::ir()'],['../classm5_1_1unit_1_1_unit_m_a_x30100.html#af27fd009f478b263da19a2194a9121a9',1,'m5::unit::UnitMAX30100::ir()']]],
-  ['isbeat_1',['isBeat',['../classm5_1_1heart_1_1_pulse_monitor.html#a6e3b822b13c9edc57e5d98e251ebc63e',1,'m5::heart::PulseMonitor']]]
+  ['latestir_0',['latestIR',['../classm5_1_1heart_1_1_pulse_monitor.html#ac5e3b32abf4d4d8ee006789f133d9670',1,'m5::heart::PulseMonitor']]]
 ];

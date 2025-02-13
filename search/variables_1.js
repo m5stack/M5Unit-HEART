@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ir_5fcurrent_0',['ir_current',['../structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#a85185c8903e1d8a11f1cd5db4740103f',1,'m5::unit::UnitMAX30100::config_t']]]
+  ['fifo_5fsampling_5faverage_0',['fifo_sampling_average',['../structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t.html#a23e80409d7e8e8bea9f26f126dfb1ad5',1,'m5::unit::UnitMAX30102::config_t']]]
 ];

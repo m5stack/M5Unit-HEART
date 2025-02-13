@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ema_0',['EMA',['../classm5_1_1heart_1_1_e_m_a.html',1,'m5::heart']]]
+  ['data_0',['Data',['../structm5_1_1unit_1_1max30100_1_1_data.html',1,'m5::unit::max30100::Data'],['../structm5_1_1unit_1_1max30102_1_1_data.html',1,'m5::unit::max30102::Data']]]
 ];

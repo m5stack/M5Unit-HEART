@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.0.2 git rev:70607f7</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.1.0 git rev:05c3b01</span>
    </div>
   </td>
  </tr>
@@ -111,9 +111,9 @@ $(function(){initNavTree('classm5_1_1heart_1_1_pulse_monitor.html',''); initResi
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5678348c3dc39279d637b1e6602fda1f" id="r_a5678348c3dc39279d637b1e6602fda1f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5678348c3dc39279d637b1e6602fda1f">PulseMonitor</a> (const float samplingRate, const uint32_t sec=5)</td></tr>
-<tr class="memdesc:a5678348c3dc39279d637b1e6602fda1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Costructor.  <br /></td></tr>
-<tr class="separator:a5678348c3dc39279d637b1e6602fda1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fdadbd5541f6ee7fa431d527db77467" id="r_a8fdadbd5541f6ee7fa431d527db77467"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8fdadbd5541f6ee7fa431d527db77467">PulseMonitor</a> (const uint32_t samplingRate=100, const uint32_t sec=5)</td></tr>
+<tr class="memdesc:a8fdadbd5541f6ee7fa431d527db77467"><td class="mdescLeft">&#160;</td><td class="mdescRight">Costructor.  <br /></td></tr>
+<tr class="separator:a8fdadbd5541f6ee7fa431d527db77467"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e3b822b13c9edc57e5d98e251ebc63e" id="r_a6e3b822b13c9edc57e5d98e251ebc63e"><td class="memItemLeft" align="right" valign="top"><a id="a6e3b822b13c9edc57e5d98e251ebc63e" name="a6e3b822b13c9edc57e5d98e251ebc63e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBeat</b> () const</td></tr>
 <tr class="memdesc:a6e3b822b13c9edc57e5d98e251ebc63e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detect beat? <br /></td></tr>
@@ -125,9 +125,9 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>bpm</b> () const</td
 <tr class="memitem:aaf7fabca5a04fd8e086d5b69e004eb41" id="r_aaf7fabca5a04fd8e086d5b69e004eb41"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaf7fabca5a04fd8e086d5b69e004eb41">SpO2</a> () const</td></tr>
 <tr class="memdesc:aaf7fabca5a04fd8e086d5b69e004eb41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the SpO2.  <br /></td></tr>
 <tr class="separator:aaf7fabca5a04fd8e086d5b69e004eb41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeb0d700551df1f36461ea53cc2b52afc" id="r_aeb0d700551df1f36461ea53cc2b52afc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeb0d700551df1f36461ea53cc2b52afc">setSamplingRate</a> (const float samplingRate)</td></tr>
-<tr class="memdesc:aeb0d700551df1f36461ea53cc2b52afc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the sampling rate.  <br /></td></tr>
-<tr class="separator:aeb0d700551df1f36461ea53cc2b52afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab96e03051349440f2000ea7da1d1b377" id="r_ab96e03051349440f2000ea7da1d1b377"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab96e03051349440f2000ea7da1d1b377">setSamplingRate</a> (const uint32_t samplingRate)</td></tr>
+<tr class="memdesc:ab96e03051349440f2000ea7da1d1b377"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the sampling rate.  <br /></td></tr>
+<tr class="separator:ab96e03051349440f2000ea7da1d1b377"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8bddab5ad9aa6e63c6d297f4471084b5" id="r_a8bddab5ad9aa6e63c6d297f4471084b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bddab5ad9aa6e63c6d297f4471084b5">push_back</a> (const float ir)</td></tr>
 <tr class="memdesc:a8bddab5ad9aa6e63c6d297f4471084b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push back IR.  <br /></td></tr>
 <tr class="separator:a8bddab5ad9aa6e63c6d297f4471084b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,6 +143,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr
 <tr class="separator:a9a8505a9900627ea22e75675d6a24d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5e3b32abf4d4d8ee006789f133d9670" id="r_ac5e3b32abf4d4d8ee006789f133d9670"><td class="memItemLeft" align="right" valign="top"><a id="ac5e3b32abf4d4d8ee006789f133d9670" name="ac5e3b32abf4d4d8ee006789f133d9670"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>latestIR</b> () const</td></tr>
+<tr class="memdesc:ac5e3b32abf4d4d8ee006789f133d9670"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filterd latest ir value. <br /></td></tr>
 <tr class="separator:ac5e3b32abf4d4d8ee006789f133d9670"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
@@ -154,8 +155,8 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>calculate_bpm</b> ()
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Calculate BPM and SpO2, and detect the pulse beat. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a5678348c3dc39279d637b1e6602fda1f" name="a5678348c3dc39279d637b1e6602fda1f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5678348c3dc39279d637b1e6602fda1f">&#9670;&#160;</a></span>PulseMonitor()</h2>
+<a id="a8fdadbd5541f6ee7fa431d527db77467" name="a8fdadbd5541f6ee7fa431d527db77467"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fdadbd5541f6ee7fa431d527db77467">&#9670;&#160;</a></span>PulseMonitor()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -166,7 +167,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>calculate_bpm</b> ()
         <tr>
           <td class="memname">m5::heart::PulseMonitor::PulseMonitor </td>
           <td>(</td>
-          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>samplingRate</em></span>, </td>
+          <td class="paramtype">const uint32_t</td>          <td class="paramname"><span class="paramname"><em>samplingRate</em></span><span class="paramdefsep"> = </span><span class="paramdefval">100</span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -176,7 +177,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>calculate_bpm</b> ()
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -249,8 +250,8 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>calculate_bpm</b> ()
 
 </div>
 </div>
-<a id="aeb0d700551df1f36461ea53cc2b52afc" name="aeb0d700551df1f36461ea53cc2b52afc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeb0d700551df1f36461ea53cc2b52afc">&#9670;&#160;</a></span>setSamplingRate()</h2>
+<a id="ab96e03051349440f2000ea7da1d1b377" name="ab96e03051349440f2000ea7da1d1b377"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab96e03051349440f2000ea7da1d1b377">&#9670;&#160;</a></span>setSamplingRate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -258,7 +259,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>calculate_bpm</b> ()
         <tr>
           <td class="memname">void m5::heart::PulseMonitor::setSamplingRate </td>
           <td>(</td>
-          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>samplingRate</em></span></td><td>)</td>
+          <td class="paramtype">const uint32_t</td>          <td class="paramname"><span class="paramname"><em>samplingRate</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
