@@ -13,11 +13,16 @@ MAX30100 is a complete pulse oximetry and heart-rate sensor system solution desi
 
 The MAX30100 provides very small total solution size without sacrificing optical or electrical performance. Minimal external hardware components are needed for integration into a wearable device.
 
+### SKU:U118
+
+HEART RATE HAT is a blood oxygen heart rate sensor. Integrate MAX30102 to provide a complete pulse oximeter and heart rate sensor system solution. This is a non-pluggable blood oxygen heart rate sensor. The sensor uses I2C communication interface, internally integrates infrared light-emitting diodes, photo-detectors, optical components and low-noise electronic equipment. A certain amount of ambient light suppression function can make the measurement results more accurate. .
+
 
 ## Related Link
 See also examples using conventional methods here.
 
 - [Unit HEART & Datasheet](https://docs.m5stack.com/ja/unit/heart)
+- [Hat Heart & Datasheet](https://docs.m5stack.com/en/hat/hat_heart_rate)
 
 ## Required Libraries:
 
