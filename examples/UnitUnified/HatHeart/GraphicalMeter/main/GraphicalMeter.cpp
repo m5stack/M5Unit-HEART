@@ -50,7 +50,7 @@ void setup()
     if (lcd.height() > lcd.width()) {
         lcd.setRotation(1);
     }
-    
+
     // Setup required to use HatHEART
     pinMode(25, INPUT_PULLUP);
     pinMode(26, OUTPUT);

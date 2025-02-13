@@ -7,5 +7,3 @@
   Graphical meter example for HatHeart
 */
 #include "main/GraphicalMeter.cpp"
-
-
