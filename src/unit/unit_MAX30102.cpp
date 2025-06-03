@@ -218,7 +218,7 @@ struct SpO2Configuration {
 // class UnitMAX30102
 const char UnitMAX30102::name[] = "UnitMAX30102";
 const types::uid_t UnitMAX30102::uid{"UnitMAX30102"_mmh3};
-const types::uid_t UnitMAX30102::attr{0};
+const types::attr_t UnitMAX30102::attr{attribute::AccessI2C};
 
 bool UnitMAX30102::begin()
 {
