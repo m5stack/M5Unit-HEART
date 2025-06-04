@@ -83,21 +83,21 @@ void loop()
         bool beat{};
         // MAX30100 is equipped with a FIFO, so multiple data may be stored
         while (unit.available()) {
-            M5.Log.printf("\n>IR:%u\n>RED:%u", unit.ir(), unit.red());
+            M5.Log.printf(">IR:%u\n>RED:%u\n", unit.ir(), unit.red());
             monitor.push_back(unit.ir(), unit.red());  // Push back the oldest data
-            M5.Log.printf("\n>MIR:%f", monitor.latestIR());
+            M5.Log.printf(">MIR:%f\n", monitor.latestIR());
             monitor.update();
             beat |= monitor.isBeat();
             unit.discard();  // Discard the oldest data
         }
-        M5.Log.printf("\n>BPM:%f\n>SpO2:%f\n>BEAT:%u\n", monitor.bpm(), monitor.SpO2(), beat);
+        M5.Log.printf(">BPM:%f\n>SpO2:%f\n>BEAT:%u\n", monitor.bpm(), monitor.SpO2(), beat);
     }
 
     // Measure tempeature
     if (M5.BtnA.wasClicked()) {
         TemperatureData td{};
         if (unit.measureTemperatureSingleshot(td)) {
-            M5.Log.printf("\n>Temp:%f", td.celsius());
+            M5.Log.printf(">Temp:%f\n", td.celsius());
         }
     }
 }

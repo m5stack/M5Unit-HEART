@@ -93,23 +93,6 @@ void setup()
         hat.writeLEDCurrent(1, 0x1F);                       // IR  if (A), Red if (B)
         hat.startPeriodicMeasurement();
     }
-
-#if 0
-    uint8_t v{};
-    hat.readRegister8((uint8_t)0x09, v, 0, false);
-    M5_LOGI("Mode:%X", v);
-    hat.readRegister8((uint8_t)0x0A, v, 0, false);
-    M5_LOGI("SpO2:%X", v);
-    hat.readRegister8((uint8_t)0x08, v, 0, false);
-    M5_LOGI("FIFO:%X", v);
-    hat.readRegister8((uint8_t)0x0C, v, 0, false);
-    M5_LOGI("LED1:%X", v);
-    hat.readRegister8((uint8_t)0x0D, v, 0, false);
-    M5_LOGI("LED2:%X", v);
-    hat.readRegister8((uint8_t)0x11, v, 0, false);
-    M5_LOGI("SLOT12:%X", v);
-#endif
-
     lcd.clear(TFT_DARKGREEN);
 
     monitor.setSamplingRate(hat.caluculateSamplingRate());
@@ -130,21 +113,21 @@ void loop()
         bool beat{};
         // MAX30102 is equipped with a FIFO, so multiple data may be stored
         while (hat.available()) {
-            M5.Log.printf("\n>IR:%u\n>RED:%u", hat.ir(), hat.red());
+            M5.Log.printf(">IR:%u\n>RED:%u\n", hat.ir(), hat.red());
             monitor.push_back(hat.ir(), hat.red());  // Push back the oldest data
-            M5.Log.printf("\n>MIR:%f", monitor.latestIR());
+            M5.Log.printf(">MIR:%f\n", monitor.latestIR());
             monitor.update();
             beat |= monitor.isBeat();
             hat.discard();  // Discard the oldest data
         }
-        M5.Log.printf("\n>BPM:%f\n>SpO2:%f\n>BEAT:%u\n", monitor.bpm(), monitor.SpO2(), beat);
+        M5.Log.printf(">BPM:%f\n>SpO2:%f\n>BEAT:%u\n", monitor.bpm(), monitor.SpO2(), beat);
     }
 
     // Measure tempeature
     if (M5.BtnA.wasClicked()) {
         TemperatureData td{};
         if (hat.measureTemperatureSingleshot(td)) {
-            M5.Log.printf("\n>Temp:%f", td.celsius());
+            M5.Log.printf(">Temp:%f\n", td.celsius());
         }
     }
 }

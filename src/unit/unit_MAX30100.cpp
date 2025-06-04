@@ -158,7 +158,7 @@ struct LEDConfiguration {
 // class UnitMAX30100
 const char UnitMAX30100::name[] = "UnitMAX30100";
 const types::uid_t UnitMAX30100::uid{"UnitMAX30100"_mmh3};
-const types::uid_t UnitMAX30100::attr{0};
+const types::attr_t UnitMAX30100::attr{attribute::AccessI2C};
 
 bool UnitMAX30100::begin()
 {

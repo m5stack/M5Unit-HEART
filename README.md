@@ -21,7 +21,7 @@ HEART RATE HAT is a blood oxygen heart rate sensor. Integrate MAX30102 to provid
 ## Related Link
 See also examples using conventional methods here.
 
-- [Unit HEART & Datasheet](https://docs.m5stack.com/ja/unit/heart)
+- [Unit Heart & Datasheet](https://docs.m5stack.com/ja/unit/heart)
 - [Hat Heart & Datasheet](https://docs.m5stack.com/en/hat/hat_heart_rate)
 
 ## Required Libraries:
