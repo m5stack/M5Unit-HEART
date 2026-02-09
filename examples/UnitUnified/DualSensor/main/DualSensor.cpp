@@ -10,6 +10,7 @@
 #include <M5UnitUnified.h>
 #include <M5UnitUnifiedHEART.h>
 #include <Wire.h>
+#include <M5HAL.hpp>
 #include "../src/view.hpp"
 
 namespace {
@@ -19,6 +20,29 @@ m5::unit::UnitHeart unit;
 m5::unit::HatHeart hat;
 
 View* view[2]{};
+
+struct I2cPins {
+    int sda;
+    int scl;
+};
+
+I2cPins get_hat_i2c_pins(const m5::board_t board)
+{
+    switch (board) {
+        case m5::board_t::board_M5StickC:
+        case m5::board_t::board_M5StickCPlus:
+        case m5::board_t::board_M5StickCPlus2:
+            return {0, 26};
+        case m5::board_t::board_M5StickS3:
+            return {8, 0};
+        case m5::board_t::board_M5StackCoreInk:
+            return {25, 26};
+        case m5::board_t::board_ArduinoNessoN1:
+            return {6, 7};
+        default:
+            return {-1, -1};
+    }
+}
 
 }  // namespace
 
@@ -32,10 +56,12 @@ void setup()
     m5cfg.internal_imu = false;  // Disable internal IMU
     m5cfg.internal_rtc = false;  // Disable internal RTC
     M5.begin(m5cfg);
+    const auto board_type = M5.getBoard();
 
-    auto board = M5.getBoard();
-    if (board != m5::board_t::board_M5StickCPlus && board != m5::board_t::board_M5StickCPlus2) {
-        M5_LOGE("Example for StickCPlus/CPlus2");
+    const auto pins = get_hat_i2c_pins(board_type);
+    M5_LOGI("getHatPin: SDA:%u SCL:%u", pins.sda, pins.scl);
+    if (pins.sda < 0 || pins.scl < 0) {
+        M5_LOGE("HatHeart requires Wire1-capable boards");
         lcd.clear(TFT_RED);
         while (true) {
             m5::utility::delay(10000);
@@ -48,25 +74,44 @@ void setup()
     }
 
     // Setup required to use HatHEART
-    pinMode(25, INPUT_PULLUP);
-    pinMode(26, OUTPUT);
+    pinMode(pins.scl, OUTPUT);
 
-    // Wire settings
+    // HatHeart on Wire1
+    Wire1.end();
+    Wire1.begin(pins.sda, pins.scl, 400 * 1000U);
+
+    // UnitHeart wire settings
     auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
     auto pin_num_scl = M5.getPin(m5::pin_name_t::port_a_scl);
-    Wire.end();
-    Wire.begin(pin_num_sda, pin_num_scl, 400 * 1000U);
-
-    Wire1.end();
-    Wire1.begin(0, 26, 400 * 1000U);
-
-    // UnitHeart connected to GROOVE with Wire
-    // HatHeart connected to PIN sockect with Wire1
-    if (!Units.add(unit, Wire) || !Units.add(hat, Wire1) || !Units.begin()) {
-        M5_LOGE("Failed to begin");
-        lcd.clear(TFT_RED);
-        while (true) {
-            m5::utility::delay(10000);
+    // For NessoN1 GROVE
+    if (board_type == m5::board_t::board_ArduinoNessoN1) {
+        // Wire is used internally, so SoftwareI2C handles the unit
+        pin_num_sda = M5.getPin(m5::pin_name_t::port_b_out);
+        pin_num_scl = M5.getPin(m5::pin_name_t::port_b_in);
+        M5_LOGI("getPin(NessoN1): SDA:%u SCL:%u", pin_num_sda, pin_num_scl);
+        m5::hal::bus::I2CBusConfig i2c_cfg;
+        i2c_cfg.pin_sda = m5::hal::gpio::getPin(pin_num_sda);
+        i2c_cfg.pin_scl = m5::hal::gpio::getPin(pin_num_scl);
+        auto i2c_bus    = m5::hal::bus::i2c::getBus(i2c_cfg);
+        M5_LOGI("Bus:%d", i2c_bus.has_value());
+        if (!Units.add(unit, i2c_bus ? i2c_bus.value() : nullptr) || !Units.add(hat, Wire1) || !Units.begin()) {
+            M5_LOGE("Failed to begin");
+            lcd.clear(TFT_RED);
+            while (true) {
+                m5::utility::delay(10000);
+            }
+        }
+    } else {
+        // UnitHeart on Wire
+        M5_LOGI("getPin: SDA:%u SCL:%u", pin_num_sda, pin_num_scl);
+        Wire.end();
+        Wire.begin(pin_num_sda, pin_num_scl, 400 * 1000U);
+        if (!Units.add(unit, Wire) || !Units.add(hat, Wire1) || !Units.begin()) {
+            M5_LOGE("Failed to begin");
+            lcd.clear(TFT_RED);
+            while (true) {
+                m5::utility::delay(10000);
+            }
         }
     }
 

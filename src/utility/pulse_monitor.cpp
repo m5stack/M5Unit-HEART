@@ -54,6 +54,12 @@ void PulseMonitor::push_back(const float ir, const float red)
     _sumredrms += (red - _avered) * (red - _avered);
     _sumirrms += (ir - _aveir) * (ir - _aveir);
     if (++_count == (uint32_t)_sampling_rate) {
+        const float eps = 1e-6f;
+        if (std::fabs(_avered) < eps || std::fabs(_aveir) < eps) {
+            _sumredrms = _sumirrms = 0;
+            _count                 = 0;
+            return;
+        }
         float R    = (std::sqrt(_sumredrms) / _avered) / (std::sqrt(_sumirrms) / _aveir);
         _SpO2      = -23.3f * (R - 0.4f) + 100;
         _SpO2      = std::fmax(std::fmin(100.0f, _SpO2), 80.0f);  // clamp 80-100
@@ -69,6 +75,10 @@ void PulseMonitor::update()
 
 float PulseMonitor::calculate_bpm()
 {
+    if (_dataIR.size() < 3) {
+        _beat = false;
+        return 0.0f;
+    }
     std::vector<uint32_t> peaks;
     float threshold = 50.f;
     bool negatived{};
