@@ -61,7 +61,7 @@ jobs:
           - PlotToSerial
 
         build-properties:
-          - "-DUSING_UNIT_HAERT"
+          - "-DUSING_UNIT_HEART"
 
         board:
           - arduino_nesso_n1
