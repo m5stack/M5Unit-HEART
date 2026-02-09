@@ -84,12 +84,12 @@ void setup()
     M5.begin(m5cfg);
     M5.setTouchButtonHeightByRatio(100);
 
-    const auto board = M5.getBoard();
-
     // The screen shall be in landscape mode
     if (lcd.height() > lcd.width()) {
         lcd.setRotation(1);
     }
+
+    auto board = M5.getBoard();
 
 #if defined(USING_HAT_HEART)
     const auto pins = get_hat_i2c_pins(board);

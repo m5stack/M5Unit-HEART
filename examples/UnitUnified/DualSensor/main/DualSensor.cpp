@@ -56,6 +56,7 @@ void setup()
     m5cfg.internal_imu = false;  // Disable internal IMU
     m5cfg.internal_rtc = false;  // Disable internal RTC
     M5.begin(m5cfg);
+
     const auto board_type = M5.getBoard();
 
     const auto pins = get_hat_i2c_pins(board_type);

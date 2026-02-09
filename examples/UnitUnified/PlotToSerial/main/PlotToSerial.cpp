@@ -92,6 +92,8 @@ void setup()
         lcd.setRotation(1);
     }
 
+    auto board = M5.getBoard();
+
 #if defined(USING_HAT_HEART)
     const auto pins = get_hat_i2c_pins(board);
     M5_LOGI("getHatPin: SDA:%u SCL:%u %s", pins.sda, pins.scl, pins.use_wire1 ? "Wire1" : "Wire");
@@ -128,7 +130,7 @@ void setup()
     auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
     auto pin_num_scl = M5.getPin(m5::pin_name_t::port_a_scl);
     // For NessoN1 GROVE
-    if (M5.getBoard() == m5::board_t::board_ArduinoNessoN1) {
+    if (board == m5::board_t::board_ArduinoNessoN1) {
         // Port A of the NessoN1 is QWIIC, then use portB (GROVE)
         pin_num_sda = M5.getPin(m5::pin_name_t::port_b_out);
         pin_num_scl = M5.getPin(m5::pin_name_t::port_b_in);
