@@ -74,6 +74,8 @@ jobs:
           - StickCPlus2
           - Paper
           - CoreInk
+          - Cardputer
+          - Tab5
 
         framework:
           - Arduino
