@@ -123,8 +123,8 @@ void setup()
 
     view[0] = new View(lcd.width() >> 1, lcd.height(), true);
     view[1] = new View(lcd.width() >> 1, lcd.height(), false);
-    view[0]->_monitor.setSamplingRate(unit.caluculateSamplingRate());
-    view[1]->_monitor.setSamplingRate(hat.caluculateSamplingRate());
+    view[0]->_monitor.setSamplingRate(unit.calculateSamplingRate());
+    view[1]->_monitor.setSamplingRate(hat.calculateSamplingRate());
     view[0]->push(&lcd, lcd.width() >> 1, 0);
     view[1]->push(&lcd, 0, 0);
 }

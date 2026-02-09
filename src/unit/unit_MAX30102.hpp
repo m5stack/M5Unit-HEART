@@ -233,12 +233,12 @@ public:
 
     ///@name Settings for begin
     ///@{
-    /*! @brief Gets the configration */
+    /*! @brief Gets the configuration */
     inline config_t config()
     {
         return _cfg;
     }
-    //! @brief Set the configration
+    //! @brief Set the configuration
     inline void config(const config_t& cfg)
     {
         _cfg = cfg;
@@ -262,9 +262,17 @@ public:
       @note The number of data retrieved by the latest update, not all data accumulated
       @sa available()
     */
-    inline uint8_t retrived() const
+    inline uint8_t retrieved() const
     {
-        return _retrived;
+        return _retrieved;
+    }
+    /*!
+      @brief Deprecated alias of retrieved()
+      @deprecated Use retrieved() instead.
+     */
+    [[deprecated("Please use retrieved()")]] inline uint8_t retrived() const
+    {
+        return retrieved();
     }
     /*!
       @brief The number of samples lost
@@ -281,7 +289,15 @@ public:
       @return >= 0 Sampling rate
       @note Calculate by FIFO average and SpO2 sampling rate
      */
-    uint32_t caluculateSamplingRate();
+    uint32_t calculateSamplingRate();
+    /*!
+      @brief Deprecated alias of calculateSamplingRate()
+      @deprecated Use calculateSamplingRate() instead.
+     */
+    [[deprecated("Please use calculateSamplingRate()")]] inline uint32_t caluculateSamplingRate()
+    {
+        return calculateSamplingRate();
+    }
 
     ///@name Periodic measurement
     ///@{
@@ -383,7 +399,7 @@ public:
     ///@{
     /*!
       @brief Read the SpO2 configuration
-      @param[out] range ADC rRange
+      @param[out] range ADC range
       @param[out] rate Sampling rate
       @param[out] width LED pulse width
       @return True if successful
@@ -412,7 +428,7 @@ public:
     }
     /*!
       @brief Write the SpO2 configuration
-      @param range ADC rRange
+      @param range ADC range
       @param rate Sampling rate
       @param width LED pulse width
       @return True if successful
@@ -483,7 +499,7 @@ public:
     ///@name Multi-LED Mode Control
     ///@{
     /*!
-      @brief Read the the MultiLED Mode form Slot 1-2
+      @brief Read the MultiLED Mode from Slot 1-2
       @param[out] slot1 Slot1 mode
       @param[out] slot2 Slot2 mode
       @return True if successful
@@ -503,7 +519,7 @@ public:
     ///@name Measurement temperature
     ///@{
     /*!
-      @brief Measure tempeature single shot
+      @brief Measure temperature single shot
       @param[out] td TemperatureData
       @return True if successful
       @warning Blocking until measured about 29 ms
@@ -518,7 +534,7 @@ public:
     /*!
       @brief Read the FIFO configuration
       @param[out] avg FIFO sampling average
-      @param[out] rolllover FIFO Rolls on Full if true
+      @param[out] rollover FIFO Rolls on Full if true
       @param[out] almostFull FIFO Almost Full Value for interrupt
       @return True if successful
      */
@@ -526,7 +542,7 @@ public:
     /*!
       @brief Write the FIFO configuration
       @param avg FIFO sampling average
-      @param rolllover FIFO Rolls on Full if true
+      @param rollover FIFO Rolls on Full if true
       @param almostFull FIFO Almost Full Value for interrupt
       @return True if successful
       @warning During periodic detection runs, an error is returned
@@ -618,7 +634,7 @@ protected:
 protected:
     std::unique_ptr<m5::container::CircularBuffer<max30102::Data>> _data{};
     max30102::Mode _mode{};
-    uint8_t _retrived{}, _overflow{};
+    uint8_t _retrieved{}, _overflow{};
     uint32_t _mask{};  // Valid bits based on ADC range
     max30102::Slot _slot[2]{};
     config_t _cfg{};

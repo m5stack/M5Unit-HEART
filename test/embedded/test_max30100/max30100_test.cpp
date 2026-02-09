@@ -288,8 +288,8 @@ void test_periodic_spo2(UnitMAX30100* unit)
 
         EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
-        // M5_LOGI(">>> %s>elapsed: %ld/%u retrived:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
-        //         unit->retrived(), unit->overflow());
+        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+        //         unit->retrieved(), unit->overflow());
 
         EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)
         EXPECT_FALSE(unit->empty());
@@ -378,8 +378,8 @@ void test_periodic_hr(UnitMAX30100* unit)
 
         EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
-        // M5_LOGI(">>> %s>elapsed: %ld/%u retrived:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
-        //         unit->retrived(), unit->overflow());
+        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+        //         unit->retrieved(), unit->overflow());
 
         EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)
         EXPECT_FALSE(unit->empty());
@@ -618,7 +618,7 @@ TEST_P(TestMAX30100, Periodic)
     } while (!unit->updated() && m5::utility::millis() - start_at <= 1000);
     EXPECT_TRUE(unit->updated());
 
-    //    M5_LOGW("%u %u", unit->retrived(), unit->available());
+    //    M5_LOGW("%u %u", unit->retrieved(), unit->available());
 
     EXPECT_FALSE(unit->full());
     EXPECT_FALSE(unit->empty());
@@ -637,8 +637,8 @@ TEST_P(TestMAX30100, Periodic)
     EXPECT_TRUE(unit->updated());
 
     EXPECT_GE(unit->available(), 10U);
-    auto retrived = unit->retrived();
-    EXPECT_GT(retrived, 0U);
+    auto retrieved = unit->retrieved();
+    EXPECT_GT(retrieved, 0U);
     EXPECT_FALSE(unit->full());
     EXPECT_FALSE(unit->empty());
 
@@ -649,7 +649,7 @@ TEST_P(TestMAX30100, Periodic)
     unit->flush();
 
     EXPECT_EQ(unit->available(), 0U);
-    EXPECT_EQ(unit->retrived(), retrived);  // Not clear on flush
+    EXPECT_EQ(unit->retrieved(), retrieved);  // Not clear on flush
     EXPECT_FALSE(unit->full());
     EXPECT_TRUE(unit->empty());
 
@@ -660,7 +660,7 @@ TEST_P(TestMAX30100, Periodic)
     EXPECT_TRUE(unit->updated());
 
     EXPECT_EQ(unit->available(), MAX_FIFO_DEPTH);
-    EXPECT_EQ(unit->retrived(), MAX_FIFO_DEPTH);
+    EXPECT_EQ(unit->retrieved(), MAX_FIFO_DEPTH);
     EXPECT_TRUE(unit->full());
     EXPECT_FALSE(unit->empty());
     EXPECT_GT(unit->overflow(), 0U);

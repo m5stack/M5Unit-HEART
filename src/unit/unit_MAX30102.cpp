@@ -138,7 +138,7 @@ constexpr uint32_t adc_resolution_bits_table[] = {
 };
 
 // Calculate the interval per data
-inline uint32_t caluculate_interval_time(const FIFOSampling avg, const Sampling rate)
+inline uint32_t calculate_interval_time(const FIFOSampling avg, const Sampling rate)
 {
     float freq = sampling_rate_table[m5::stl::to_underlying(rate)] / (float)average_table[m5::stl::to_underlying(avg)];
 
@@ -261,7 +261,7 @@ void UnitMAX30102::update(const bool force)
     if (inPeriodic()) {
         auto at = m5::utility::millis();
         if (force || !_latest || at >= _latest + _interval) {
-            _updated = (read_FIFO() && _retrived);
+            _updated = (read_FIFO() && _retrieved);
             if (_updated) {
                 _latest = m5::utility::millis();
             }
@@ -287,7 +287,7 @@ bool UnitMAX30102::start_periodic_measurement()
                     writeShutdownControl(false) && resetFIFO();
         if (_periodic) {
             _latest   = 0;
-            _interval = caluculate_interval_time(avg, rate);
+            _interval = calculate_interval_time(avg, rate);
             _mask     = adc_resolution_bits_table[m5::stl::to_underlying(width)];
 
             // M5_LIB_LOGI(">>> AVG:%u SR:%u => interval:%u  WID:%u => mask:%0x", avg, rate, _interval, width, _mask);
@@ -606,7 +606,7 @@ bool UnitMAX30102::reset_FIFO(const bool circling_read_ptr)
 bool UnitMAX30102::read_FIFO()
 {
     uint8_t rptr{}, wptr{};
-    _retrived = _overflow = 0;
+    _retrieved = _overflow = 0;
 
     if (!readFIFOReadPointer(rptr) || !readFIFOWritePointer(wptr) || !readFIFOOverflowCounter(_overflow)) {
         M5_LIB_LOGE("Failed to read ptrs");
@@ -673,7 +673,7 @@ bool UnitMAX30102::read_FIFO()
             }
             left -= batch_len;
         }
-        _retrived = readCount;
+        _retrieved = readCount;
     }
 #else
     while (readCount--) {
@@ -683,11 +683,11 @@ bool UnitMAX30102::read_FIFO()
             return false;
         }
         _data->push_back(d);
-        ++_retrived;
+        ++_retrieved;
     }
 
 #endif
-    return (_retrived != 0);
+    return (_retrieved != 0);
 }
 
 bool UnitMAX30102::reset()
@@ -700,7 +700,7 @@ bool UnitMAX30102::reset()
             if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.reset()) {
                 _periodic = false;
                 _mode     = mc.mode();
-                _retrived = _overflow = 0;
+                _retrieved = _overflow = 0;
                 _slot[0] = _slot[1] = Slot::None;
                 return true;
             }
@@ -716,7 +716,7 @@ bool UnitMAX30102::readRevisionID(uint8_t& rev)
     return read_register8(READ_REVISION_ID, rev);
 }
 
-uint32_t UnitMAX30102::caluculateSamplingRate()
+uint32_t UnitMAX30102::calculateSamplingRate()
 {
     FIFOSampling avg{};
     bool rollover{};
@@ -724,7 +724,7 @@ uint32_t UnitMAX30102::caluculateSamplingRate()
     Sampling rate{};
 
     if (readFIFOConfiguration(avg, rollover, almostFull) && readSpO2SamplingRate(rate)) {
-        return 1000 / caluculate_interval_time(avg, rate);
+        return 1000 / calculate_interval_time(avg, rate);
     }
     return 0;
 }

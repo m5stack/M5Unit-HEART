@@ -161,7 +161,7 @@ void setup()
 #else
     view = new View(lcd.width(), lcd.height(), false);
 #endif
-    view->_monitor.setSamplingRate(heart.caluculateSamplingRate());
+    view->_monitor.setSamplingRate(heart.calculateSamplingRate());
     view->push(&lcd, 0, 0);
 
     M5_LOGI("periodic:%d", heart.inPeriodic());

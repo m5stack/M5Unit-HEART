@@ -199,12 +199,12 @@ public:
 
     ///@name Settings for begin
     ///@{
-    /*! @brief Gets the configration */
+    /*! @brief Gets the configuration */
     inline config_t config()
     {
         return _cfg;
     }
-    //! @brief Set the configration
+    //! @brief Set the configuration
     inline void config(const config_t& cfg)
     {
         _cfg = cfg;
@@ -229,9 +229,17 @@ public:
       accumulated
       @sa available()
     */
-    inline uint8_t retrived() const
+    inline uint8_t retrieved() const
     {
-        return _retrived;
+        return _retrieved;
+    }
+    /*!
+      @brief Deprecated alias of retrieved()
+      @deprecated Use retrieved() instead.
+     */
+    [[deprecated("Please use retrieved()")]] inline uint8_t retrived() const
+    {
+        return retrieved();
     }
     /*!
       @brief The number of samples lost
@@ -248,7 +256,15 @@ public:
       @return >= 0 Sampling rate
       @note Calculate by SpO2 sampling rate
      */
-    uint32_t caluculateSamplingRate();
+    uint32_t calculateSamplingRate();
+    /*!
+      @brief Deprecated alias of calculateSamplingRate()
+      @deprecated Use calculateSamplingRate() instead.
+     */
+    [[deprecated("Please use calculateSamplingRate()")]] inline uint32_t caluculateSamplingRate()
+    {
+        return calculateSamplingRate();
+    }
 
     ///@name Periodic measurement
     ///@{
@@ -407,7 +423,7 @@ public:
     ///@name LED Configuration
     ///@{
     /*!
-      @brief Read the LED curremt
+      @brief Read the LED current
       @param[out] ir_current IR current
       @param[out] red_current Red current
       @return True if successful
@@ -425,7 +441,7 @@ public:
     ///@name Measurement temperature
     ///@{
     /*!
-      @brief Measure tempeature single shot
+      @brief Measure temperature single shot
       @param[out] td TemperatureData
       @return True if successful
       @warning Blocking until measured about 29 ms
@@ -509,7 +525,7 @@ protected:
 
 protected:
     max30100::Mode _mode{max30100::Mode::None};
-    uint8_t _retrived{}, _overflow{};
+    uint8_t _retrieved{}, _overflow{};
     std::unique_ptr<m5::container::CircularBuffer<max30100::Data>> _data{};
 
     config_t _cfg{};

@@ -181,7 +181,7 @@ void setup()
     }
 #endif
 
-    monitor.setSamplingRate(unit.caluculateSamplingRate());
+    monitor.setSamplingRate(unit.calculateSamplingRate());
     lcd.clear(TFT_DARKGREEN);
 }
 
@@ -210,7 +210,7 @@ void loop()
         M5.Log.printf(">BPM:%f\n>SpO2:%f\n>BEAT:%u\n", monitor.bpm(), monitor.SpO2(), beat);
     }
 
-    // Measure tempeature
+    // Measure temperature
     if (M5.BtnA.wasClicked()) {
         TemperatureData td{};
         if (unit.measureTemperatureSingleshot(td)) {

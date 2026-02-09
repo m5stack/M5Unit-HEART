@@ -55,7 +55,7 @@ inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDP
 }
 
 // Calculate the interval per data
-inline uint32_t caluculate_interval_time(const Sampling rate)
+inline uint32_t calculate_interval_time(const Sampling rate)
 {
     return std::floor(1000.f / sr_table[m5::stl::to_underlying(rate)]);
 }
@@ -219,7 +219,7 @@ bool UnitMAX30100::start_periodic_measurement()
         _periodic = writeShutdownControl(false) && resetFIFO();
         if (_periodic) {
             _latest   = 0;
-            _interval = caluculate_interval_time(rate);
+            _interval = calculate_interval_time(rate);
             // M5_LIB_LOGE(">>>>R: Rate:%u IT:%u", rate, _interval);
             //              _mask     = adc_resolution_bits_table[m5::stl::to_underlying(width)];
             return true;
@@ -435,7 +435,7 @@ bool UnitMAX30100::reset()
             if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.reset()) {
                 _periodic = false;
                 _mode     = mc.mode();
-                _retrived = _overflow = 0;
+                _retrieved = _overflow = 0;
                 return true;
             }
             m5::utility::delay(1);
@@ -448,7 +448,7 @@ bool UnitMAX30100::reset()
 bool UnitMAX30100::read_FIFO()
 {
     uint8_t wptr{}, rptr{};
-    _retrived = _overflow = 0;
+    _retrieved = _overflow = 0;
 
     if (!read_register8(FIFO_WRITE_POINTER, wptr) || !read_register8(FIFO_READ_POINTER, rptr) ||
         !read_register8(FIFO_OVERFLOW_COUNTER, _overflow)) {
@@ -493,7 +493,7 @@ bool UnitMAX30100::read_FIFO()
             }
             left -= batch_len;
         }
-        _retrived = readCount;
+        _retrieved = readCount;
     }
 
 #else
@@ -504,10 +504,10 @@ bool UnitMAX30100::read_FIFO()
             return false;
         }
         _data->push_back(d);
-        ++_retrived;
+        ++_retrieved;
     }
 #endif
-    return (_retrived != 0);
+    return (_retrieved != 0);
 }
 
 bool UnitMAX30100::read_measurement_temperature(max30100::TemperatureData& td)
@@ -521,11 +521,11 @@ bool UnitMAX30100::readRevisionID(uint8_t& rev)
     return read_register8(READ_REVISION_ID, rev);
 }
 
-uint32_t UnitMAX30100::caluculateSamplingRate()
+uint32_t UnitMAX30100::calculateSamplingRate()
 {
     Sampling rate{};
     if (readSpO2SamplingRate(rate)) {
-        return 1000 / caluculate_interval_time(rate);
+        return 1000 / calculate_interval_time(rate);
     }
     return 0;
 }

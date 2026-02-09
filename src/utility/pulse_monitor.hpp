@@ -18,8 +18,8 @@
 
 namespace m5 {
 /*!
-  @namepsace heart
-  @brief Unit-HEART releated
+  @namespace heart
+  @brief Unit-HEART related
  */
 namespace heart {
 
@@ -96,7 +96,7 @@ private:
 class PulseMonitor {
 public:
     /*!
-      @brief Costructor
+      @brief Constructor
       @param samplingRate sampling rate
       @param sec Seconds of data to be stored
      */
@@ -106,7 +106,7 @@ public:
           _max_samples{(size_t)samplingRate * sec},
           _filterIR(5.0f, samplingRate)
     {
-        assert(sec >= 1 && "sec must be greater or eaual than 1");
+        assert(sec >= 1 && "sec must be greater or equal than 1");
         assert(samplingRate >= 1.0f && "SamplingRate must be greater or equal than 1.0f");
     }
 
@@ -145,20 +145,20 @@ public:
       @brief Push back IR and RED
       @param ir IR data
       @param red RED data
-      @note Calclate SpO2
+      @note Calculate SpO2
      */
     void push_back(const float ir, const float red);
 
     /*!
       @brief Update status
-      @note Calclate BPM
+      @note Calculate BPM
      */
     void update();
 
     //! @brief Clear inner data
     void clear();
 
-    //! @brief Filterd latest ir value
+    //! @brief Filtered latest ir value
     inline float latestIR() const
     {
         return !_dataIR.empty() ? _dataIR.back() : std::numeric_limits<float>::quiet_NaN();
