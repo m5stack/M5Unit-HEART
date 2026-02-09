@@ -288,7 +288,8 @@ void test_periodic_spo2(UnitMAX30100* unit)
 
         EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
-        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
+        // unit->interval(),
         //         unit->retrieved(), unit->overflow());
 
         EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)
@@ -378,7 +379,8 @@ void test_periodic_hr(UnitMAX30100* unit)
 
         EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
-        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
+        // unit->interval(),
         //         unit->retrieved(), unit->overflow());
 
         EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)

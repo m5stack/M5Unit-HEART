@@ -433,8 +433,8 @@ bool UnitMAX30100::reset()
         auto timeout_at = m5::utility::millis() + 1000;
         do {
             if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.reset()) {
-                _periodic = false;
-                _mode     = mc.mode();
+                _periodic  = false;
+                _mode      = mc.mode();
                 _retrieved = _overflow = 0;
                 return true;
             }

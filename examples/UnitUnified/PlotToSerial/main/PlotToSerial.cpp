@@ -75,8 +75,6 @@ I2cPins get_hat_i2c_pins(const m5::board_t board)
 
 void setup()
 {
-    delay(1500);
-
     auto m5cfg = M5.config();
 #if defined(USING_HAT_HEART)
     m5cfg.pmic_button  = false;  // Disable BtnPWR
