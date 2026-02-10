@@ -22,10 +22,30 @@ using namespace m5::unit::max30102;
 using namespace m5::unit::max30102::command;
 using m5::unit::types::elapsed_time_t;
 
-#if !defined(M5STACK_M5STICK_CPLUS2) && !defined(ARDUINO_M5Stick_C)
-#error This test for M5StckCPlus or M5StckCPlus2
-#else
 namespace hat {
+struct I2cPins {
+    int sda;
+    int scl;
+};
+
+I2cPins get_hat_i2c_pins(const m5::board_t board)
+{
+    switch (board) {
+        case m5::board_t::board_M5StickC:
+        case m5::board_t::board_M5StickCPlus:
+        case m5::board_t::board_M5StickCPlus2:
+            return {0, 26};
+        case m5::board_t::board_M5StickS3:
+            return {8, 0};
+        case m5::board_t::board_M5StackCoreInk:
+            return {25, 26};
+        case m5::board_t::board_ArduinoNessoN1:
+            return {6, 7};
+        default:
+            return {-1, -1};
+    }
+}
+
 template <uint32_t FREQ, uint32_t WNUM = 0>
 class GlobalFixture : public ::testing::Environment {
     static_assert(WNUM < 2, "Wire number must be lesser than 2");
@@ -33,24 +53,41 @@ class GlobalFixture : public ::testing::Environment {
 public:
     void SetUp() override
     {
-        // Setup required to use HatHEART
-        pinMode(25, INPUT_PULLUP);
-        pinMode(26, OUTPUT);
+        const auto pins = get_hat_i2c_pins(M5.getBoard());
+        // M5_LOGI("pin:%d %d", pins.sda, pins.scl);
+
+        pinMode(pins.scl, OUTPUT);
 
         TwoWire* w[2] = {&Wire, &Wire1};
         if (WNUM < m5::stl::size(w) && i2cIsInit(WNUM)) {
             M5_LOGW("Already inititlized Wire %d. Terminate and restart FREQ %u", WNUM, FREQ);
             w[WNUM]->end();
         }
-        w[WNUM]->begin(0, 26, FREQ);
+        w[WNUM]->begin(pins.sda, pins.scl, FREQ);
     }
 };
+
 }  // namespace hat
-const ::testing::Environment* global_fixture = ::testing::AddGlobalTestEnvironment(new hat::GlobalFixture<400000U>());
-#endif
+const ::testing::Environment* global_fixture =
+    ::testing::AddGlobalTestEnvironment(new hat::GlobalFixture<400000U, 1 /* Wire1 */>());
 
 class TestMAX30102 : public ComponentTestBase<UnitMAX30102, bool> {
 protected:
+    virtual bool begin() override
+    {
+        if (is_using_hal()) {
+            const auto pins = hat::get_hat_i2c_pins(M5.getBoard());
+            m5::hal::bus::I2CBusConfig i2c_cfg;
+            i2c_cfg.pin_sda = m5::hal::gpio::getPin(pins.sda);
+            i2c_cfg.pin_scl = m5::hal::gpio::getPin(pins.scl);
+            auto i2c_bus    = m5::hal::bus::i2c::getBus(i2c_cfg);
+            return Units.add(*unit, i2c_bus ? i2c_bus.value() : nullptr) && Units.begin();
+        }
+
+        // Using TwoWire
+        return Units.add(*unit, Wire1) && Units.begin();
+    }
+
     virtual UnitMAX30102* get_instance() override
     {
         auto ptr = new m5::unit::UnitMAX30102();
@@ -362,7 +399,6 @@ void test_periodic_spo2(UnitMAX30102* unit)
         EXPECT_TRUE(unit->stopPeriodicMeasurement());
         EXPECT_FALSE(unit->inPeriodic());
 
-        EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
         // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
         // unit->interval(),
@@ -481,7 +517,6 @@ void test_periodic_hr(UnitMAX30102* unit)
         EXPECT_TRUE(unit->stopPeriodicMeasurement());
         EXPECT_FALSE(unit->inPeriodic());
 
-        EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
         // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
         // unit->interval(),
@@ -554,7 +589,6 @@ void test_periodic_multi(UnitMAX30102* unit)
         EXPECT_TRUE(unit->stopPeriodicMeasurement());
         EXPECT_FALSE(unit->inPeriodic());
 
-        EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
         // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
         // unit->interval(),

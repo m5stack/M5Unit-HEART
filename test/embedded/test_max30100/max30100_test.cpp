@@ -28,6 +28,30 @@ const ::testing::Environment* global_fixture = ::testing::AddGlobalTestEnvironme
 
 class TestMAX30100 : public ComponentTestBase<UnitMAX30100, bool> {
 protected:
+    virtual bool begin() override
+    {
+        // NessoN1 GROVE must use HAL
+        auto board = M5.getBoard();
+        if (board == m5::board_t::board_ArduinoNessoN1 || is_using_hal()) {
+            // Using M5HAL
+            auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
+            auto pin_num_scl = M5.getPin(m5::pin_name_t::port_a_scl);
+            if (board == m5::board_t::board_ArduinoNessoN1) {
+                pin_num_sda = M5.getPin(m5::pin_name_t::port_b_out);
+                pin_num_scl = M5.getPin(m5::pin_name_t::port_b_in);
+            }
+            // M5_LOGI("pin:%d,%d", pin_num_sda, pin_num_scl);
+
+            m5::hal::bus::I2CBusConfig i2c_cfg;
+            i2c_cfg.pin_sda = m5::hal::gpio::getPin(pin_num_sda);
+            i2c_cfg.pin_scl = m5::hal::gpio::getPin(pin_num_scl);
+            auto i2c_bus    = m5::hal::bus::i2c::getBus(i2c_cfg);
+            return Units.add(*unit, i2c_bus ? i2c_bus.value() : nullptr) && Units.begin();
+        }
+
+        // Using TwoWire
+        return Units.add(*unit, Wire) && Units.begin();
+    }
     virtual UnitMAX30100* get_instance() override
     {
         auto ptr = new m5::unit::UnitMAX30100();
@@ -286,7 +310,6 @@ void test_periodic_spo2(UnitMAX30100* unit)
         EXPECT_TRUE(unit->stopPeriodicMeasurement());
         EXPECT_FALSE(unit->inPeriodic());
 
-        EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
         // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
         // unit->interval(),
@@ -377,11 +400,9 @@ void test_periodic_hr(UnitMAX30100* unit)
         EXPECT_TRUE(unit->stopPeriodicMeasurement());
         EXPECT_FALSE(unit->inPeriodic());
 
-        EXPECT_NE(elapsed, 0);
         EXPECT_GE(elapsed, STORED_SIZE * unit->interval());
-        // M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE *
-        // unit->interval(),
-        //         unit->retrieved(), unit->overflow());
+        M5_LOGI(">>> %s>elapsed: %ld/%u retrieved:%u overflow:%u", s.c_str(), elapsed, STORED_SIZE * unit->interval(),
+                unit->retrieved(), unit->overflow());
 
         EXPECT_GE(unit->available(), STORED_SIZE);  // Check GE not EQ! (because FIFO)
         EXPECT_FALSE(unit->empty());
