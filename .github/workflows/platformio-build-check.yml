@@ -66,7 +66,7 @@ jobs:
           - Fire
           - StampS3
           - Dial
-          - AtomMatrix
+          - Atom
           - AtomS3
           - AtomS3R
           - NanoC6
