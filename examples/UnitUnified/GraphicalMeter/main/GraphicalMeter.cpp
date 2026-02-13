@@ -7,8 +7,6 @@
   Graphical meter example for UnitHeart / HatHeart
   The core must be equipped with LCD
 */
-// #define USING_M5HAL  // When using M5HAL (UnitHeart only)
-
 #include <M5Unified.h>
 #include <M5UnitUnified.h>
 #include <M5UnitUnifiedHEART.h>

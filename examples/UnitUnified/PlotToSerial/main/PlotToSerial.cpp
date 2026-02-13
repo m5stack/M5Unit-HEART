@@ -6,8 +6,6 @@
 /*
   Example using M5UnitUnified for UnitHeart / HatHeart
 */
-// #define USING_M5HAL  // When using M5HAL (UnitHeart only)
-
 #include <M5Unified.h>
 #include <M5UnitUnified.h>
 #include <M5UnitUnifiedHEART.h>
@@ -180,7 +178,7 @@ void setup()
 #endif
 
     monitor.setSamplingRate(unit.calculateSamplingRate());
-    lcd.clear(TFT_DARKGREEN);
+    lcd.fillScreen(TFT_DARKGREEN);
 }
 
 void loop()

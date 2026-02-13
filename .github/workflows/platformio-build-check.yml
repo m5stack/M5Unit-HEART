@@ -72,6 +72,7 @@ jobs:
           - NanoC6
           - StickCPlus
           - StickCPlus2
+          - StickS3
           - Paper
           - CoreInk
           - Cardputer
@@ -95,6 +96,11 @@ jobs:
           - example: PlotToSerial
             unit: HatHeart
             board: StickCPlus2
+            framework: Arduino
+            espressif32: latest
+          - example: PlotToSerial
+            unit: HatHeart
+            board: StickS3
             framework: Arduino
             espressif32: latest
           - example: PlotToSerial
