@@ -47,7 +47,6 @@ View* view{};
 struct I2cPins {
     int sda;
     int scl;
-    bool use_wire1;
 };
 
 I2cPins get_hat_i2c_pins(const m5::board_t board)
@@ -56,15 +55,15 @@ I2cPins get_hat_i2c_pins(const m5::board_t board)
         case m5::board_t::board_M5StickC:
         case m5::board_t::board_M5StickCPlus:
         case m5::board_t::board_M5StickCPlus2:
-            return {0, 26, true};
+            return {0, 26};
         case m5::board_t::board_M5StickS3:
-            return {8, 0, true};
+            return {8, 0};
         case m5::board_t::board_M5StackCoreInk:
-            return {25, 26, true};
+            return {25, 26};
         case m5::board_t::board_ArduinoNessoN1:
-            return {6, 7, true};
+            return {6, 7};
         default:
-            return {-1, -1, false};
+            return {-1, -1};
     }
 }
 #endif
@@ -90,7 +89,7 @@ void setup()
 
 #if defined(USING_HAT_HEART)
     const auto pins = get_hat_i2c_pins(board);
-    M5_LOGI("getHatPin: SDA:%u SCL:%u %s", pins.sda, pins.scl, pins.use_wire1 ? "Wire1" : "Wire");
+    M5_LOGI("getHatPin: SDA:%u SCL:%u Wire1", pins.sda, pins.scl);
     if (pins.sda < 0 || pins.scl < 0) {
         M5_LOGE("Illegal pin number");
         lcd.clear(TFT_RED);
@@ -102,10 +101,9 @@ void setup()
     // Setup required to use HatHEART
     pinMode(pins.scl, OUTPUT);
 
-    TwoWire& wire = pins.use_wire1 ? Wire1 : Wire;
-    wire.end();
-    wire.begin(pins.sda, pins.scl, 400 * 1000U);
-    if (!Units.add(heart, wire) || !Units.begin()) {
+    Wire1.end();
+    Wire1.begin(pins.sda, pins.scl, 400 * 1000U);
+    if (!Units.add(heart, Wire1) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         lcd.clear(TFT_RED);
         while (true) {
