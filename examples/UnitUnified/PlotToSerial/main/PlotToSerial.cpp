@@ -91,7 +91,7 @@ void setup()
 
 #if defined(USING_HAT_HEART)
     const auto pins = get_hat_i2c_pins(board);
-    M5_LOGI("getHatPin: SDA:%u SCL:%u Wire1", pins.sda, pins.scl);
+    M5_LOGI("getHatPin: SDA:%u SCL:%u", pins.sda, pins.scl);
     if (pins.sda < 0 || pins.scl < 0) {
         M5_LOGE("Illegal pin number");
         lcd.clear(TFT_RED);
@@ -110,10 +110,10 @@ void setup()
         cfg.start_periodic = false;  // Ignore auto start
         unit.config(cfg);
     }
-
-    Wire1.end();
-    Wire1.begin(pins.sda, pins.scl, 400 * 1000U);
-    if (!Units.add(unit, Wire1) || !Units.begin()) {
+    auto& wire = (board == m5::board_t::board_ArduinoNessoN1) ? Wire1 : Wire;
+    wire.end();
+    wire.begin(pins.sda, pins.scl, 400 * 1000U);
+    if (!Units.add(unit, wire) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         lcd.clear(TFT_RED);
         while (true) {
