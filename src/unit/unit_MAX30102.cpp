@@ -702,6 +702,7 @@ bool UnitMAX30102::reset()
                 _mode      = mc.mode();
                 _retrieved = _overflow = 0;
                 _slot[0] = _slot[1] = Slot::None;
+                m5::utility::delay(10);  // Wait for registers to settle after POR
                 return true;
             }
             m5::utility::delay(1);

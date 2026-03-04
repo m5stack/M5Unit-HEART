@@ -179,14 +179,10 @@ bool UnitMAX30100::begin()
         return false;
     }
 
-#if 0    
-    // Clear interrupt status
-    uint8_t it{};
-    if (!read_register8(READ_INTERRUPT_STATUS, it)) {
-        M5_LIB_LOGE("Failed to read INTERRUPT_STATUS");
+    if (!reset()) {
+        M5_LIB_LOGE("Failed to reset");
         return false;
     }
-#endif
 
     return _cfg.start_periodic ? startPeriodicMeasurement(_cfg.mode, _cfg.rate, _cfg.width, _cfg.ir_current,
                                                           _cfg.high_resolution, _cfg.red_current)
@@ -436,6 +432,7 @@ bool UnitMAX30100::reset()
                 _periodic  = false;
                 _mode      = mc.mode();
                 _retrieved = _overflow = 0;
+                m5::utility::delay(10);  // Wait for registers to settle after POR
                 return true;
             }
             m5::utility::delay(1);

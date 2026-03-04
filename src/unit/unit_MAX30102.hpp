@@ -191,7 +191,7 @@ public:
     /*!
       @struct config_t
       @brief Settings for begin
-      @warning Note that some combinations of sampling_rate and pulse_width are invalid. See alse SpO2 configuration
+      @warning Note that some combinations of sampling_rate and pulse_width are invalid. See also SpO2 configuration
      */
     struct config_t {
         /*!
