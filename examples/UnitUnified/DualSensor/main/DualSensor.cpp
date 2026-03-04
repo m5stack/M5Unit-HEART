@@ -71,7 +71,7 @@ void setup()
     M5_LOGI("getHatPin: SDA:%u SCL:%u", pins.sda, pins.scl);
     if (pins.sda < 0 || pins.scl < 0) {
         M5_LOGE("Hat port not exists");
-        lcd.clear(TFT_RED);
+        lcd.fillScreen(TFT_RED);
         while (true) {
             m5::utility::delay(10000);
         }
@@ -123,7 +123,7 @@ void setup()
     if (!hat_ready || !unit_ready || !Units.begin()) {
         M5_LOGE("Failed to begin %u/%u", hat_ready, unit_ready);
         M5_LOGE("%s", Units.debugInfo().c_str());
-        lcd.clear(TFT_RED);
+        lcd.fillScreen(TFT_RED);
         while (true) {
             m5::utility::delay(10000);
         }
