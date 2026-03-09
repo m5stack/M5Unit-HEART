@@ -15,7 +15,7 @@
 #include <unit/unit_MAX30102.hpp>
 #include <chrono>
 #include <cmath>
-#include <random>
+#include <esp_random.h>
 
 using namespace m5::unit::googletest;
 using namespace m5::unit;
@@ -52,11 +52,14 @@ class TestMAX30102 : public I2CComponentTestBase<UnitMAX30102> {
 protected:
     virtual bool begin() override
     {
-        const auto pins = hat::get_hat_i2c_pins(M5.getBoard());
+        auto board      = M5.getBoard();
+        const auto pins = hat::get_hat_i2c_pins(board);
+        // NessoN1: Wire is used by M5Unified In_I2C; use Wire1 for Hat port
+        auto& wire = (board == m5::board_t::board_ArduinoNessoN1) ? Wire1 : Wire;
         pinMode(pins.scl, OUTPUT);
-        Wire1.end();
-        Wire1.begin(pins.sda, pins.scl, unit->component_config().clock);
-        return Units.add(*unit, Wire1) && Units.begin();
+        wire.end();
+        wire.begin(pins.sda, pins.scl, unit->component_config().clock);
+        return Units.add(*unit, wire) && Units.begin();
     }
 
     virtual UnitMAX30102* get_instance() override
@@ -71,7 +74,7 @@ protected:
 };
 
 namespace {
-auto rng = std::default_random_engine{};
+// esp_random() used instead of std::default_random_engine
 
 constexpr uint32_t STORED_SIZE{4};
 
@@ -185,8 +188,8 @@ void test_spo2_config(UnitMAX30102* unit, const Mode mode)
                     LEDPulse width2{};
                     EXPECT_TRUE(unit->readSpO2Configuration(range2, rate2, width2));
                     EXPECT_EQ(range2, range);
-                    EXPECT_EQ(rate2, rate2);
-                    EXPECT_EQ(width2, width2);
+                    EXPECT_EQ(rate2, rate);
+                    EXPECT_EQ(width2, width);
                 }
             }
         }
@@ -561,7 +564,6 @@ TEST_F(TestMAX30102, MultiLEDMode)
         EXPECT_TRUE(unit->writeMultiLEDModeControl(slots[0], slots[1]));
 
         EXPECT_TRUE(unit->readMultiLEDModeControl(slot1, slot2));
-        ;
         EXPECT_EQ(slot1, slots[0]);
         EXPECT_EQ(slot2, slots[1]);
     }
@@ -579,7 +581,7 @@ TEST_F(TestMAX30102, MultiLEDMode)
         EXPECT_EQ(s2, slot2);
     }
 
-    // All invalid (slots can be set for MutiLED mode only).
+    // All invalid (slots can be set for MultiLED mode only).
     constexpr Mode m_table[] = {
         Mode::SpO2,
         Mode::HROnly,
@@ -624,8 +626,8 @@ TEST_F(TestMAX30102, FIFOConfiguration)
     EXPECT_FALSE(unit->inPeriodic());
 
     for (auto&& fs : fs_table) {
-        bool ro    = rng() % 1;
-        uint8_t af = rng() % 0x0F;
+        bool ro    = esp_random() % 2;
+        uint8_t af = esp_random() % 0x0F;
         auto s     = m5::utility::formatString("FS:%u RO:%u AF:%u", fs, ro, af);
         SCOPED_TRACE(s);
         EXPECT_TRUE(unit->writeFIFOConfiguration(fs, ro, af));
