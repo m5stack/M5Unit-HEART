@@ -163,7 +163,7 @@ const types::attr_t UnitMAX30100::attr{attribute::AccessI2C};
 bool UnitMAX30100::begin()
 {
     auto ssize = stored_size();
-    assert(ssize >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPT");
+    assert(ssize >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPTH");
     if (ssize != _data->capacity()) {
         _data.reset(new m5::container::CircularBuffer<Data>(ssize));
         if (!_data) {
@@ -482,7 +482,7 @@ bool UnitMAX30100::read_FIFO()
                 return false;
             }
 
-            for (uint_fast8_t i = 0; i < batch_count; ++i) {
+            for (uint32_t i = 0; i < batch_count; ++i) {
                 Data d;
                 // Unlike MAX30102, the length of data per session does not change even in HROnly
                 memcpy(d.raw.data(), rbuf + 4 * i, 4);

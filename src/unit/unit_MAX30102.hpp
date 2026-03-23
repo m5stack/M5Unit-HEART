@@ -106,14 +106,14 @@ constexpr uint8_t MAX_FIFO_DEPTH{32};  //!< @brief FIFO depth
   @brief Measurement data group
  */
 struct Data {
-    std::array<uint8_t, 6> raw{};  // [0...2]:Red [3...5]:IR
-    uint32_t mask{0x3FFFF};        // Valid bits based on ADC range
-    //! IR value
+    std::array<uint8_t, 6> raw{};  //!< Raw data [0...2]:Red [3...5]:IR
+    uint32_t mask{0x3FFFF};        //!< Valid bits based on ADC range
+    //! @brief Gets the IR value
     inline uint32_t ir() const
     {
         return mask & (((uint32_t)raw[3] << 16) | ((uint32_t)raw[4] << 8) | ((uint32_t)raw[5]));
     }
-    //! Red value
+    //! @brief Gets the Red value
     inline uint32_t red() const
     {
         return mask & (((uint32_t)raw[0] << 16) | ((uint32_t)raw[1] << 8) | ((uint32_t)raw[2]));
@@ -216,6 +216,8 @@ public:
         max30102::FIFOSampling fifo_sampling_average{max30102::FIFOSampling::Average4};
     };
 
+    /*! @brief Constructor
+        @param addr I2C address */
     explicit UnitMAX30102(const uint8_t addr = DEFAULT_ADDRESS)
         : Component(addr), _data{new m5::container::CircularBuffer<max30102::Data>(max30102::MAX_FIFO_DEPTH)}
     {
@@ -228,7 +230,9 @@ public:
     {
     }
 
+    //! @brief Begin the unit
     virtual bool begin() override;
+    //! @brief Update the unit
     virtual void update(const bool force = false) override;
 
     ///@name Settings for begin
@@ -524,7 +528,7 @@ public:
       @return True if successful
       @warning Blocking until measured about 29 ms
       @warning Does not work in power-save mode
-      @sa m5::unit::MAX30102::readShutdownControl
+      @sa m5::unit::UnitMAX30102::readShutdownControl
      */
     bool measureTemperatureSingleshot(max30102::TemperatureData& td);
     ///@}

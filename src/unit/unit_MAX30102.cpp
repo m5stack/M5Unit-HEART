@@ -12,6 +12,7 @@
 #include <limits>  // NaN
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 using namespace m5::utility::mmh3;
 using namespace m5::unit::types;
@@ -473,7 +474,7 @@ bool UnitMAX30102::write_led_current(const uint8_t idx, const float mA)
         M5_LIB_LOGE("Valid range 0.0 - 51.0 (0.2 increments) %f", mA);
         return false;
     }
-    uint8_t raw = (uint8_t)(mA * 5);  // / 0.2f
+    uint8_t raw = static_cast<uint8_t>(std::lround(mA * 5));  // / 0.2f
     return write_led_current(idx, raw);
 }
 
@@ -649,7 +650,7 @@ bool UnitMAX30102::read_FIFO()
                 return false;
             }
 
-            for (uint_fast8_t i = 0; i < batch_count; ++i) {
+            for (uint32_t i = 0; i < batch_count; ++i) {
                 Data d;
                 d.mask = _mask;
                 switch (_mode) {

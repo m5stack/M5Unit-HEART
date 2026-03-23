@@ -64,13 +64,13 @@ enum class LEDPulse : uint8_t {
   @brief LED current control
  */
 enum class LED : uint8_t {
-    Current0_0,   //!< 0,0 mA
-    Current4_4,   //!< 4,4 mA
+    Current0_0,   //!< 0.0 mA
+    Current4_4,   //!< 4.4 mA
     Current7_6,   //!< 7.6 mA
     Current11_0,  //!< 11.0 mA
     Current14_2,  //!< 14.2 mA
     Current17_4,  //!< 17.4 mA
-    Current20_8,  //!< 20,8 mA
+    Current20_8,  //!< 20.8 mA
     Current24_0,  //!< 24.0 mA
     Current27_1,  //!< 27.1 mA
     Current30_6,  //!< 30.6 mA
@@ -89,11 +89,13 @@ constexpr uint8_t MAX_FIFO_DEPTH{16};  //!< @brief FIFO depth
   @brief Measurement data group
  */
 struct Data {
-    std::array<uint8_t, 4> raw{};  // [0...1]:IR [2...3]:Red
+    std::array<uint8_t, 4> raw{};  //!< Raw data [0...1]:IR [2...3]:Red
+    //! @brief Gets the IR value
     inline uint16_t ir() const
     {
         return m5::types::big_uint16_t(raw[0], raw[1]).get();
     }
+    //! @brief Gets the Red value
     inline uint16_t red() const
     {
         return m5::types::big_uint16_t(raw[2], raw[3]).get();
@@ -182,6 +184,8 @@ public:
         m5::unit::max30100::LED red_current{max30100::LED::Current27_1};
     };
 
+    /*! @brief Constructor
+        @param addr I2C address */
     explicit UnitMAX30100(const uint8_t addr = DEFAULT_ADDRESS)
         : Component(addr), _data{new m5::container::CircularBuffer<max30100::Data>(max30100::MAX_FIFO_DEPTH)}
     {
@@ -194,7 +198,9 @@ public:
     {
     }
 
+    //! @brief Begin the unit
     virtual bool begin() override;
+    //! @brief Update the unit
     virtual void update(const bool force = false) override;
 
     ///@name Settings for begin
@@ -407,7 +413,7 @@ public:
     }
     //! @brief Write the sampling rate
     bool writeSpO2SamplingRate(const max30100::Sampling rate);
-    //! @brief Write LED pulse width
+    //! @brief Read LED pulse width
     inline bool readSpO2LEDPulseWidth(max30100::LEDPulse& width)
     {
         bool enabled{};
@@ -419,7 +425,7 @@ public:
     ///@}
 
     ///@warning In the heart-rate only mode, the red LED is inactive
-    // @warning and only the IR LED is used to capture optical data and determine the heart rate
+    /// @warning and only the IR LED is used to capture optical data and determine the heart rate
     ///@name LED Configuration
     ///@{
     /*!
@@ -446,7 +452,7 @@ public:
       @return True if successful
       @warning Blocking until measured about 29 ms
       @warning Does not work in power-save mode
-      @sa m5::unit::MAX30100::readShutdownControl
+      @sa m5::unit::UnitMAX30100::readShutdownControl
      */
     bool measureTemperatureSingleshot(max30100::TemperatureData& td);
     ///@}

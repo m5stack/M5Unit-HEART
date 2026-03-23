@@ -29,15 +29,21 @@ namespace heart {
  */
 class EMA {
 public:
+    /*! @brief Constructor
+        @param factor Smoothing factor (0.0 - 1.0) */
     explicit EMA(float factor) : _alpha(factor)
     {
     }
 
+    //! @brief Clear the stored value
     inline void clear()
     {
         _ema_value = std::numeric_limits<float>::quiet_NaN();
     }
 
+    /*! @brief Update with a new value and return the smoothed result
+        @param new_value New input value
+        @return Smoothed value */
     inline float update(float new_value)
     {
         if (!std::isnan(_ema_value)) {
@@ -58,11 +64,17 @@ private:
  */
 class Filter {
 public:
+    /*! @brief Constructor
+        @param cutoff Cutoff frequency in Hz
+        @param sampling_rate Sampling rate in Hz */
     Filter(const float cutoff, const float sampling_rate)
     {
         setSamplingRate(cutoff, sampling_rate);
     }
 
+    /*! @brief Set the sampling rate and reset filter state
+        @param cutoff Cutoff frequency in Hz
+        @param sampling_rate Sampling rate in Hz */
     void setSamplingRate(const float cutoff, const float sampling_rate)
     {
         _cutoff       = cutoff;
@@ -74,6 +86,9 @@ public:
         _ema.clear();
     }
 
+    /*! @brief Process a sample through the filter
+        @param value Input sample
+        @return Filtered and inverted output */
     float process(const float value)
     {
         float out = _ema.update(_alpha * (_prevOut + value - _prevIn));
@@ -103,7 +118,7 @@ public:
     explicit PulseMonitor(const uint32_t samplingRate = 100, const uint32_t sec = 5)
         : _range{sec},
           _sampling_rate{(float)samplingRate},
-          _max_samples{(size_t)samplingRate * sec},
+          _max_samples{static_cast<size_t>(samplingRate) * sec},
           _filterIR(5.0f, samplingRate)
     {
         assert(sec >= 1 && "sec must be greater or equal than 1");
@@ -126,7 +141,7 @@ public:
     */
     inline float SpO2() const
     {
-        return _SpO2;
+        return _spo2;
     }
 
     /*!
@@ -177,7 +192,7 @@ private:
 
     bool _beat{};
     float _bpm{};
-    float _SpO2{};
+    float _spo2{};
 
     uint32_t _count{};
     float _avered{}, _aveir{};
