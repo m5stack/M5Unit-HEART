@@ -47,7 +47,7 @@ struct View {
         _sprite.printf("BPM: %3.2f\nSpO2:%3.2f", _monitor.bpm(), _monitor.SpO2());
         _sprite.fillCircle(_sprite.width() - 12, 24 * 3, 7, _beat ? palette_theme : palette_white);
 
-        _meter->push(&_sprite, 0, _sprite.height() >> 1);
+        _meter->push(&_sprite);
     }
 
     void clear()

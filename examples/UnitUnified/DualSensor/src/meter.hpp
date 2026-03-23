@@ -28,7 +28,7 @@ public:
         _plotter->push_back(value);
     }
 
-    inline void push(LovyanGFX* target, const uint32_t x, const uint32_t y)
+    inline void push(LovyanGFX* target)
     {
         _plotter->push(target, _left, _top);
     }

@@ -79,7 +79,7 @@ struct View {
     void render()
     {
         _plot_sprite.clear(palette_black);
-        _meter->push(&_plot_sprite, 0, 0);
+        _meter->push(&_plot_sprite);
         _text_sprite.clear(palette_black);
         _text_sprite.drawString(_type ? "Unit" : "Hat", 0, 0);
         _text_sprite.setCursor(0, _text_sprite.fontHeight());
