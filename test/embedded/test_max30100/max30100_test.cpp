@@ -15,8 +15,6 @@
 #include <unit/unit_MAX30100.hpp>
 #include <chrono>
 #include <cmath>
-#include <iostream>
-#include <vector>
 
 using namespace m5::unit::googletest;
 using namespace m5::unit;
@@ -48,7 +46,7 @@ constexpr uint8_t hr_table[] = {
     0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x03, 0x03,
 };
 constexpr uint8_t none_table[] = {
-    // LSB:200 MSB::1600
+    // LSB:200 MSB:1600
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 constexpr const uint8_t* allowed_setting_table[] = {none_table, none_table, hr_table, spo2_table};
@@ -115,8 +113,8 @@ void test_spo2_config(UnitMAX30100* unit, const Mode mode)
                     LEDPulse width2{};
                     EXPECT_TRUE(unit->readSpO2Configuration(resolution2, rate2, width2));
                     EXPECT_EQ(resolution2, resolution);
-                    EXPECT_EQ(rate2, rate2);
-                    EXPECT_EQ(width2, width2);
+                    EXPECT_EQ(rate2, rate);
+                    EXPECT_EQ(width2, width);
                 }
             }
         }
