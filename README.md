@@ -6,16 +6,10 @@ Library for UnitHEART using [M5UnitUnified](https://github.com/m5stack/M5UnitUni
 M5UnitUnified is a library for unified handling of various M5 units products.
 
 ### SKU:U029
-
-HEART is built using the MAX30100 chipset.
-
-MAX30100 is a complete pulse oximetry and heart-rate sensor system solution designed for the demanding requirements of wearable devices.
-
-The MAX30100 provides very small total solution size without sacrificing optical or electrical performance. Minimal external hardware components are needed for integration into a wearable device.
+Unit Heart is a blood oxygen and heart rate sensor. Integrated MAX30100, it offers a complete pulse oximeter and heart rate sensor system solution. This is a non-invasive blood oxygen and heart rate sensor, integrating two infrared light-emitting diodes and a photodetector. The detection principle is to use infrared LEDs to illuminate and detect the proportion of red blood cells carrying oxygen versus those not carrying oxygen, thereby obtaining the oxygen content.
 
 ### SKU:U118
-
-HEART RATE HAT is a blood oxygen heart rate sensor. Integrate MAX30102 to provide a complete pulse oximeter and heart rate sensor system solution. This is a non-pluggable blood oxygen heart rate sensor. The sensor uses I2C communication interface, internally integrates infrared light-emitting diodes, photo-detectors, optical components and low-noise electronic equipment. A certain amount of ambient light suppression function can make the measurement results more accurate.
+Hat Heart is a blood oxygen and heart rate sensor. It integrates MAX30102, providing a complete pulse oximeter and heart rate sensor system solution. This is a non-invasive blood oxygen and heart rate sensor. Its detection principle is based on infrared LED light illumination, which detects the ratio of oxygenated to deoxygenated red blood cells to determine blood oxygen levels. The sensor uses an I2C communication interface and integrates infrared LEDs, photodetectors, optical components, and low-noise electronics, with some ambient light suppression for more accurate measurements.
 
 
 ## Related Link
