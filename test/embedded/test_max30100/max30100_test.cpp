@@ -163,12 +163,17 @@ void test_spo2_config_each(UnitMAX30100* unit, const Mode mode)
 template <class U>
 void collect_and_verify(U* unit, uint32_t count, bool expect_ir, bool expect_red)
 {
-    auto timeout = std::max<uint32_t>(unit->interval() * (count + 1) * 2, 2000);
-    auto result  = collect_periodic_measurements(unit, count, timeout);
+    auto ad        = unit->template asAdapter<m5::unit::AdapterI2C>(m5::unit::Adapter::Type::I2C);
+    bool is_bus    = ad && ad->implType() == m5::unit::AdapterI2C::ImplType::Bus;
+    uint32_t limit = is_bus ? 3U : 1U;
+    auto timeout   = std::max<uint32_t>(unit->interval() * (count + 1) * 2, 2000);
+    auto result    = collect_periodic_measurements(unit, count, timeout);
 
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
     EXPECT_FALSE(result.timed_out);
+    EXPECT_EQ(result.update_count, count);
+    EXPECT_LE(result.median(), result.expected_interval + limit);
 
     EXPECT_GE(unit->available(), count);
     EXPECT_FALSE(unit->empty());
@@ -421,6 +426,19 @@ TEST_F(TestMAX30100, Temperature)
             // M5_LOGI("TempS>C:%f F:%f", td.celsius(), td.fahrenheit());
         }
     }
+}
+
+TEST_F(TestMAX30100, TemperatureDataSentinel)
+{
+    TemperatureData td{};
+
+    td.raw = {0x80, 0x00};
+    EXPECT_FALSE(std::isfinite(td.celsius()));
+    EXPECT_FALSE(std::isfinite(td.fahrenheit()));
+
+    td.raw = {0xFF, 0x00};
+    EXPECT_FLOAT_EQ(td.celsius(), -1.0f);
+    EXPECT_FLOAT_EQ(td.fahrenheit(), 30.2f);
 }
 
 TEST_F(TestMAX30100, Revision)

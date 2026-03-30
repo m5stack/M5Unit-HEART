@@ -60,7 +60,8 @@ void PulseMonitor::push_back(const float ir, const float red)
             _count                 = 0;
             return;
         }
-        float R    = (std::sqrt(_sumredrms) / _avered) / (std::sqrt(_sumirrms) / _aveir);
+        float R = (std::sqrt(_sumredrms) / _avered) / (std::sqrt(_sumirrms) / _aveir);
+        // Empirical SpO2 approximation from the red/IR RMS to DC ratio.
         _spo2      = -23.3f * (R - 0.4f) + 100;
         _spo2      = std::fmax(std::fmin(100.0f, _spo2), 80.0f);  // clamp 80-100
         _sumredrms = _sumirrms = 0;

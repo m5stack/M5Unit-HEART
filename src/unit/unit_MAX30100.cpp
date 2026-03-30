@@ -197,7 +197,6 @@ void UnitMAX30100::update(const bool force)
         if (force || !_latest || at >= _latest + _interval) {
             _updated = read_FIFO();
             if (_updated) {
-                //                _latest = at;
                 _latest = m5::utility::millis();
             }
         }
@@ -462,7 +461,6 @@ bool UnitMAX30100::read_FIFO()
 
     assert(readCount <= MAX_FIFO_DEPTH);
 
-#if 1
     if (readCount) {
         uint8_t reg{FIFO_DATA_REGISTER};
         if (writeWithTransaction(&reg, 1) != m5::hal::error::error_t::OK) {
@@ -492,18 +490,6 @@ bool UnitMAX30100::read_FIFO()
         }
         _retrieved = readCount;
     }
-
-#else
-    while (readCount--) {
-        Data d{};
-        if (!read_register(FIFO_DATA_REGISTER, d.raw.data(), d.raw.size())) {
-            M5_LIB_LOGE("Failed to read");
-            return false;
-        }
-        _data->push_back(d);
-        ++_retrieved;
-    }
-#endif
     return (_retrieved != 0);
 }
 

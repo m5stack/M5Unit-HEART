@@ -107,7 +107,7 @@ struct Data {
   @brief Measurement data group for temperature
  */
 struct TemperatureData {
-    std::array<uint8_t, 2> raw{0xFF, 0xFF};  // [0]:integer [1]:fraction
+    std::array<uint8_t, 2> raw{0x80, 0x00};  // [0]:integer [1]:fraction  sentinel:0x80(-128) is outside operating range
     //! @brief Temperature (Celsius)
     inline float temperature() const
     {
@@ -116,9 +116,10 @@ struct TemperatureData {
     //! @brief Temperature (Celsius)
     inline float celsius() const
     {
-        return (raw[0] != 0xFF) ? (int8_t)raw[0] + raw[1] * 0.0625f : std::numeric_limits<float>::quiet_NaN();
+        return (raw[0] != 0x80) ? static_cast<int8_t>(raw[0]) + raw[1] * 0.0625f
+                                : std::numeric_limits<float>::quiet_NaN();
     }
-    //! @brief temperature (Fahrenheit)
+    //! @brief Temperature (Fahrenheit)
     inline float fahrenheit() const
     {
         return celsius() * 9.0f / 5.0f + 32.f;
@@ -425,7 +426,7 @@ public:
     ///@}
 
     ///@warning In the heart-rate only mode, the red LED is inactive
-    /// @warning and only the IR LED is used to capture optical data and determine the heart rate
+    ///@warning and only the IR LED is used to capture optical data and determine the heart rate
     ///@name LED Configuration
     ///@{
     /*!

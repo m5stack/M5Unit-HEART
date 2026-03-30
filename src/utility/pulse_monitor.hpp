@@ -77,11 +77,12 @@ public:
         @param sampling_rate Sampling rate in Hz */
     void setSamplingRate(const float cutoff, const float sampling_rate)
     {
+        constexpr float pi{3.14159265358979323846f};
         _cutoff       = cutoff;
         _samplingRate = sampling_rate;
         _prevIn = _prevOut = 0.0f;
         auto dt            = 1.0f / _samplingRate;
-        auto RC            = 1.0f / (2.0f * M_PI * _cutoff);
+        auto RC            = 1.0f / (2.0f * pi * _cutoff);
         _alpha             = RC / (RC + dt);
         _ema.clear();
     }

@@ -238,12 +238,15 @@ void test_spo2_config_each(UnitMAX30102* unit, const Mode mode)
 template <class U>
 void collect_and_verify(U* unit, uint32_t count, bool expect_ir, bool expect_red, uint32_t mask = 0)
 {
+    constexpr uint32_t limit{3U};
     auto timeout = std::max<uint32_t>(unit->interval() * (count + 1) * 2, 2000);
     auto result  = collect_periodic_measurements(unit, count, timeout);
 
     EXPECT_TRUE(unit->stopPeriodicMeasurement());
     EXPECT_FALSE(unit->inPeriodic());
     EXPECT_FALSE(result.timed_out);
+    EXPECT_EQ(result.update_count, count);
+    EXPECT_LE(result.median(), result.expected_interval + limit);
 
     EXPECT_GE(unit->available(), count);
     EXPECT_FALSE(unit->empty());
@@ -685,6 +688,19 @@ TEST_F(TestMAX30102, Temperature)
             // M5_LOGI("TempS>C:%f F:%f", td.celsius(), td.fahrenheit());
         }
     }
+}
+
+TEST_F(TestMAX30102, TemperatureDataSentinel)
+{
+    TemperatureData td{};
+
+    td.raw = {0x80, 0x00};
+    EXPECT_FALSE(std::isfinite(td.celsius()));
+    EXPECT_FALSE(std::isfinite(td.fahrenheit()));
+
+    td.raw = {0xFF, 0x00};
+    EXPECT_FLOAT_EQ(td.celsius(), -1.0f);
+    EXPECT_FLOAT_EQ(td.fahrenheit(), 30.2f);
 }
 
 TEST_F(TestMAX30102, Revision)

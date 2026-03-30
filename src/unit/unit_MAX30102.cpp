@@ -141,7 +141,8 @@ constexpr uint32_t adc_resolution_bits_table[] = {
 // Calculate the interval per data
 inline uint32_t calculate_interval_time(const FIFOSampling avg, const Sampling rate)
 {
-    float freq = sampling_rate_table[m5::stl::to_underlying(rate)] / (float)average_table[m5::stl::to_underlying(avg)];
+    float freq = sampling_rate_table[m5::stl::to_underlying(rate)] /
+                 static_cast<float>(average_table[m5::stl::to_underlying(avg)]);
 
     // M5_LIB_LOGE(">>>>>>>>>> avg:%u %u rate:%u %u => %f %f", avg, average_table[m5::stl::to_underlying(avg)], rate,
     //             sampling_rate_table[m5::stl::to_underlying(rate)], freq, std::ceil(1000.f / freq));
@@ -465,7 +466,7 @@ bool UnitMAX30102::read_led_current(const uint8_t idx, float& mA)
 
 bool UnitMAX30102::write_led_current(const uint8_t idx, const uint8_t raw)
 {
-    return (idx < 2) ? writeRegister8((uint8_t)(LED_CONFIGURATION_1 + idx), raw) : false;
+    return (idx < 2) ? writeRegister8(static_cast<uint8_t>(LED_CONFIGURATION_1 + idx), raw) : false;
 }
 
 bool UnitMAX30102::write_led_current(const uint8_t idx, const float mA)
@@ -623,7 +624,6 @@ bool UnitMAX30102::read_FIFO()
 
     assert(readCount <= MAX_FIFO_DEPTH);
 
-#if 1
     uint32_t dlen = (_mode == Mode::HROnly)     ? 3
                     : (_mode == Mode::SpO2)     ? 6
                     : (_mode == Mode::MultiLED) ? 3 * ((_slot[0] != Slot::None) + (_slot[1] != Slot::None))
@@ -676,18 +676,6 @@ bool UnitMAX30102::read_FIFO()
         }
         _retrieved = readCount;
     }
-#else
-    while (readCount--) {
-        Data d{};
-        if (!read_register(FIFO_DATA_REGISTER, d.raw.data(), d.raw.size())) {
-            M5_LIB_LOGE("Failed to read");
-            return false;
-        }
-        _data->push_back(d);
-        ++_retrieved;
-    }
-
-#endif
     return (_retrieved != 0);
 }
 

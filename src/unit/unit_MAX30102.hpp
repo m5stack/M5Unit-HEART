@@ -111,12 +111,14 @@ struct Data {
     //! @brief Gets the IR value
     inline uint32_t ir() const
     {
-        return mask & (((uint32_t)raw[3] << 16) | ((uint32_t)raw[4] << 8) | ((uint32_t)raw[5]));
+        return mask & ((static_cast<uint32_t>(raw[3]) << 16) | (static_cast<uint32_t>(raw[4]) << 8) |
+                       static_cast<uint32_t>(raw[5]));
     }
     //! @brief Gets the Red value
     inline uint32_t red() const
     {
-        return mask & (((uint32_t)raw[0] << 16) | ((uint32_t)raw[1] << 8) | ((uint32_t)raw[2]));
+        return mask & ((static_cast<uint32_t>(raw[0]) << 16) | (static_cast<uint32_t>(raw[1]) << 8) |
+                       static_cast<uint32_t>(raw[2]));
     }
 };
 
@@ -125,7 +127,7 @@ struct Data {
   @brief Measurement data group for temperature
  */
 struct TemperatureData {
-    std::array<uint8_t, 2> raw{0xFF, 0xFF};  // [0]:integer [1]:fraction
+    std::array<uint8_t, 2> raw{0x80, 0x00};  // [0]:integer [1]:fraction  sentinel:0x80(-128) is outside operating range
     //! @brief Temperature (Celsius)
     inline float temperature() const
     {
@@ -134,9 +136,10 @@ struct TemperatureData {
     //! @brief Temperature (Celsius)
     inline float celsius() const
     {
-        return (raw[0] != 0xFF) ? (int8_t)raw[0] + raw[1] * 0.0625f : std::numeric_limits<float>::quiet_NaN();
+        return (raw[0] != 0x80) ? static_cast<int8_t>(raw[0]) + raw[1] * 0.0625f
+                                : std::numeric_limits<float>::quiet_NaN();
     }
-    //! @brief temperature (Fahrenheit)
+    //! @brief Temperature (Fahrenheit)
     inline float fahrenheit() const
     {
         return celsius() * 9.0f / 5.0f + 32.f;
@@ -494,7 +497,7 @@ public:
     template <typename T, typename std::enable_if<std::is_floating_point<T>::value, std::nullptr_t>::type = nullptr>
     inline bool writeLEDCurrent(const uint8_t slot, const T mA)
     {
-        return write_led_current(slot, (float)mA);
+        return write_led_current(slot, static_cast<float>(mA));
     }
     ///@}
 
