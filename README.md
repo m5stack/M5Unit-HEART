@@ -32,6 +32,23 @@ See also examples using conventional methods here.
 ## Examples
 See also [examples/UnitUnified](examples/UnitUnified)
 
+### For ArduinoIDE settings
+You must choose a define symbol for the unit you will use.
+(Rewrite source or specify with compile options)
+
+- PlotToSerial / GraphicalMeter
+```cpp
+// *************************************************************
+// Choose one define symbol to match the unit you are using
+// *************************************************************
+#if !defined(USING_UNIT_HEART) && !defined(USING_HAT_HEART)
+// For UnitHeart (U029)
+// #define USING_UNIT_HEART
+// For HatHeart (U118)
+// #define USING_HAT_HEART
+#endif
+```
+
 ## Doxygen document
 [GitHub Pages](https://m5stack.github.io/M5Unit-HEART/)
 
