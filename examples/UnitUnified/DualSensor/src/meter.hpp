@@ -12,12 +12,15 @@
 
 class Meter {
 public:
-    Meter(const uint32_t left, const uint32_t top, const uint32_t wid, const uint32_t hgt, m5gfx::rgb565_t tcolor)
-        : _left(left), _top(top), _theme_color(tcolor)
+    Meter(const uint32_t left, const uint32_t top, const uint32_t wid, const uint32_t hgt, m5gfx::rgb565_t tcolor,
+          m5gfx::rgb565_t gcolor = TFT_DARKGRAY, m5gfx::rgb565_t bcolor = TFT_BLACK)
+        : _left(left), _top(top), _theme_color(tcolor), _gauge_color(gcolor), _background_color(bcolor)
     {
         _plotter = new m5::ui::Plotter(nullptr, wid, wid, hgt);
         _plotter->setGaugeTextDatum(textdatum_t::top_right);
         _plotter->setLineColor(_theme_color);
+        _plotter->setGaugeColor(_gauge_color);
+        _plotter->setBackgroundColor(_background_color);
     }
 
     inline void push_back(const float value)
@@ -25,7 +28,7 @@ public:
         _plotter->push_back(value);
     }
 
-    inline void push(LovyanGFX* target, const uint32_t x, const uint32_t y)
+    inline void push(LovyanGFX* target)
     {
         _plotter->push(target, _left, _top);
     }
@@ -39,5 +42,7 @@ private:
     uint32_t _left{}, _top{};
     m5::ui::Plotter* _plotter{};
     m5gfx::rgb565_t _theme_color{};
+    m5gfx::rgb565_t _gauge_color{TFT_DARKGRAY};
+    m5gfx::rgb565_t _background_color{TFT_BLACK};
 };
 #endif

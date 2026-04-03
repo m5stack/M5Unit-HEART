@@ -55,7 +55,7 @@ inline bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDP
 }
 
 // Calculate the interval per data
-inline uint32_t caluculate_interval_time(const Sampling rate)
+inline uint32_t calculate_interval_time(const Sampling rate)
 {
     return std::floor(1000.f / sr_table[m5::stl::to_underlying(rate)]);
 }
@@ -163,7 +163,7 @@ const types::attr_t UnitMAX30100::attr{attribute::AccessI2C};
 bool UnitMAX30100::begin()
 {
     auto ssize = stored_size();
-    assert(ssize >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPT");
+    assert(ssize >= max30100::MAX_FIFO_DEPTH && "stored_size must be greater than MAX_FIFO_DEPTH");
     if (ssize != _data->capacity()) {
         _data.reset(new m5::container::CircularBuffer<Data>(ssize));
         if (!_data) {
@@ -179,14 +179,10 @@ bool UnitMAX30100::begin()
         return false;
     }
 
-#if 0    
-    // Clear interrupt status
-    uint8_t it{};
-    if (!read_register8(READ_INTERRUPT_STATUS, it)) {
-        M5_LIB_LOGE("Failed to read INTERRUPT_STATUS");
+    if (!reset()) {
+        M5_LIB_LOGE("Failed to reset");
         return false;
     }
-#endif
 
     return _cfg.start_periodic ? startPeriodicMeasurement(_cfg.mode, _cfg.rate, _cfg.width, _cfg.ir_current,
                                                           _cfg.high_resolution, _cfg.red_current)
@@ -201,7 +197,6 @@ void UnitMAX30100::update(const bool force)
         if (force || !_latest || at >= _latest + _interval) {
             _updated = read_FIFO();
             if (_updated) {
-                //                _latest = at;
                 _latest = m5::utility::millis();
             }
         }
@@ -219,7 +214,7 @@ bool UnitMAX30100::start_periodic_measurement()
         _periodic = writeShutdownControl(false) && resetFIFO();
         if (_periodic) {
             _latest   = 0;
-            _interval = caluculate_interval_time(rate);
+            _interval = calculate_interval_time(rate);
             // M5_LIB_LOGE(">>>>R: Rate:%u IT:%u", rate, _interval);
             //              _mask     = adc_resolution_bits_table[m5::stl::to_underlying(width)];
             return true;
@@ -433,9 +428,10 @@ bool UnitMAX30100::reset()
         auto timeout_at = m5::utility::millis() + 1000;
         do {
             if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.reset()) {
-                _periodic = false;
-                _mode     = mc.mode();
-                _retrived = _overflow = 0;
+                _periodic  = false;
+                _mode      = mc.mode();
+                _retrieved = _overflow = 0;
+                m5::utility::delay(10);  // Wait for registers to settle after POR
                 return true;
             }
             m5::utility::delay(1);
@@ -448,7 +444,7 @@ bool UnitMAX30100::reset()
 bool UnitMAX30100::read_FIFO()
 {
     uint8_t wptr{}, rptr{};
-    _retrived = _overflow = 0;
+    _retrieved = _overflow = 0;
 
     if (!read_register8(FIFO_WRITE_POINTER, wptr) || !read_register8(FIFO_READ_POINTER, rptr) ||
         !read_register8(FIFO_OVERFLOW_COUNTER, _overflow)) {
@@ -465,7 +461,6 @@ bool UnitMAX30100::read_FIFO()
 
     assert(readCount <= MAX_FIFO_DEPTH);
 
-#if 1
     if (readCount) {
         uint8_t reg{FIFO_DATA_REGISTER};
         if (writeWithTransaction(&reg, 1) != m5::hal::error::error_t::OK) {
@@ -485,7 +480,7 @@ bool UnitMAX30100::read_FIFO()
                 return false;
             }
 
-            for (uint_fast8_t i = 0; i < batch_count; ++i) {
+            for (uint32_t i = 0; i < batch_count; ++i) {
                 Data d;
                 // Unlike MAX30102, the length of data per session does not change even in HROnly
                 memcpy(d.raw.data(), rbuf + 4 * i, 4);
@@ -493,21 +488,9 @@ bool UnitMAX30100::read_FIFO()
             }
             left -= batch_len;
         }
-        _retrived = readCount;
+        _retrieved = readCount;
     }
-
-#else
-    while (readCount--) {
-        Data d{};
-        if (!read_register(FIFO_DATA_REGISTER, d.raw.data(), d.raw.size())) {
-            M5_LIB_LOGE("Failed to read");
-            return false;
-        }
-        _data->push_back(d);
-        ++_retrived;
-    }
-#endif
-    return (_retrived != 0);
+    return (_retrieved != 0);
 }
 
 bool UnitMAX30100::read_measurement_temperature(max30100::TemperatureData& td)
@@ -521,11 +504,11 @@ bool UnitMAX30100::readRevisionID(uint8_t& rev)
     return read_register8(READ_REVISION_ID, rev);
 }
 
-uint32_t UnitMAX30100::caluculateSamplingRate()
+uint32_t UnitMAX30100::calculateSamplingRate()
 {
     Sampling rate{};
     if (readSpO2SamplingRate(rate)) {
-        return 1000 / caluculate_interval_time(rate);
+        return 1000 / calculate_interval_time(rate);
     }
     return 0;
 }

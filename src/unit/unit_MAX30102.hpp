@@ -106,17 +106,19 @@ constexpr uint8_t MAX_FIFO_DEPTH{32};  //!< @brief FIFO depth
   @brief Measurement data group
  */
 struct Data {
-    std::array<uint8_t, 6> raw{};  // [0...2]:Red [3...5]:IR
-    uint32_t mask{0x3FFFF};        // Valid bits based on ADC range
-    //! IR value
+    std::array<uint8_t, 6> raw{};  //!< Raw data [0...2]:Red [3...5]:IR
+    uint32_t mask{0x3FFFF};        //!< Valid bits based on ADC range
+    //! @brief Gets the IR value
     inline uint32_t ir() const
     {
-        return mask & (((uint32_t)raw[3] << 16) | ((uint32_t)raw[4] << 8) | ((uint32_t)raw[5]));
+        return mask & ((static_cast<uint32_t>(raw[3]) << 16) | (static_cast<uint32_t>(raw[4]) << 8) |
+                       static_cast<uint32_t>(raw[5]));
     }
-    //! Red value
+    //! @brief Gets the Red value
     inline uint32_t red() const
     {
-        return mask & (((uint32_t)raw[0] << 16) | ((uint32_t)raw[1] << 8) | ((uint32_t)raw[2]));
+        return mask & ((static_cast<uint32_t>(raw[0]) << 16) | (static_cast<uint32_t>(raw[1]) << 8) |
+                       static_cast<uint32_t>(raw[2]));
     }
 };
 
@@ -125,7 +127,7 @@ struct Data {
   @brief Measurement data group for temperature
  */
 struct TemperatureData {
-    std::array<uint8_t, 2> raw{0xFF, 0xFF};  // [0]:integer [1]:fraction
+    std::array<uint8_t, 2> raw{0x80, 0x00};  // [0]:integer [1]:fraction  sentinel:0x80(-128) is outside operating range
     //! @brief Temperature (Celsius)
     inline float temperature() const
     {
@@ -134,9 +136,10 @@ struct TemperatureData {
     //! @brief Temperature (Celsius)
     inline float celsius() const
     {
-        return (raw[0] != 0xFF) ? (int8_t)raw[0] + raw[1] * 0.0625f : std::numeric_limits<float>::quiet_NaN();
+        return (raw[0] != 0x80) ? static_cast<int8_t>(raw[0]) + raw[1] * 0.0625f
+                                : std::numeric_limits<float>::quiet_NaN();
     }
-    //! @brief temperature (Fahrenheit)
+    //! @brief Temperature (Fahrenheit)
     inline float fahrenheit() const
     {
         return celsius() * 9.0f / 5.0f + 32.f;
@@ -191,7 +194,7 @@ public:
     /*!
       @struct config_t
       @brief Settings for begin
-      @warning Note that some combinations of sampling_rate and pulse_width are invalid. See alse SpO2 configuration
+      @warning Note that some combinations of sampling_rate and pulse_width are invalid. See also SpO2 configuration
      */
     struct config_t {
         /*!
@@ -216,6 +219,8 @@ public:
         max30102::FIFOSampling fifo_sampling_average{max30102::FIFOSampling::Average4};
     };
 
+    /*! @brief Constructor
+        @param addr I2C address */
     explicit UnitMAX30102(const uint8_t addr = DEFAULT_ADDRESS)
         : Component(addr), _data{new m5::container::CircularBuffer<max30102::Data>(max30102::MAX_FIFO_DEPTH)}
     {
@@ -228,17 +233,19 @@ public:
     {
     }
 
+    //! @brief Begin the unit
     virtual bool begin() override;
+    //! @brief Update the unit
     virtual void update(const bool force = false) override;
 
     ///@name Settings for begin
     ///@{
-    /*! @brief Gets the configration */
+    /*! @brief Gets the configuration */
     inline config_t config()
     {
         return _cfg;
     }
-    //! @brief Set the configration
+    //! @brief Set the configuration
     inline void config(const config_t& cfg)
     {
         _cfg = cfg;
@@ -262,9 +269,17 @@ public:
       @note The number of data retrieved by the latest update, not all data accumulated
       @sa available()
     */
-    inline uint8_t retrived() const
+    inline uint8_t retrieved() const
     {
-        return _retrived;
+        return _retrieved;
+    }
+    /*!
+      @brief Deprecated alias of retrieved()
+      @deprecated Use retrieved() instead.
+     */
+    [[deprecated("Please use retrieved()")]] inline uint8_t retrived() const
+    {
+        return retrieved();
     }
     /*!
       @brief The number of samples lost
@@ -281,7 +296,15 @@ public:
       @return >= 0 Sampling rate
       @note Calculate by FIFO average and SpO2 sampling rate
      */
-    uint32_t caluculateSamplingRate();
+    uint32_t calculateSamplingRate();
+    /*!
+      @brief Deprecated alias of calculateSamplingRate()
+      @deprecated Use calculateSamplingRate() instead.
+     */
+    [[deprecated("Please use calculateSamplingRate()")]] inline uint32_t caluculateSamplingRate()
+    {
+        return calculateSamplingRate();
+    }
 
     ///@name Periodic measurement
     ///@{
@@ -383,7 +406,7 @@ public:
     ///@{
     /*!
       @brief Read the SpO2 configuration
-      @param[out] range ADC rRange
+      @param[out] range ADC range
       @param[out] rate Sampling rate
       @param[out] width LED pulse width
       @return True if successful
@@ -412,7 +435,7 @@ public:
     }
     /*!
       @brief Write the SpO2 configuration
-      @param range ADC rRange
+      @param range ADC range
       @param rate Sampling rate
       @param width LED pulse width
       @return True if successful
@@ -474,7 +497,7 @@ public:
     template <typename T, typename std::enable_if<std::is_floating_point<T>::value, std::nullptr_t>::type = nullptr>
     inline bool writeLEDCurrent(const uint8_t slot, const T mA)
     {
-        return write_led_current(slot, (float)mA);
+        return write_led_current(slot, static_cast<float>(mA));
     }
     ///@}
 
@@ -483,7 +506,7 @@ public:
     ///@name Multi-LED Mode Control
     ///@{
     /*!
-      @brief Read the the MultiLED Mode form Slot 1-2
+      @brief Read the MultiLED Mode from Slot 1-2
       @param[out] slot1 Slot1 mode
       @param[out] slot2 Slot2 mode
       @return True if successful
@@ -503,12 +526,12 @@ public:
     ///@name Measurement temperature
     ///@{
     /*!
-      @brief Measure tempeature single shot
+      @brief Measure temperature single shot
       @param[out] td TemperatureData
       @return True if successful
       @warning Blocking until measured about 29 ms
       @warning Does not work in power-save mode
-      @sa m5::unit::MAX30102::readShutdownControl
+      @sa m5::unit::UnitMAX30102::readShutdownControl
      */
     bool measureTemperatureSingleshot(max30102::TemperatureData& td);
     ///@}
@@ -518,7 +541,7 @@ public:
     /*!
       @brief Read the FIFO configuration
       @param[out] avg FIFO sampling average
-      @param[out] rolllover FIFO Rolls on Full if true
+      @param[out] rollover FIFO Rolls on Full if true
       @param[out] almostFull FIFO Almost Full Value for interrupt
       @return True if successful
      */
@@ -526,7 +549,7 @@ public:
     /*!
       @brief Write the FIFO configuration
       @param avg FIFO sampling average
-      @param rolllover FIFO Rolls on Full if true
+      @param rollover FIFO Rolls on Full if true
       @param almostFull FIFO Almost Full Value for interrupt
       @return True if successful
       @warning During periodic detection runs, an error is returned
@@ -618,7 +641,7 @@ protected:
 protected:
     std::unique_ptr<m5::container::CircularBuffer<max30102::Data>> _data{};
     max30102::Mode _mode{};
-    uint8_t _retrived{}, _overflow{};
+    uint8_t _retrieved{}, _overflow{};
     uint32_t _mask{};  // Valid bits based on ADC range
     max30102::Slot _slot[2]{};
     config_t _cfg{};

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 /*!
-  @file M5UnitHEART.h
+  @file M5UnitUnifiedHEART.h
  */
 #ifndef M5_UNIT_UNIFIED_HEART_H
 #define M5_UNIT_UNIFIED_HEART_H

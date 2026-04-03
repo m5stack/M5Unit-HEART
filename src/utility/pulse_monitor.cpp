@@ -20,7 +20,7 @@ void PulseMonitor::setSamplingRate(const uint32_t samplingRate)
         return;
     }
     _sampling_rate = (float)samplingRate;
-    _max_samples   = (size_t)samplingRate * _range;
+    _max_samples   = static_cast<size_t>(samplingRate) * _range;
 
     _filterIR.setSamplingRate(5.0f, samplingRate);
     clear();
@@ -30,7 +30,7 @@ void PulseMonitor::clear()
 {
     _dataIR.clear();
     _beat = false;
-    _bpm = _SpO2 = 0.0f;
+    _bpm = _spo2 = 0.0f;
 
     _count  = 0;
     _avered = _aveir = _sumredrms = _sumirrms = 0;
@@ -53,10 +53,17 @@ void PulseMonitor::push_back(const float ir, const float red)
     _aveir  = _aveir * 0.95f + ir * (1.0f - 0.95f);
     _sumredrms += (red - _avered) * (red - _avered);
     _sumirrms += (ir - _aveir) * (ir - _aveir);
-    if (++_count == (uint32_t)_sampling_rate) {
-        float R    = (std::sqrt(_sumredrms) / _avered) / (std::sqrt(_sumirrms) / _aveir);
-        _SpO2      = -23.3f * (R - 0.4f) + 100;
-        _SpO2      = std::fmax(std::fmin(100.0f, _SpO2), 80.0f);  // clamp 80-100
+    if (++_count == static_cast<uint32_t>(_sampling_rate)) {
+        const float eps = 1e-6f;
+        if (std::fabs(_avered) < eps || std::fabs(_aveir) < eps) {
+            _sumredrms = _sumirrms = 0;
+            _count                 = 0;
+            return;
+        }
+        float R = (std::sqrt(_sumredrms) / _avered) / (std::sqrt(_sumirrms) / _aveir);
+        // Empirical SpO2 approximation from the red/IR RMS to DC ratio.
+        _spo2      = -23.3f * (R - 0.4f) + 100;
+        _spo2      = std::fmax(std::fmin(100.0f, _spo2), 80.0f);  // clamp 80-100
         _sumredrms = _sumirrms = 0;
         _count                 = 0;
     }
@@ -69,6 +76,10 @@ void PulseMonitor::update()
 
 float PulseMonitor::calculate_bpm()
 {
+    if (_dataIR.size() < 3) {
+        _beat = false;
+        return 0.0f;
+    }
     std::vector<uint32_t> peaks;
     float threshold = 50.f;
     bool negatived{};
