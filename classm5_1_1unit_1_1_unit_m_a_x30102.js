@@ -1,6 +1,9 @@
 var classm5_1_1unit_1_1_unit_m_a_x30102 =
 [
     [ "config_t", "structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t.html", "structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t" ],
+    [ "UnitMAX30102", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a639656d9cc85df78658938611ad96a1d", null ],
+    [ "begin", "classm5_1_1unit_1_1_unit_m_a_x30102.html#af8142d1fd056a013d21961db7e5d4568", null ],
+    [ "calculateSamplingRate", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a67595f24f4410055612da0f96db744cb", null ],
     [ "caluculateSamplingRate", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a50bf5f8abef4feedb5fe1557c5ae722e", null ],
     [ "config", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a987c60f39470e568677ee5590820a336", null ],
     [ "config", "classm5_1_1unit_1_1_unit_m_a_x30102.html#aeb7bdc41b030b8d20370f4fe0e5f210d", null ],
@@ -24,10 +27,12 @@ var classm5_1_1unit_1_1_unit_m_a_x30102 =
     [ "red", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a17da5fd50176f7dbcd5c2770d4f06383", null ],
     [ "reset", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a46590187a53d3e084f09121931da6503", null ],
     [ "resetFIFO", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a193dd6d77641fedd35e9c4321edacdc6", null ],
+    [ "retrieved", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a40e0dcf66dcc37b54d795909cb098b3a", null ],
     [ "retrived", "classm5_1_1unit_1_1_unit_m_a_x30102.html#ad0b66ea8f17082027932258f0a0845cc", null ],
     [ "startPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a85431f24467345162b8a3ad25e1d3458", null ],
     [ "startPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a612a4a55263833e88fa9aa8bb4eff99f", null ],
     [ "stopPeriodicMeasurement", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a432cb3ef9adda4ae9f8be9371e06e85b", null ],
+    [ "update", "classm5_1_1unit_1_1_unit_m_a_x30102.html#acdedf2f1468513279b5e466e8cf86211", null ],
     [ "writeFIFOConfiguration", "classm5_1_1unit_1_1_unit_m_a_x30102.html#ae74efdd60919fbd8441cedbeb5f9260f", null ],
     [ "writeFIFOOverflowCounter", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a578802e8b7e1fb171f1b218537d1cb25", null ],
     [ "writeFIFOReadPointer", "classm5_1_1unit_1_1_unit_m_a_x30102.html#a0159ff12def1790056190c1231e625a5", null ],

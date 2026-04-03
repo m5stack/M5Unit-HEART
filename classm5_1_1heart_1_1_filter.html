@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.0 git rev:799c9bc</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.1 git rev:e0975a4</span>
    </div>
   </td>
  </tr>
@@ -110,24 +110,136 @@ $(function(){initNavTree('classm5_1_1heart_1_1_filter.html',''); initResizable(t
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa992f9acbe9a26463a7eaeb91c8b2052" id="r_aa992f9acbe9a26463a7eaeb91c8b2052"><td class="memItemLeft" align="right" valign="top"><a id="aa992f9acbe9a26463a7eaeb91c8b2052" name="aa992f9acbe9a26463a7eaeb91c8b2052"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Filter</b> (const float cutoff, const float sampling_rate)</td></tr>
+<tr class="memitem:aa992f9acbe9a26463a7eaeb91c8b2052" id="r_aa992f9acbe9a26463a7eaeb91c8b2052"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa992f9acbe9a26463a7eaeb91c8b2052">Filter</a> (const float cutoff, const float sampling_rate)</td></tr>
+<tr class="memdesc:aa992f9acbe9a26463a7eaeb91c8b2052"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:aa992f9acbe9a26463a7eaeb91c8b2052"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7deabe43e3e7d895eaf0ff3d8278aa0" id="r_aa7deabe43e3e7d895eaf0ff3d8278aa0"><td class="memItemLeft" align="right" valign="top"><a id="aa7deabe43e3e7d895eaf0ff3d8278aa0" name="aa7deabe43e3e7d895eaf0ff3d8278aa0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setSamplingRate</b> (const float cutoff, const float sampling_rate)</td></tr>
+<tr class="memitem:aa7deabe43e3e7d895eaf0ff3d8278aa0" id="r_aa7deabe43e3e7d895eaf0ff3d8278aa0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa7deabe43e3e7d895eaf0ff3d8278aa0">setSamplingRate</a> (const float cutoff, const float sampling_rate)</td></tr>
+<tr class="memdesc:aa7deabe43e3e7d895eaf0ff3d8278aa0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the sampling rate and reset filter state.  <br /></td></tr>
 <tr class="separator:aa7deabe43e3e7d895eaf0ff3d8278aa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b901f350e1212f42e582f38dcd89a55" id="r_a1b901f350e1212f42e582f38dcd89a55"><td class="memItemLeft" align="right" valign="top"><a id="a1b901f350e1212f42e582f38dcd89a55" name="a1b901f350e1212f42e582f38dcd89a55"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>process</b> (const float value)</td></tr>
+<tr class="memitem:a1b901f350e1212f42e582f38dcd89a55" id="r_a1b901f350e1212f42e582f38dcd89a55"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b901f350e1212f42e582f38dcd89a55">process</a> (const float value)</td></tr>
+<tr class="memdesc:a1b901f350e1212f42e582f38dcd89a55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process a sample through the filter.  <br /></td></tr>
 <tr class="separator:a1b901f350e1212f42e582f38dcd89a55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Apply a high-pass filter and invert polarity. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aa992f9acbe9a26463a7eaeb91c8b2052" name="aa992f9acbe9a26463a7eaeb91c8b2052"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa992f9acbe9a26463a7eaeb91c8b2052">&#9670;&#160;</a></span>Filter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">m5::heart::Filter::Filter </td>
+          <td>(</td>
+          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>cutoff</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>sampling_rate</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cutoff</td><td>Cutoff frequency in Hz </td></tr>
+    <tr><td class="paramname">sampling_rate</td><td>Sampling rate in Hz </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1b901f350e1212f42e582f38dcd89a55" name="a1b901f350e1212f42e582f38dcd89a55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b901f350e1212f42e582f38dcd89a55">&#9670;&#160;</a></span>process()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float m5::heart::Filter::process </td>
+          <td>(</td>
+          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Process a sample through the filter. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Input sample </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Filtered and inverted output </dd></dl>
+
+</div>
+</div>
+<a id="aa7deabe43e3e7d895eaf0ff3d8278aa0" name="aa7deabe43e3e7d895eaf0ff3d8278aa0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7deabe43e3e7d895eaf0ff3d8278aa0">&#9670;&#160;</a></span>setSamplingRate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void m5::heart::Filter::setSamplingRate </td>
+          <td>(</td>
+          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>cutoff</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float</td>          <td class="paramname"><span class="paramname"><em>sampling_rate</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the sampling rate and reset filter state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cutoff</td><td>Cutoff frequency in Hz </td></tr>
+    <tr><td class="paramname">sampling_rate</td><td>Sampling rate in Hz </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespacem5.html">m5</a></li><li class="navelem"><a class="el" href="namespacem5_1_1heart.html">heart</a></li><li class="navelem"><a class="el" href="classm5_1_1heart_1_1_filter.html">Filter</a></li>
+    <li class="navelem"><a class="el" href="namespacem5.html">m5</a></li><li class="navelem"><b>heart</b></li><li class="navelem"><a class="el" href="classm5_1_1heart_1_1_filter.html">Filter</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.11.0 </li>
   </ul>
 </div>

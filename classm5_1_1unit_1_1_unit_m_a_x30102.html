@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.0 git rev:799c9bc</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.1 git rev:e0975a4</span>
    </div>
   </td>
  </tr>
@@ -125,17 +125,22 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a639656d9cc85df78658938611ad96a1d" id="r_a639656d9cc85df78658938611ad96a1d"><td class="memItemLeft" align="right" valign="top"><a id="a639656d9cc85df78658938611ad96a1d" name="a639656d9cc85df78658938611ad96a1d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>UnitMAX30102</b> (const uint8_t addr=DEFAULT_ADDRESS)</td></tr>
+<tr class="memitem:a639656d9cc85df78658938611ad96a1d" id="r_a639656d9cc85df78658938611ad96a1d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a639656d9cc85df78658938611ad96a1d">UnitMAX30102</a> (const uint8_t addr=DEFAULT_ADDRESS)</td></tr>
+<tr class="memdesc:a639656d9cc85df78658938611ad96a1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a639656d9cc85df78658938611ad96a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8142d1fd056a013d21961db7e5d4568" id="r_af8142d1fd056a013d21961db7e5d4568"><td class="memItemLeft" align="right" valign="top"><a id="af8142d1fd056a013d21961db7e5d4568" name="af8142d1fd056a013d21961db7e5d4568"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> () override</td></tr>
+<tr class="memdesc:af8142d1fd056a013d21961db7e5d4568"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin the unit. <br /></td></tr>
 <tr class="separator:af8142d1fd056a013d21961db7e5d4568"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acdedf2f1468513279b5e466e8cf86211" id="r_acdedf2f1468513279b5e466e8cf86211"><td class="memItemLeft" align="right" valign="top"><a id="acdedf2f1468513279b5e466e8cf86211" name="acdedf2f1468513279b5e466e8cf86211"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (const bool force=false) override</td></tr>
+<tr class="memdesc:acdedf2f1468513279b5e466e8cf86211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the unit. <br /></td></tr>
 <tr class="separator:acdedf2f1468513279b5e466e8cf86211"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67595f24f4410055612da0f96db744cb" id="r_a67595f24f4410055612da0f96db744cb"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67595f24f4410055612da0f96db744cb">calculateSamplingRate</a> ()</td></tr>
+<tr class="memdesc:a67595f24f4410055612da0f96db744cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the sampling rate from the current settings.  <br /></td></tr>
+<tr class="separator:a67595f24f4410055612da0f96db744cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50bf5f8abef4feedb5fe1557c5ae722e" id="r_a50bf5f8abef4feedb5fe1557c5ae722e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50bf5f8abef4feedb5fe1557c5ae722e">caluculateSamplingRate</a> ()</td></tr>
-<tr class="memdesc:a50bf5f8abef4feedb5fe1557c5ae722e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the sampling rate from the current settings.  <br /></td></tr>
+<tr class="memdesc:a50bf5f8abef4feedb5fe1557c5ae722e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deprecated alias of <a class="el" href="#a67595f24f4410055612da0f96db744cb" title="Calculate the sampling rate from the current settings.">calculateSamplingRate()</a>  <br /></td></tr>
 <tr class="separator:a50bf5f8abef4feedb5fe1557c5ae722e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46590187a53d3e084f09121931da6503" id="r_a46590187a53d3e084f09121931da6503"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46590187a53d3e084f09121931da6503">reset</a> ()</td></tr>
 <tr class="memdesc:a46590187a53d3e084f09121931da6503"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset.  <br /></td></tr>
@@ -146,11 +151,11 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (c
 <tr><td colspan="2"><div class="groupHeader">Settings for begin</div></td></tr>
 <tr class="memitem:a987c60f39470e568677ee5590820a336" id="r_a987c60f39470e568677ee5590820a336"><td class="memItemLeft" align="right" valign="top"><a id="a987c60f39470e568677ee5590820a336" name="a987c60f39470e568677ee5590820a336"></a>
 <a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t.html">config_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>config</b> ()</td></tr>
-<tr class="memdesc:a987c60f39470e568677ee5590820a336"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the configration. <br /></td></tr>
+<tr class="memdesc:a987c60f39470e568677ee5590820a336"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the configuration. <br /></td></tr>
 <tr class="separator:a987c60f39470e568677ee5590820a336"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb7bdc41b030b8d20370f4fe0e5f210d" id="r_aeb7bdc41b030b8d20370f4fe0e5f210d"><td class="memItemLeft" align="right" valign="top"><a id="aeb7bdc41b030b8d20370f4fe0e5f210d" name="aeb7bdc41b030b8d20370f4fe0e5f210d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>config</b> (const <a class="el" href="structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t.html">config_t</a> &amp;cfg)</td></tr>
-<tr class="memdesc:aeb7bdc41b030b8d20370f4fe0e5f210d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the configration. <br /></td></tr>
+<tr class="memdesc:aeb7bdc41b030b8d20370f4fe0e5f210d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the configuration. <br /></td></tr>
 <tr class="separator:aeb7bdc41b030b8d20370f4fe0e5f210d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Measurement data by periodic</div></td></tr>
 <tr class="memitem:ac3dba47027ea21732755c73980f9986c" id="r_ac3dba47027ea21732755c73980f9986c"><td class="memItemLeft" align="right" valign="top"><a id="ac3dba47027ea21732755c73980f9986c" name="ac3dba47027ea21732755c73980f9986c"></a>
@@ -161,8 +166,11 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ir</b> () const</
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>red</b> () const</td></tr>
 <tr class="memdesc:a17da5fd50176f7dbcd5c2770d4f06383"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oldest Red. <br /></td></tr>
 <tr class="separator:a17da5fd50176f7dbcd5c2770d4f06383"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40e0dcf66dcc37b54d795909cb098b3a" id="r_a40e0dcf66dcc37b54d795909cb098b3a"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40e0dcf66dcc37b54d795909cb098b3a">retrieved</a> () const</td></tr>
+<tr class="memdesc:a40e0dcf66dcc37b54d795909cb098b3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of data last retrieved.  <br /></td></tr>
+<tr class="separator:a40e0dcf66dcc37b54d795909cb098b3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0b66ea8f17082027932258f0a0845cc" id="r_ad0b66ea8f17082027932258f0a0845cc"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0b66ea8f17082027932258f0a0845cc">retrived</a> () const</td></tr>
-<tr class="memdesc:ad0b66ea8f17082027932258f0a0845cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of data last retrieved.  <br /></td></tr>
+<tr class="memdesc:ad0b66ea8f17082027932258f0a0845cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deprecated alias of <a class="el" href="#a40e0dcf66dcc37b54d795909cb098b3a" title="Number of data last retrieved.">retrieved()</a>  <br /></td></tr>
 <tr class="separator:ad0b66ea8f17082027932258f0a0845cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1fbed983a4e4f5f20d2ac0d6b57cb9e" id="r_af1fbed983a4e4f5f20d2ac0d6b57cb9e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af1fbed983a4e4f5f20d2ac0d6b57cb9e">overflow</a> () const</td></tr>
 <tr class="memdesc:af1fbed983a4e4f5f20d2ac0d6b57cb9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of samples lost.  <br /></td></tr>
@@ -293,14 +301,14 @@ In MultiMode, it is the same as the Slot setting </dd></dl>
 For MAX30102 only slots 1 and 2 are valid </dd></dl>
 </div></td></tr>
 <tr class="memitem:a9752125827c23ef55c6471851e6cc7bf" id="r_a9752125827c23ef55c6471851e6cc7bf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9752125827c23ef55c6471851e6cc7bf">readMultiLEDModeControl</a> (<a class="el" href="unit___m_a_x30102_8hpp.html#ad2ece41af2f7423e43870e4545f5cc00">max30102::Slot</a> &amp;slot1, <a class="el" href="unit___m_a_x30102_8hpp.html#ad2ece41af2f7423e43870e4545f5cc00">max30102::Slot</a> &amp;slot2)</td></tr>
-<tr class="memdesc:a9752125827c23ef55c6471851e6cc7bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the the MultiLED Mode form Slot 1-2.  <br /></td></tr>
+<tr class="memdesc:a9752125827c23ef55c6471851e6cc7bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read the MultiLED Mode from Slot 1-2.  <br /></td></tr>
 <tr class="separator:a9752125827c23ef55c6471851e6cc7bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05e4e9fd5d77e277c2a29bb7f1b2c21a" id="r_a05e4e9fd5d77e277c2a29bb7f1b2c21a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a05e4e9fd5d77e277c2a29bb7f1b2c21a">writeMultiLEDModeControl</a> (const <a class="el" href="unit___m_a_x30102_8hpp.html#ad2ece41af2f7423e43870e4545f5cc00">max30102::Slot</a> slot1, const <a class="el" href="unit___m_a_x30102_8hpp.html#ad2ece41af2f7423e43870e4545f5cc00">max30102::Slot</a> slot2)</td></tr>
 <tr class="memdesc:a05e4e9fd5d77e277c2a29bb7f1b2c21a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write the MultiLED Mode to Slot 1-2.  <br /></td></tr>
 <tr class="separator:a05e4e9fd5d77e277c2a29bb7f1b2c21a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Measurement temperature</div></td></tr>
 <tr class="memitem:a58e117aa32147f77a65432eb955bd875" id="r_a58e117aa32147f77a65432eb955bd875"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a58e117aa32147f77a65432eb955bd875">measureTemperatureSingleshot</a> (<a class="el" href="structm5_1_1unit_1_1max30102_1_1_temperature_data.html">max30102::TemperatureData</a> &amp;td)</td></tr>
-<tr class="memdesc:a58e117aa32147f77a65432eb955bd875"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure tempeature single shot.  <br /></td></tr>
+<tr class="memdesc:a58e117aa32147f77a65432eb955bd875"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure temperature single shot.  <br /></td></tr>
 <tr class="separator:a58e117aa32147f77a65432eb955bd875"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">FIFO</div></td></tr>
 <tr class="memitem:a7b700f52de578c62ae7fc84a24711063" id="r_a7b700f52de578c62ae7fc84a24711063"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7b700f52de578c62ae7fc84a24711063">readFIFOConfiguration</a> (<a class="el" href="unit___m_a_x30102_8hpp.html#ae378595b96878e02548dd53ebc3ef38b">max30102::FIFOSampling</a> &amp;avg, bool &amp;rollover, uint8_t &amp;almostFull)</td></tr>
@@ -394,9 +402,9 @@ std::unique_ptr&lt; m5::container::CircularBuffer&lt; <a class="el" href="struct
 <tr class="memitem:a4c15a8ca62ffb1164f31224eb8e0a754" id="r_a4c15a8ca62ffb1164f31224eb8e0a754"><td class="memItemLeft" align="right" valign="top"><a id="a4c15a8ca62ffb1164f31224eb8e0a754" name="a4c15a8ca62ffb1164f31224eb8e0a754"></a>
 <a class="el" href="unit___m_a_x30102_8hpp.html#a1bdc4b7542c440ded84c7ae98da9b476">max30102::Mode</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_mode</b> {}</td></tr>
 <tr class="separator:a4c15a8ca62ffb1164f31224eb8e0a754"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c6beaacec05f1d322bce4980050aa73" id="r_a3c6beaacec05f1d322bce4980050aa73"><td class="memItemLeft" align="right" valign="top"><a id="a3c6beaacec05f1d322bce4980050aa73" name="a3c6beaacec05f1d322bce4980050aa73"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>_retrived</b> {}</td></tr>
-<tr class="separator:a3c6beaacec05f1d322bce4980050aa73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad132eced6872a28b8070ad89b7451a11" id="r_ad132eced6872a28b8070ad89b7451a11"><td class="memItemLeft" align="right" valign="top"><a id="ad132eced6872a28b8070ad89b7451a11" name="ad132eced6872a28b8070ad89b7451a11"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>_retrieved</b> {}</td></tr>
+<tr class="separator:ad132eced6872a28b8070ad89b7451a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7dc7a0b2ddea76ed086bb5247b78074c" id="r_a7dc7a0b2ddea76ed086bb5247b78074c"><td class="memItemLeft" align="right" valign="top"><a id="a7dc7a0b2ddea76ed086bb5247b78074c" name="a7dc7a0b2ddea76ed086bb5247b78074c"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>_overflow</b> {}</td></tr>
 <tr class="separator:a7dc7a0b2ddea76ed086bb5247b78074c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -413,15 +421,49 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_mask</b> {}</td>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Pulse oximetry and heart-rate sensor. </p>
 <dl class="section note"><dt>Note</dt><dd>The only single measurement is temperature; other data is constantly measured and stored </dd></dl>
-</div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a50bf5f8abef4feedb5fe1557c5ae722e" name="a50bf5f8abef4feedb5fe1557c5ae722e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a50bf5f8abef4feedb5fe1557c5ae722e">&#9670;&#160;</a></span>caluculateSamplingRate()</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a639656d9cc85df78658938611ad96a1d" name="a639656d9cc85df78658938611ad96a1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a639656d9cc85df78658938611ad96a1d">&#9670;&#160;</a></span>UnitMAX30102()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">m5::unit::UnitMAX30102::UnitMAX30102 </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t</td>          <td class="paramname"><span class="paramname"><em>addr</em></span><span class="paramdefsep"> = </span><span class="paramdefval">DEFAULT_ADDRESS</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">addr</td><td>I2C address </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a67595f24f4410055612da0f96db744cb" name="a67595f24f4410055612da0f96db744cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67595f24f4410055612da0f96db744cb">&#9670;&#160;</a></span>calculateSamplingRate()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t m5::unit::UnitMAX30102::caluculateSamplingRate </td>
+          <td class="memname">uint32_t m5::unit::UnitMAX30102::calculateSamplingRate </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td></td>
@@ -432,6 +474,34 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_mask</b> {}</td>
 <p>Calculate the sampling rate from the current settings. </p>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 Sampling rate </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Calculate by FIFO average and SpO2 sampling rate </dd></dl>
+
+</div>
+</div>
+<a id="a50bf5f8abef4feedb5fe1557c5ae722e" name="a50bf5f8abef4feedb5fe1557c5ae722e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50bf5f8abef4feedb5fe1557c5ae722e">&#9670;&#160;</a></span>caluculateSamplingRate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t m5::unit::UnitMAX30102::caluculateSamplingRate </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Deprecated alias of <a class="el" href="#a67595f24f4410055612da0f96db744cb" title="Calculate the sampling rate from the current settings.">calculateSamplingRate()</a> </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated</a></b></dt><dd>Use <a class="el" href="#a67595f24f4410055612da0f96db744cb" title="Calculate the sampling rate from the current settings.">calculateSamplingRate()</a> instead. </dd></dl>
 
 </div>
 </div>
@@ -450,7 +520,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_mask</b> {}</td>
       </table>
 </div><div class="memdoc">
 
-<p>Measure tempeature single shot. </p>
+<p>Measure temperature single shot. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">td</td><td>TemperatureData </td></tr>
@@ -461,7 +531,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_mask</b> {}</td>
 <dl class="section warning"><dt>Warning</dt><dd>Blocking until measured about 29 ms </dd>
 <dd>
 Does not work in power-save mode </dd></dl>
-<dl class="section see"><dt>See also</dt><dd>m5::unit::MAX30102::readShutdownControl </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#a717ff9878caa46e51b612a90e29afd91" title="Read the shutdown control.">m5::unit::UnitMAX30102::readShutdownControl</a> </dd></dl>
 
 </div>
 </div>
@@ -521,7 +591,7 @@ Does not work in power-save mode </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">avg</td><td>FIFO sampling average </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">rolllover</td><td>FIFO Rolls on Full if true </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">rollover</td><td>FIFO Rolls on Full if true </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">almostFull</td><td>FIFO Almost Full Value for interrupt </td></tr>
   </table>
   </dd>
@@ -654,7 +724,7 @@ Does not work in power-save mode </dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p>Read the the MultiLED Mode form Slot 1-2. </p>
+<p>Read the MultiLED Mode from Slot 1-2. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">slot1</td><td>Slot1 mode </td></tr>
@@ -748,7 +818,7 @@ Contact Maxim Integrated for the revision ID number assigned for your product </
 <p>Read the SpO2 configuration. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">range</td><td>ADC rRange </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">range</td><td>ADC range </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">rate</td><td>Sampling rate </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">width</td><td>LED pulse width </td></tr>
   </table>
@@ -779,6 +849,35 @@ Contact Maxim Integrated for the revision ID number assigned for your product </
 
 </div>
 </div>
+<a id="a40e0dcf66dcc37b54d795909cb098b3a" name="a40e0dcf66dcc37b54d795909cb098b3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40e0dcf66dcc37b54d795909cb098b3a">&#9670;&#160;</a></span>retrieved()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t m5::unit::UnitMAX30102::retrieved </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Number of data last retrieved. </p>
+<dl class="section note"><dt>Note</dt><dd>The number of data retrieved by the latest update, not all data accumulated </dd></dl>
+<dl class="section see"><dt>See also</dt><dd>available() </dd></dl>
+
+</div>
+</div>
 <a id="ad0b66ea8f17082027932258f0a0845cc" name="ad0b66ea8f17082027932258f0a0845cc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad0b66ea8f17082027932258f0a0845cc">&#9670;&#160;</a></span>retrived()</h2>
 
@@ -802,9 +901,8 @@ Contact Maxim Integrated for the revision ID number assigned for your product </
 </table>
 </div><div class="memdoc">
 
-<p>Number of data last retrieved. </p>
-<dl class="section note"><dt>Note</dt><dd>The number of data retrieved by the latest update, not all data accumulated </dd></dl>
-<dl class="section see"><dt>See also</dt><dd>available() </dd></dl>
+<p>Deprecated alias of <a class="el" href="#a40e0dcf66dcc37b54d795909cb098b3a" title="Number of data last retrieved.">retrieved()</a> </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated</a></b></dt><dd>Use <a class="el" href="#a40e0dcf66dcc37b54d795909cb098b3a" title="Number of data last retrieved.">retrieved()</a> instead. </dd></dl>
 
 </div>
 </div>
@@ -963,7 +1061,7 @@ Contact Maxim Integrated for the revision ID number assigned for your product </
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">avg</td><td>FIFO sampling average </td></tr>
-    <tr><td class="paramname">rolllover</td><td>FIFO Rolls on Full if true </td></tr>
+    <tr><td class="paramname">rollover</td><td>FIFO Rolls on Full if true </td></tr>
     <tr><td class="paramname">almostFull</td><td>FIFO Almost Full Value for interrupt </td></tr>
   </table>
   </dd>
@@ -1169,7 +1267,7 @@ During periodic detection runs, an error is returned </dd></dl>
 <p>Write the SpO2 configuration. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">range</td><td>ADC rRange </td></tr>
+    <tr><td class="paramname">range</td><td>ADC range </td></tr>
     <tr><td class="paramname">rate</td><td>Sampling rate </td></tr>
     <tr><td class="paramname">width</td><td>LED pulse width </td></tr>
   </table>

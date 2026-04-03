@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.0 git rev:799c9bc</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.1 git rev:e0975a4</span>
    </div>
   </td>
  </tr>
@@ -110,24 +110,94 @@ $(function(){initNavTree('classm5_1_1heart_1_1_e_m_a.html',''); initResizable(tr
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a4b731a225e95912d3680701af4fd7db1" id="r_a4b731a225e95912d3680701af4fd7db1"><td class="memItemLeft" align="right" valign="top"><a id="a4b731a225e95912d3680701af4fd7db1" name="a4b731a225e95912d3680701af4fd7db1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>EMA</b> (float factor)</td></tr>
+<tr class="memitem:a4b731a225e95912d3680701af4fd7db1" id="r_a4b731a225e95912d3680701af4fd7db1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4b731a225e95912d3680701af4fd7db1">EMA</a> (float factor)</td></tr>
+<tr class="memdesc:a4b731a225e95912d3680701af4fd7db1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a4b731a225e95912d3680701af4fd7db1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b4bd505255c9828f469e8c18a7b2eff" id="r_a8b4bd505255c9828f469e8c18a7b2eff"><td class="memItemLeft" align="right" valign="top"><a id="a8b4bd505255c9828f469e8c18a7b2eff" name="a8b4bd505255c9828f469e8c18a7b2eff"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> ()</td></tr>
+<tr class="memdesc:a8b4bd505255c9828f469e8c18a7b2eff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the stored value. <br /></td></tr>
 <tr class="separator:a8b4bd505255c9828f469e8c18a7b2eff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a717a6f6305fe76eac8c1c46d8c24fb55" id="r_a717a6f6305fe76eac8c1c46d8c24fb55"><td class="memItemLeft" align="right" valign="top"><a id="a717a6f6305fe76eac8c1c46d8c24fb55" name="a717a6f6305fe76eac8c1c46d8c24fb55"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>update</b> (float new_value)</td></tr>
+<tr class="memitem:a717a6f6305fe76eac8c1c46d8c24fb55" id="r_a717a6f6305fe76eac8c1c46d8c24fb55"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a717a6f6305fe76eac8c1c46d8c24fb55">update</a> (float new_value)</td></tr>
+<tr class="memdesc:a717a6f6305fe76eac8c1c46d8c24fb55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update with a new value and return the smoothed result.  <br /></td></tr>
 <tr class="separator:a717a6f6305fe76eac8c1c46d8c24fb55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Exponential Moving Average. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a4b731a225e95912d3680701af4fd7db1" name="a4b731a225e95912d3680701af4fd7db1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b731a225e95912d3680701af4fd7db1">&#9670;&#160;</a></span>EMA()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">m5::heart::EMA::EMA </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>factor</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">factor</td><td>Smoothing factor (0.0 - 1.0) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a717a6f6305fe76eac8c1c46d8c24fb55" name="a717a6f6305fe76eac8c1c46d8c24fb55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a717a6f6305fe76eac8c1c46d8c24fb55">&#9670;&#160;</a></span>update()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float m5::heart::EMA::update </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>new_value</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Update with a new value and return the smoothed result. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">new_value</td><td>New input value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Smoothed value </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespacem5.html">m5</a></li><li class="navelem"><a class="el" href="namespacem5_1_1heart.html">heart</a></li><li class="navelem"><a class="el" href="classm5_1_1heart_1_1_e_m_a.html">EMA</a></li>
+    <li class="navelem"><a class="el" href="namespacem5.html">m5</a></li><li class="navelem"><b>heart</b></li><li class="navelem"><a class="el" href="classm5_1_1heart_1_1_e_m_a.html">EMA</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.11.0 </li>
   </ul>
 </div>

@@ -1,9 +1,9 @@
 var searchData=
 [
   ['m5_0',['m5',['../namespacem5.html',1,'']]],
-  ['m5_3a_3aheart_1',['heart',['../namespacem5_1_1heart.html',1,'m5']]],
-  ['m5unit_20heart_2',['M5Unit-HEART',['../index.html',1,'']]],
-  ['m5unitunifiedheart_2ehpp_3',['M5UnitUnifiedHEART.hpp',['../_m5_unit_unified_h_e_a_r_t_8hpp.html',1,'']]],
+  ['m5unit_20heart_1',['M5Unit-HEART',['../index.html',1,'']]],
+  ['m5unitunifiedheart_2ehpp_2',['M5UnitUnifiedHEART.hpp',['../_m5_unit_unified_h_e_a_r_t_8hpp.html',1,'']]],
+  ['mask_3',['mask',['../structm5_1_1unit_1_1max30102_1_1_data.html#a3d82bac538f11ca7151ad12de25c30b3',1,'m5::unit::max30102::Data']]],
   ['max30100_4',['max30100',['../namespacemax30100.html',1,'']]],
   ['max30102_5',['max30102',['../namespacemax30102.html',1,'']]],
   ['max_5ffifo_5fdepth_6',['MAX_FIFO_DEPTH',['../unit___m_a_x30100_8hpp.html#a84301d0fc3e9f55470ecc6780544c0b1',1,'m5::unit::max30100::MAX_FIFO_DEPTH'],['../unit___m_a_x30102_8hpp.html#a2682dbedd3d833cdd1464d725e87f351',1,'m5::unit::max30102::MAX_FIFO_DEPTH']]],
