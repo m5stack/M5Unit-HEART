@@ -49,6 +49,32 @@ You must choose a define symbol for the unit you will use.
 #endif
 ```
 
+### For ESP-IDF settings
+
+> **NOTE:** The library and examples target ESP-IDF **5.x** (>=5.0).  
+> `M5Unified` / `M5GFX` do not yet support ESP-IDF 6.x; stay on the latest 5.x release until upstream support lands.
+
+On ESP-IDF native builds (`idf.py`), the unit is selected via Kconfig instead of editing the source `#define`. PlotToSerial / GraphicalMeter expose the same choice through `main/Kconfig.projbuild` (which sources `examples/UnitUnified/common/Kconfig.variant`), and `examples/UnitUnified/common/variant.cmake` maps the chosen `CONFIG_EXAMPLE_USING_*` to the source-level `USING_*` macro shared with the Arduino build.
+
+Pick the variant with `menuconfig`:
+
+```sh
+cd examples/UnitUnified/PlotToSerial    # or GraphicalMeter
+idf.py set-target esp32s3               # or esp32 / esp32c6 / esp32p4 / ...
+idf.py menuconfig
+# -> M5Unit-HEART example -> Target unit -> choose ONE:
+#       UnitHeart (MAX30100, I2C / GROVE)
+#       HatHeart (MAX30102, Hat / internal I2C)
+idf.py build flash monitor
+```
+
+DualSensor drives both UnitHeart and HatHeart at once, so it has no unit selection — just build it directly:
+
+```sh
+cd examples/UnitUnified/DualSensor
+idf.py set-target esp32s3 build flash monitor
+```
+
 ## Doxygen document
 [GitHub Pages](https://m5stack.github.io/M5Unit-HEART/)
 
@@ -63,5 +89,4 @@ If you want to output Git commit hashes to html, do it for the git cloned folder
 
 ### Required
 - [Doxygen](https://www.doxygen.nl/)
-- [pcregrep](https://formulae.brew.sh/formula/pcre2)
 - [Git](https://git-scm.com/) (Output commit hash to html)
