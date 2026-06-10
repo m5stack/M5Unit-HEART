@@ -8,6 +8,7 @@
 */
 #include <gtest/gtest.h>
 #include <Wire.h>
+#include <driver/gpio.h>
 #include <M5Unified.h>
 #include <M5UnitUnified.hpp>
 #include <googletest/test_template.hpp>
@@ -22,44 +23,15 @@ using namespace m5::unit;
 using namespace m5::unit::max30102;
 using namespace m5::unit::max30102::command;
 
-namespace hat {
-struct I2cPins {
-    int sda;
-    int scl;
-};
-
-I2cPins get_hat_i2c_pins(const m5::board_t board)
-{
-    switch (board) {
-        case m5::board_t::board_M5StickC:
-        case m5::board_t::board_M5StickCPlus:
-        case m5::board_t::board_M5StickCPlus2:
-            return {0, 26};
-        case m5::board_t::board_M5StickS3:
-            return {8, 0};
-        case m5::board_t::board_M5StackCoreInk:
-            return {25, 26};
-        case m5::board_t::board_ArduinoNessoN1:
-            return {6, 7};
-        default:
-            return {-1, -1};
-    }
-}
-
-}  // namespace hat
-
 class TestMAX30102 : public I2CComponentTestBase<UnitMAX30102> {
 protected:
     virtual bool begin() override
     {
-        auto board      = M5.getBoard();
-        const auto pins = hat::get_hat_i2c_pins(board);
-        // NessoN1: Wire is used by M5Unified In_I2C; use Wire1 for Hat port
-        auto& wire = (board == m5::board_t::board_ArduinoNessoN1) ? Wire1 : Wire;
-        pinMode(pins.scl, OUTPUT);
-        wire.end();
-        wire.begin(pins.sda, pins.scl, unit->component_config().clock);
-        return Units.add(*unit, wire) && Units.begin();
+        const auto hat_pins = m5::unit::wiring::hatI2CPins();
+        // Setup required to use HatHEART: drive SCL as output before bus init (ESP-IDF native GPIO)
+        gpio_set_direction(static_cast<gpio_num_t>(hat_pins.scl), GPIO_MODE_OUTPUT);
+        // HatHeart: NessoN1 uses Wire1, other boards use Wire (handled by addHatI2C)
+        return m5::unit::wiring::addHatI2C(Units, *unit, unit->component_config().clock) && Units.begin();
     }
 
     virtual UnitMAX30102* get_instance() override
@@ -96,12 +68,9 @@ constexpr const uint8_t* allowed_setting_table[] = {
     none_table, none_table, hr_table, spo2_table, none_table, none_table, none_table, spo2_table,
 };
 
-constexpr uint32_t adc_resolution_bits_table[] = {
-    0x007FFF,  // 15 bits
-    0x00FFFF,  // 16 bits
-    0x01FFFF,  // 17 bits
-    0x03FFFF,  // 18 bits
-};
+// The FIFO value is always a full 18-bit measurement (MSB at bit 17 regardless of ADC resolution),
+// so the mask is always the low 18 bits. See unit_MAX30102.cpp for the full rationale.
+constexpr uint32_t fifo_data_mask{0x3FFFF};
 
 bool is_allowed_settings(const Mode mode, const Sampling rate, const LEDPulse pw)
 {
@@ -349,7 +318,7 @@ void test_periodic_spo2(UnitMAX30102* unit)
         auto s = m5::utility::formatString("SPO2 RNG:%u SR:%u WID:%u AVG:%u", range, rate, width, avg);
         SCOPED_TRACE(s);
 
-        uint32_t mask = adc_resolution_bits_table[m5::stl::to_underlying(width)];
+        uint32_t mask = fifo_data_mask;
         EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SpO2, range, rate, width, avg, 0x1f, 0x1f));
         collect_and_verify(unit, STORED_SIZE, true, true, mask);
     }
@@ -419,7 +388,7 @@ void test_periodic_hr(UnitMAX30102* unit)
         auto s = m5::utility::formatString("HR RNG:%u SR:%u WID:%u AVG:%u", range, rate, width, avg);
         SCOPED_TRACE(s);
 
-        uint32_t mask = adc_resolution_bits_table[m5::stl::to_underlying(width)];
+        uint32_t mask = fifo_data_mask;
         EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::HROnly, range, rate, width, avg, 0x1f, 0x1f));
         collect_and_verify(unit, STORED_SIZE, true, false, mask);
     }
