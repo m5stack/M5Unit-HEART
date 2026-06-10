@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.2.1 git rev:e0975a4</span>
+   <div id="projectname">M5Unit-HEART<span id="projectnumber">&#160;0.3.0 git rev:b160671</span>
    </div>
   </td>
  </tr>
@@ -197,7 +197,7 @@ $(function(){initNavTree('pulse__monitor_8hpp_source.html',''); initResizable(tr
 <div class="foldopen" id="foldopen00119" data-start="{" data-end="}">
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno"><a class="line" href="classm5_1_1heart_1_1_pulse_monitor.html#a8fdadbd5541f6ee7fa431d527db77467">  119</a></span>    <span class="keyword">explicit</span> <a class="code hl_function" href="classm5_1_1heart_1_1_pulse_monitor.html#a8fdadbd5541f6ee7fa431d527db77467">PulseMonitor</a>(<span class="keyword">const</span> uint32_t samplingRate = 100, <span class="keyword">const</span> uint32_t sec = 5)</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        : _range{sec},</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>          _sampling_rate{(float)samplingRate},</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>          _sampling_rate{static_cast&lt;float&gt;(samplingRate)},</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>          _max_samples{static_cast&lt;size_t&gt;(samplingRate) * sec},</div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>          _filterIR(5.0f, samplingRate)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    {</div>
