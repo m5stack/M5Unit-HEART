@@ -1,0 +1,18 @@
+# Shared "Target unit" selection for the M5Unit-HEART UnitUnified examples (ESP-IDF).
+# rsource'd from each example's main/Kconfig.projbuild. The chosen CONFIG_EXAMPLE_USING_* is mapped
+# to the source-level USING_* macro in common/variant.cmake (shared with the Arduino build).
+menu "M5Unit-HEART example"
+
+choice EXAMPLE_HEART_VARIANT
+    prompt "Target unit"
+    default EXAMPLE_USING_UNIT_HEART
+    help
+        Which heart-rate / SpO2 unit this example drives.
+
+    config EXAMPLE_USING_UNIT_HEART
+        bool "UnitHeart (MAX30100, I2C / GROVE)"
+    config EXAMPLE_USING_HAT_HEART
+        bool "HatHeart (MAX30102, Hat / internal I2C)"
+endchoice
+
+endmenu

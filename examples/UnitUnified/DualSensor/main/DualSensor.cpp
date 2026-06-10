@@ -9,8 +9,8 @@
 #include <M5Unified.h>
 #include <M5UnitUnified.h>
 #include <M5UnitUnifiedHEART.h>
-#include <Wire.h>
-#include <M5HAL.hpp>
+#include <driver/gpio.h>
+#include <wiring/m5_unit_unified_wiring.hpp>  // Board-aware connection helpers (include last)
 #include "../src/view.hpp"
 
 namespace {
@@ -22,114 +22,51 @@ m5::unit::HatHeart hat;
 View* view[2]{};
 bool is_epd_panel{};
 
-struct I2cPins {
-    int sda;
-    int scl;
-};
-
-I2cPins get_hat_i2c_pins(const m5::board_t board)
-{
-    switch (board) {
-        case m5::board_t::board_M5StickC:
-        case m5::board_t::board_M5StickCPlus:
-        case m5::board_t::board_M5StickCPlus2:
-            return {0, 26};
-        case m5::board_t::board_M5StickS3:
-            return {8, 0};
-        case m5::board_t::board_M5StackCoreInk:
-            return {25, 26};
-        case m5::board_t::board_ArduinoNessoN1:
-            return {6, 7};
-        default:
-            return {-1, -1};
-    }
-}
-
 }  // namespace
 
 using namespace m5::unit::max30102;
 
 void setup()
 {
-    // Configuration for using Wire1
-    auto m5cfg         = M5.config();
-    m5cfg.pmic_button  = false;  // Disable BtnPWR
-    m5cfg.internal_imu = false;  // Disable internal IMU
-    m5cfg.internal_rtc = false;  // Disable internal RTC
-    M5.begin(m5cfg);
+    M5.begin();
     M5.setTouchButtonHeightByRatio(100);
     is_epd_panel = lcd.isEPD();
-
-    const auto board_type = M5.getBoard();
 
     // The screen shall be in landscape mode
     if (lcd.height() > lcd.width()) {
         lcd.setRotation(1);
     }
 
-    const auto pins = get_hat_i2c_pins(board_type);
-    M5_LOGI("getHatPin: SDA:%u SCL:%u", pins.sda, pins.scl);
-    if (pins.sda < 0 || pins.scl < 0) {
+    const auto hat_pins = m5::unit::wiring::hatI2CPins();
+    if (hat_pins.sda < 0 || hat_pins.scl < 0) {
         M5_LOGE("Hat port not exists");
-        lcd.fillScreen(TFT_RED);
-        while (true) {
-            m5::utility::delay(10000);
-        }
+        m5::unit::wiring::failStop();
     }
 
-    // Setup required to use HatHEART
-    pinMode(pins.scl, OUTPUT);
+    // Setup required to use HatHEART: drive SCL as output before bus init (ESP-IDF native GPIO)
+    gpio_set_direction(static_cast<gpio_num_t>(hat_pins.scl), GPIO_MODE_OUTPUT);
 
-    // HatHeart settings
+    // HatHeart bus. The Unit occupies the board's default I2C (GROVE), so the Hat needs a separate bus:
+    //  - NessoN1: Hat has its own port -> addHatI2C (Arduino: Wire1, ESP-IDF native: LP I2C on C6).
+    //  - Other boards: no spare hardware I2C, so bit-bang SoftwareI2C on the Hat pins via M5HAL.
+    // (addHatI2C is avoided for the non-NessoN1 case because it would reuse Wire = the Unit's bus.)
     bool hat_ready{};
-    if (board_type == m5::board_t::board_ArduinoNessoN1) {
-        // Using wire1
-        Wire1.end();
-        Wire1.begin(pins.sda, pins.scl, 400 * 1000U);
-        hat_ready = Units.add(hat, Wire1);
+    if (hat_pins.useWire1) {
+        hat_ready = m5::unit::wiring::addHatI2C(Units, hat, 400 * 1000U);
     } else {
-        // SoftwareI2C for Hat
-        m5::hal::bus::I2CBusConfig hat_i2c_cfg;
-        hat_i2c_cfg.pin_sda = m5::hal::gpio::getPin(pins.sda);
-        hat_i2c_cfg.pin_scl = m5::hal::gpio::getPin(pins.scl);
-        auto hat_i2c_bus    = m5::hal::bus::i2c::getBus(hat_i2c_cfg);
-        hat_ready           = Units.add(hat, hat_i2c_bus ? hat_i2c_bus.value() : nullptr);
+        hat_ready = m5::unit::wiring::i2cSoftware(Units, hat, hat_pins.sda, hat_pins.scl);
     }
 
-    // UnitHeart settings
-    auto pin_num_sda = M5.getPin(m5::pin_name_t::port_a_sda);
-    auto pin_num_scl = M5.getPin(m5::pin_name_t::port_a_scl);
-    bool unit_ready{};
-    if (board_type == m5::board_t::board_ArduinoNessoN1) {
-        // For NessoN1 GROVE
-        // Wire is used internally, so SoftwareI2C handles the unit
-        pin_num_sda = M5.getPin(m5::pin_name_t::port_b_out);
-        pin_num_scl = M5.getPin(m5::pin_name_t::port_b_in);
-        M5_LOGI("getPin(NessoN1): SDA:%u SCL:%u", pin_num_sda, pin_num_scl);
-        m5::hal::bus::I2CBusConfig i2c_cfg;
-        i2c_cfg.pin_sda = m5::hal::gpio::getPin(pin_num_sda);
-        i2c_cfg.pin_scl = m5::hal::gpio::getPin(pin_num_scl);
-        auto i2c_bus    = m5::hal::bus::i2c::getBus(i2c_cfg);
-        M5_LOGI("Bus:%d", i2c_bus.has_value());
-        unit_ready = Units.add(unit, i2c_bus ? i2c_bus.value() : nullptr);
-    } else {
-        // UnitHeart on Wire
-        M5_LOGI("getPin: SDA:%u SCL:%u", pin_num_sda, pin_num_scl);
-        Wire.end();
-        Wire.begin(pin_num_sda, pin_num_scl, 400 * 1000U);
-        unit_ready = Units.add(unit, Wire);
-    }
+    // UnitHeart on the board's default I2C: NessoN1 -> SoftwareI2C (GROVE port_b), others -> Wire (port_a)
+    const bool unit_ready = m5::unit::wiring::addI2C(Units, unit, 400 * 1000U);
 
     if (!hat_ready || !unit_ready || !Units.begin()) {
         M5_LOGE("Failed to begin %u/%u", hat_ready, unit_ready);
         M5_LOGE("%s", Units.debugInfo().c_str());
-        lcd.fillScreen(TFT_RED);
-        while (true) {
-            m5::utility::delay(10000);
-        }
+        m5::unit::wiring::failStop();
     }
 
-    M5_LOGI("M5UnitUnified has been begun");
+    M5_LOGI("M5UnitUnified initialized");
     M5_LOGI("%s", Units.debugInfo().c_str());
 
     view[0] = new View(lcd.width() >> 1, lcd.height(), true);
@@ -210,3 +147,36 @@ void loop()
         lcd.endWrite();
     }
 }
+
+#if !defined(ARDUINO)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <esp_timer.h>
+
+#if CONFIG_FREERTOS_UNICORE
+// Single-core SoCs: run loop() back-to-back, but every ~2 s yield a 5 ms slice so the IDLE task
+// runs and feeds the task watchdog (default 5 s).
+static inline void feedIdleTaskPeriodically(void)
+{
+    constexpr uint32_t FEED_INTERVAL_MS   = 2000;
+    constexpr TickType_t FEED_SLEEP_TICKS = pdMS_TO_TICKS(5);
+    static uint32_t s_next_feed_ms        = 0;
+    const uint32_t now_ms                 = static_cast<uint32_t>(esp_timer_get_time() / 1000);
+    if (now_ms >= s_next_feed_ms) {
+        s_next_feed_ms = now_ms + FEED_INTERVAL_MS;
+        vTaskDelay(FEED_SLEEP_TICKS);
+    }
+}
+#endif
+
+extern "C" void app_main(void)
+{
+    setup();
+    for (;;) {
+#if CONFIG_FREERTOS_UNICORE
+        feedIdleTaskPeriodically();
+#endif
+        loop();
+    }
+}
+#endif

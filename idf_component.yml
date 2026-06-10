@@ -1,0 +1,32 @@
+description: Library for M5Stack UNIT HEART (MAX30100) / HAT HEART (MAX30102) using M5UnitUnified.
+url: https://github.com/m5stack/M5Unit-HEART
+issues: https://github.com/m5stack/M5Unit-HEART/issues
+license: MIT
+version: "0.3.0"
+
+dependencies:
+  idf: ">=5.0"
+  # M5UnitUnified is not yet on the ESP Component Registry, so reference the main
+  # branch via git (switch to a version constraint after publish).
+  m5stack/M5UnitUnified:
+    git: https://github.com/m5stack/M5UnitUnified.git
+    version: main
+
+targets:
+  - esp32
+  - esp32s3
+  - esp32c3
+  - esp32c6
+  - esp32h2
+  - esp32p4
+
+files:
+  exclude:
+    - "docs/**"
+    - "examples/**"
+    - "test/**"
+    - "boards/**"
+    - ".clang-format"
+    - "platformio.ini"
+    - "library.json"
+    - "library.properties"

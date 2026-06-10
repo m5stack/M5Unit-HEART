@@ -131,12 +131,26 @@ constexpr uint32_t average_table[] = {
     1, 2, 4, 8, 16, 32, 32, 32,
 };
 
-constexpr uint32_t adc_resolution_bits_table[] = {
-    0x007FFF,  // 15 bits
-    0x00FFFF,  // 16 bits
-    0x01FFFF,  // 17 bits
-    0x03FFFF,  // 18 bits
-};
+// Why mask with 0x3FFFF (the full 18-bit field) at every resolution:
+//
+// Each channel is read as 3 bytes = 24 bits, but only bits [17:0] hold ADC data; the top 6 bits
+// (FIFO_DATA[18..23]) are unused, so they must be masked off. Hence the low 18 bits: 0x3FFFF.
+//
+// The mask is the SAME for all ADC resolutions (LED pulse widths) because the value is always a
+// full 18-bit measurement. The datasheet calls the data "left-justified, MSB always at bit 17
+// regardless of ADC resolution": this means the full-scale is anchored to bit 17, so the same
+// light gives the same number at any resolution (verified on hardware: raw IR ~136k at 15/16/17/18
+// bit alike, far above the 15/16/17-bit ranges). Lower resolution does not shrink or shift the
+// value - it only raises the noise floor (fewer effective bits).
+//
+// Therefore we do NOT mask per resolution:
+//   - a low-N mask (e.g. 0x7FFF at 15-bit) truncates the high, meaningful bits of a strong signal;
+//   - a top-N mask (e.g. 0x3FFF8 at 15-bit) zeros the low bits as "noise", but FIFO averaging
+//     (SMP_AVE) lifts real averaged signal into those low bits, so zeroing them would throw away
+//     genuine precision.
+// Keeping the full 18 bits is faithful to the datasheet and preserves any averaging gain; callers
+// that want fewer bits can round the value themselves.
+constexpr uint32_t fifo_data_mask{0x3FFFF};  // low 18 bits of the 3-byte FIFO read; top 6 bits unused
 
 // Calculate the interval per data
 inline uint32_t calculate_interval_time(const FIFOSampling avg, const Sampling rate)
@@ -147,7 +161,10 @@ inline uint32_t calculate_interval_time(const FIFOSampling avg, const Sampling r
     // M5_LIB_LOGE(">>>>>>>>>> avg:%u %u rate:%u %u => %f %f", avg, average_table[m5::stl::to_underlying(avg)], rate,
     //             sampling_rate_table[m5::stl::to_underlying(rate)], freq, std::ceil(1000.f / freq));
 
-    return std::floor(1000.f / freq);
+    // Round up to a minimum of 1ms to avoid a zero interval (and division-by-zero in callers)
+    // at high sampling rates with large averaging.
+    uint32_t interval = static_cast<uint32_t>(std::floor(1000.f / freq));
+    return interval ? interval : 1;
 }
 
 }  // namespace
@@ -290,9 +307,6 @@ bool UnitMAX30102::start_periodic_measurement()
         if (_periodic) {
             _latest   = 0;
             _interval = calculate_interval_time(avg, rate);
-            _mask     = adc_resolution_bits_table[m5::stl::to_underlying(width)];
-
-            // M5_LIB_LOGI(">>> AVG:%u SR:%u => interval:%u  WID:%u => mask:%0x", avg, rate, _interval, width, _mask);
         }
     }
     return _periodic;
@@ -652,7 +666,7 @@ bool UnitMAX30102::read_FIFO()
 
             for (uint32_t i = 0; i < batch_count; ++i) {
                 Data d;
-                d.mask = _mask;
+                d.mask = fifo_data_mask;
                 switch (_mode) {
                         // IR 3 bytes
                     case Mode::HROnly:

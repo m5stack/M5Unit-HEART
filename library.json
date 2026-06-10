@@ -11,11 +11,12 @@
         "url": "https://github.com/m5stack/M5Unit-HEART.git"
     },
     "dependencies": {
-        "m5stack/M5UnitUnified": ">=0.4.4"
+        "m5stack/M5UnitUnified": ">=0.5.0"
     },
-    "version": "0.2.1",
+    "version": "0.3.0",
     "frameworks": [
-        "arduino"
+        "arduino",
+        "espidf"
     ],
     "platforms": [
         "espressif32"
