@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['data_0',['Data',['../structm5_1_1unit_1_1max30100_1_1_data.html',1,'m5::unit::max30100::Data'],['../structm5_1_1unit_1_1max30102_1_1_data.html',1,'m5::unit::max30102::Data']]],
-  ['deprecated_20list_1',['Deprecated List',['../deprecated.html',1,'']]]
+  ['data_0',['Data',['../structm5_1_1unit_1_1max30100_1_1_data.html',1,'m5::unit::max30100::Data'],['../structm5_1_1unit_1_1max30102_1_1_data.html',1,'m5::unit::max30102::Data']]]
 ];

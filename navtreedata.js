@@ -25,7 +25,6 @@
 var NAVTREE =
 [
   [ "M5Unit-HEART", "index.html", [
-    [ "Deprecated List", "deprecated.html", null ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ]
     ] ],
