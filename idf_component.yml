@@ -2,7 +2,7 @@ description: Library for M5Stack UNIT HEART (MAX30100) / HAT HEART (MAX30102) us
 url: https://github.com/m5stack/M5Unit-HEART
 issues: https://github.com/m5stack/M5Unit-HEART/issues
 license: MIT
-version: "0.2.1"
+version: "0.3.0"
 
 dependencies:
   idf: ">=5.0"
