@@ -19,7 +19,7 @@ void PulseMonitor::setSamplingRate(const uint32_t samplingRate)
         M5_LIB_LOGE("SamplingRate must be greater equal than 1.0f");
         return;
     }
-    _sampling_rate = (float)samplingRate;
+    _sampling_rate = static_cast<float>(samplingRate);
     _max_samples   = static_cast<size_t>(samplingRate) * _range;
 
     _filterIR.setSamplingRate(5.0f, samplingRate);
@@ -76,8 +76,8 @@ void PulseMonitor::update()
 
 float PulseMonitor::calculate_bpm()
 {
+    _beat = false;
     if (_dataIR.size() < 3) {
-        _beat = false;
         return 0.0f;
     }
     std::vector<uint32_t> peaks;

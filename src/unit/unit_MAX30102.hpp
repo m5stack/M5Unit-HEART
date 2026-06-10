@@ -28,9 +28,9 @@ namespace max30102 {
   @brief Operation mode
  */
 enum class Mode : uint8_t {
-    None,             //!< None
-    HROnly = 0x02,    //!< Heart Rate mode (Red only)
-    SpO2,             //!< SpO2 mode (Red and IR)
+    None,           //!< None
+    HROnly = 0x02,  //!< Heart Rate mode (physical LED is Red; the single channel is exposed via ir() to match MAX30100)
+    SpO2,           //!< SpO2 mode (Red and IR)
     MultiLED = 0x07,  //!< Multi-LED mode (Red and IR)
 };
 
@@ -107,7 +107,7 @@ constexpr uint8_t MAX_FIFO_DEPTH{32};  //!< @brief FIFO depth
  */
 struct Data {
     std::array<uint8_t, 6> raw{};  //!< Raw data [0...2]:Red [3...5]:IR
-    uint32_t mask{0x3FFFF};        //!< Valid bits based on ADC range
+    uint32_t mask{0x3FFFF};        //!< Valid bits based on ADC resolution (set by LED pulse width)
     //! @brief Gets the IR value
     inline uint32_t ir() const
     {
@@ -642,7 +642,6 @@ protected:
     std::unique_ptr<m5::container::CircularBuffer<max30102::Data>> _data{};
     max30102::Mode _mode{};
     uint8_t _retrieved{}, _overflow{};
-    uint32_t _mask{};  // Valid bits based on ADC range
     max30102::Slot _slot[2]{};
     config_t _cfg{};
 };

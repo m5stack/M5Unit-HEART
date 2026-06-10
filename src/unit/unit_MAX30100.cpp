@@ -11,6 +11,7 @@
 #include <M5Utility.hpp>
 #include <limits>  // NaN
 #include <cassert>
+#include <cmath>
 
 using namespace m5::utility::mmh3;
 using namespace m5::unit::types;
@@ -481,7 +482,7 @@ bool UnitMAX30100::read_FIFO()
             }
 
             for (uint32_t i = 0; i < batch_count; ++i) {
-                Data d;
+                Data d{};
                 // Unlike MAX30102, the length of data per session does not change even in HROnly
                 memcpy(d.raw.data(), rbuf + 4 * i, 4);
                 _data->push_back(d);

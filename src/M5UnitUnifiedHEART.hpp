@@ -31,8 +31,10 @@ namespace unit {
 
 using UnitHEART [[deprecated("Please use UnitHeart")]] = m5::unit::UnitMAX30100;
 
+//! @brief UnitHeart (SKU:U029, MAX30100)
 using UnitHeart = m5::unit::UnitMAX30100;
-using HatHeart  = m5::unit::UnitMAX30102;
+//! @brief HatHeart (SKU:U118, MAX30102)
+using HatHeart = m5::unit::UnitMAX30102;
 
 }  // namespace unit
 }  // namespace m5

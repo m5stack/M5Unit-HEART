@@ -118,7 +118,7 @@ public:
      */
     explicit PulseMonitor(const uint32_t samplingRate = 100, const uint32_t sec = 5)
         : _range{sec},
-          _sampling_rate{(float)samplingRate},
+          _sampling_rate{static_cast<float>(samplingRate)},
           _max_samples{static_cast<size_t>(samplingRate) * sec},
           _filterIR(5.0f, samplingRate)
     {
