@@ -1,6 +1,6 @@
 var unit___m_a_x30100_8hpp =
 [
-    [ "m5::unit::max30100::Data", "structm5_1_1unit_1_1max30100_1_1_data.html", null ],
+    [ "m5::unit::max30100::Data", "structm5_1_1unit_1_1max30100_1_1_data.html", "structm5_1_1unit_1_1max30100_1_1_data" ],
     [ "m5::unit::max30100::TemperatureData", "structm5_1_1unit_1_1max30100_1_1_temperature_data.html", "structm5_1_1unit_1_1max30100_1_1_temperature_data" ],
     [ "m5::unit::UnitMAX30100", "classm5_1_1unit_1_1_unit_m_a_x30100.html", "classm5_1_1unit_1_1_unit_m_a_x30100" ],
     [ "m5::unit::UnitMAX30100::config_t", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html", "structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t" ],

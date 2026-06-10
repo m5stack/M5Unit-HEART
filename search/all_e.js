@@ -2,7 +2,7 @@ var searchData=
 [
   ['sampling_0',['Sampling',['../unit___m_a_x30100_8hpp.html#abe115657d9af50313411bde5e8e051c0',1,'m5::unit::max30100::Sampling'],['../unit___m_a_x30102_8hpp.html#a98b470ce166c8656bc079cf249410ecd',1,'m5::unit::max30102::Sampling']]],
   ['sampling_5frate_1',['sampling_rate',['../structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t.html#aac360f086e64ff251571a70c59a99522',1,'m5::unit::UnitMAX30102::config_t']]],
-  ['setsamplingrate_2',['setSamplingRate',['../classm5_1_1heart_1_1_pulse_monitor.html#ab96e03051349440f2000ea7da1d1b377',1,'m5::heart::PulseMonitor']]],
+  ['setsamplingrate_2',['setSamplingRate',['../classm5_1_1heart_1_1_filter.html#aa7deabe43e3e7d895eaf0ff3d8278aa0',1,'m5::heart::Filter::setSamplingRate()'],['../classm5_1_1heart_1_1_pulse_monitor.html#ab96e03051349440f2000ea7da1d1b377',1,'m5::heart::PulseMonitor::setSamplingRate()']]],
   ['slot_3',['Slot',['../unit___m_a_x30102_8hpp.html#ad2ece41af2f7423e43870e4545f5cc00',1,'m5::unit::max30102']]],
   ['spo2_4',['SpO2',['../classm5_1_1heart_1_1_pulse_monitor.html#aaf7fabca5a04fd8e086d5b69e004eb41',1,'m5::heart::PulseMonitor::SpO2()'],['../unit___m_a_x30100_8hpp.html#a6a385c8d23d0b1d38e345b90ff931ad4afe35b0e7d0be2238ab7dd2023dde911e',1,'SpO2m5::unit::max30100'],['../unit___m_a_x30102_8hpp.html#a1bdc4b7542c440ded84c7ae98da9b476afe35b0e7d0be2238ab7dd2023dde911e',1,'SpO2m5::unit::max30102']]],
   ['start_5fperiodic_5',['start_periodic',['../structm5_1_1unit_1_1_unit_m_a_x30100_1_1config__t.html#ac6491a779f24c177cf0e376f11443d30',1,'m5::unit::UnitMAX30100::config_t::start_periodic'],['../structm5_1_1unit_1_1_unit_m_a_x30102_1_1config__t.html#a5c8b589ca0b7add9ad5de50ae9d65dc5',1,'m5::unit::UnitMAX30102::config_t::start_periodic']]],
