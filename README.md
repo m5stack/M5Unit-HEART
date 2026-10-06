@@ -119,8 +119,8 @@ You must choose a define symbol for the unit you will use.
 
 ### For ESP-IDF settings
 
-> **NOTE:** The library and examples target ESP-IDF **5.x** (>=5.0).  
-> `M5Unified` / `M5GFX` do not yet support ESP-IDF 6.x; stay on the latest 5.x release until upstream support lands.
+> **NOTE:** The ESP-IDF native build (`idf.py`) targets ESP-IDF **5.1 or later** (5.x and 6.x).  
+> HatHeart on NessoN1 uses its HatPort, which is the ESP32-C6 LP I2C. This requires ESP-IDF **5.3 or later** for the ESP-IDF native build, and Arduino-ESP32 **3.2 or later** for Arduino.
 
 On ESP-IDF native builds (`idf.py`), the unit is selected via Kconfig instead of editing the source `#define`. PlotToSerial / GraphicalMeter expose the same choice through `main/Kconfig.projbuild` (which sources `examples/UnitUnified/common/Kconfig.variant`), and `examples/UnitUnified/common/variant.cmake` maps the chosen `CONFIG_EXAMPLE_USING_*` to the source-level `USING_*` macro shared with the Arduino build.
 
