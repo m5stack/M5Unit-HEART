@@ -16,7 +16,6 @@ TBD
 
 
 ## Related Link
-See also examples using conventional methods here.
 
 - [Unit Heart & Datasheet](https://docs.m5stack.com/en/unit/heart)
 - [Hat Heart & Datasheet](https://docs.m5stack.com/en/hat/hat_heart_rate)
