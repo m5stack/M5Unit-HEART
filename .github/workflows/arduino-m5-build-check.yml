@@ -101,7 +101,7 @@ jobs:
 #          - m5stack_unit_cams3
 
         platform-version:
-          - 3.2.5
+          - 3.3.9
 
         platform:
           - m5stack
@@ -116,35 +116,35 @@ jobs:
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_stickc_plus
             build-properties: "-DUSING_HAT_HEART"
           - sketch: PlotToSerial
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_stickc_plus2
             build-properties: "-DUSING_HAT_HEART"
           - sketch: PlotToSerial
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_sticks3
             build-properties: "-DUSING_HAT_HEART"
           - sketch: PlotToSerial
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_coreink
             build-properties: "-DUSING_HAT_HEART"
           - sketch: PlotToSerial
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: arduino_nesso_n1
             build-properties: "-DUSING_HAT_HEART"
           # GraphicalMeter
@@ -152,14 +152,14 @@ jobs:
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_core
             build-properties: "-DUSING_UNIT_HEART"
           - sketch: GraphicalMeter
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_stickc_plus2
             build-properties: "-DUSING_HAT_HEART"
           # DualSensor
@@ -167,21 +167,21 @@ jobs:
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_stickc_plus2
           # Stamp
           - sketch: PlotToSerial
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_cores3
             build-properties: "-DUSING_STAMP_HEART"
           - sketch: GraphicalMeter
             platform-url: https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/arduino/package_m5stack_index.json
             platform: m5stack
             archi: esp32
-            platform-version: 3.2.5
+            platform-version: 3.3.9
             board: m5stack_cores3
             build-properties: "-DUSING_STAMP_HEART"
 
