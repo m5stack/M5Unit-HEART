@@ -125,13 +125,13 @@ void setup()
     // (addHatI2C is avoided for the non-NessoN1 case because it would reuse Wire = the Unit's bus.)
     bool hat_ready{};
     if (hat_pins.useWire1) {
-        hat_ready = m5::unit::wiring::addHatI2C(Units, hat, 400 * 1000U);
+        hat_ready = m5::unit::wiring::addHatI2C(Units, hat);
     } else {
         hat_ready = m5::unit::wiring::i2cSoftware(Units, hat, hat_pins.sda, hat_pins.scl);
     }
 
     // UnitHeart on the board's default I2C: NessoN1 -> SoftwareI2C (GROVE port_b), others -> Wire (port_a)
-    const bool unit_ready = m5::unit::wiring::addI2C(Units, unit, 400 * 1000U);
+    const bool unit_ready = m5::unit::wiring::addI2C(Units, unit);
 
     if (!hat_ready || !unit_ready || !Units.begin()) {
         M5_LOGE("Failed to begin %u/%u", hat_ready, unit_ready);

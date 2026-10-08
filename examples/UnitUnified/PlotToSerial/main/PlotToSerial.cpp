@@ -109,7 +109,7 @@ void setup()
     }
 
     // HatHeart: NessoN1 uses Wire1, other boards use Wire (handled by addHatI2C)
-    if (!m5::unit::wiring::addHatI2C(Units, unit, 400 * 1000U) || !Units.begin()) {
+    if (!m5::unit::wiring::addHatI2C(Units, unit) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         m5::unit::wiring::failStop();
     }
@@ -127,13 +127,13 @@ void setup()
         unit.config(cfg);
         M5.Log.printf("StampHeart INT:%d RST:%d\n", cfg.int_pin, cfg.rst_pin);
     }
-    if (!m5::unit::wiring::addI2C(Units, unit, 400 * 1000U) || !Units.begin()) {
+    if (!m5::unit::wiring::addI2C(Units, unit) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         m5::unit::wiring::failStop();
     }
 #else
     // UnitHeart: NessoN1 -> SoftwareI2C (M5HAL), NanoC6 / NanoH2 -> M5.Ex_I2C, others -> Wire
-    if (!m5::unit::wiring::addI2C(Units, unit, 400 * 1000U) || !Units.begin()) {
+    if (!m5::unit::wiring::addI2C(Units, unit) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         m5::unit::wiring::failStop();
     }
