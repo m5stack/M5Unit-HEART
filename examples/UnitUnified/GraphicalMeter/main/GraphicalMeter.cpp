@@ -40,6 +40,9 @@ using namespace m5::unit::gh3038;
 #error Please choose unit!
 #endif
 
+// Uncomment to also print the raw values and the results to Serial (same format as PlotToSerial)
+// #define USING_SERIAL_LOG
+
 namespace {
 auto& lcd = M5.Display;
 m5::unit::UnitUnified Units;
@@ -267,6 +270,14 @@ void loop()
             M5_LOGW("OVERFLOW");
         }
         while (heart.available()) {
+#if defined(USING_SERIAL_LOG)
+#if defined(USING_STAMP_HEART)
+            M5.Log.printf(">GREEN:%ld\n>RED:%ld\n>IR:%ld\n", static_cast<long>(heart.green()),
+                          static_cast<long>(heart.red()), static_cast<long>(heart.ir()));
+#else
+            M5.Log.printf(">IR:%u\n>RED:%u\n", heart.ir(), heart.red());
+#endif
+#endif
             const float v = plot_value();  // The filter runs at the sampling rate
             plot_acc += plot_step;
             while (plot_acc >= 1.0f) {
@@ -276,6 +287,16 @@ void loop()
             heart.discard();
         }
         view->update(pulse.bpm(), pulse.spo2(), pulse.isBeat());
+#if defined(USING_SERIAL_LOG)
+        // Invalid values (NaN) are not printed
+        if (pulse.hasBpm()) {
+            M5.Log.printf(">BPM:%f\n>PI:%f\n", pulse.bpm(), pulse.perfusionIndex());
+        }
+        if (pulse.hasSpO2()) {
+            M5.Log.printf(">SpO2:%f\n", pulse.spo2());  // Provisional (not calibrated)
+        }
+        M5.Log.printf(">BEAT:%u\n", pulse.isBeat());
+#endif
     }
 
     // Draw one queued point per 20 ms (more if the queue is backed up)
