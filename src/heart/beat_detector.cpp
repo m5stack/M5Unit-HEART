@@ -16,6 +16,9 @@
 namespace {
 constexpr float PEAK_THRESHOLD_RATIO{0.5f};  // Peak must reach this ratio of the envelope
 constexpr float ENVELOPE_DECAY_SEC{2.0f};    // Time constant of the envelope decay
+constexpr float QUIET_SEC{1.0f};             // No peak for this time: the envelope is too high (e.g. after a motion)
+constexpr float QUIET_DECAY_SEC{0.3f};       // Time constant of the envelope decay while quiet
+constexpr float RECENT_SEC{0.5f};            // Time constant of the recent peak (the floor of the quiet decay)
 constexpr float REFRACTORY_SEC{0.27f};       // Minimum time between peaks
 constexpr float RR_MIN_SEC{0.27f};           // 220 bpm
 constexpr float RR_MAX_SEC{2.0f};            // 30 bpm
@@ -46,10 +49,13 @@ constexpr uint8_t BeatDetector::EXPIRED;
 BeatDetector::BeatDetector(const float sampling_rate_hz)
 {
     if (sampling_rate_hz > 0.0f) {
-        _rate       = sampling_rate_hz;
-        _refractory = static_cast<uint32_t>(std::lround(REFRACTORY_SEC * sampling_rate_hz));
-        _decay      = std::exp(-1.0f / (ENVELOPE_DECAY_SEC * sampling_rate_hz));
-        _timeout    = static_cast<uint32_t>(std::lround(BEAT_TIMEOUT_SEC * sampling_rate_hz));
+        _rate         = sampling_rate_hz;
+        _refractory   = static_cast<uint32_t>(std::lround(REFRACTORY_SEC * sampling_rate_hz));
+        _decay        = std::exp(-1.0f / (ENVELOPE_DECAY_SEC * sampling_rate_hz));
+        _quiet_decay  = std::exp(-1.0f / (QUIET_DECAY_SEC * sampling_rate_hz));
+        _quiet        = static_cast<uint32_t>(std::lround(QUIET_SEC * sampling_rate_hz));
+        _recent_decay = std::exp(-1.0f / (RECENT_SEC * sampling_rate_hz));
+        _timeout      = static_cast<uint32_t>(std::lround(BEAT_TIMEOUT_SEC * sampling_rate_hz));
     }
     reset();
 }
@@ -59,6 +65,7 @@ void BeatDetector::reset()
     _index            = 0;
     _previous         = 0.0f;
     _envelope         = 0.0f;
+    _recent           = 0.0f;
     _trough           = std::numeric_limits<float>::infinity();
     _above            = false;
     _candidate        = 0.0f;
@@ -85,7 +92,14 @@ uint8_t BeatDetector::process(const float ac)
     const uint32_t idx = _index++;
 
     // Envelope follows the peak height and decays with the time constant
-    _envelope *= _decay;
+    // Without peaks for a while it decays faster, so that a large artifact does not hide the following beats for
+    // long, but not below the recent peak, so that a smaller wave of each beat is not taken as a beat
+    _recent = std::max(ac, _recent * _recent_decay);
+    if (!_has_peak || idx - _peak_index > _quiet) {
+        _envelope = std::max(_envelope * _quiet_decay, _recent);
+    } else {
+        _envelope *= _decay;
+    }
     if (ac > _envelope) {
         _envelope = ac;
     }

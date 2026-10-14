@@ -81,11 +81,15 @@ private:
     float _rate{};
     uint32_t _refractory{};
     float _decay{};
+    float _quiet_decay{};
+    uint32_t _quiet{};
+    float _recent_decay{};
     uint32_t _timeout{};
 
     uint32_t _index{};
     float _previous{};
     float _envelope{};
+    float _recent{};
     float _trough{};
     bool _above{};
     float _candidate{};

@@ -227,6 +227,32 @@ TEST(PulseProcessor, PerfusionIndexOfIR)
     EXPECT_NEAR(no_ir.perfusionIndex(), same.perfusionIndex(), 0.05f);
 }
 
+TEST(PulseProcessor, BeatsSoonAfterArtifact)
+{
+    // Re-placing the finger: the DC jumps by 50 % for 0.5 s (25 times the pulse)
+    ppg_synth::Generator gen(make_config(100.0f, 72.0f));
+    PulseProcessor proc(100.0f, ALL_CHANNELS);
+    run(gen, proc, 10.0f);
+    EXPECT_TRUE(proc.hasBpm());
+    for (uint32_t i = 0; i < 50; ++i) {
+        PPGSample s = gen.next();
+        for (auto& v : s.value) {
+            v *= 1.5f;
+        }
+        proc.push(s);
+    }
+    // The envelope raised by the artifact must not hide the following beats for long
+    uint32_t until_beat{};
+    while (until_beat < 1000) {
+        proc.push(gen.next());
+        if (proc.isBeat()) {
+            break;
+        }
+        ++until_beat;
+    }
+    EXPECT_LT(until_beat, 400U);  // Within 4 s (about 7 s if the envelope always decays slowly)
+}
+
 TEST(PulseProcessor, InvalidWithoutPulse)
 {
     ppg_synth::Config cfg = make_config(100.0f, 72.0f);
