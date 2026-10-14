@@ -6,6 +6,10 @@
 /*
   Example using M5UnitUnified for UnitHeart / HatHeart / StampHeart
 */
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <string>
 #include <M5Unified.h>
 #include <M5UnitUnified.h>
 #include <M5UnitUnifiedHEART.h>
@@ -77,6 +81,51 @@ m5::heart::PulseController pulse;
 #if defined(USING_HAT_HEART)
 constexpr bool using_multi_led_mode{false};  // Using multiLED mode if true
 #endif
+
+// The latest raw values and PI are also shown on the LCD to check the sensor (not on no-LCD or EPD devices)
+// (BPM / SpO2 are shown by GraphicalMeter)
+LGFX_Sprite sprite;
+bool has_lcd{};
+constexpr uint32_t draw_interval_ms{250};  // Drawing often delays update() and overflows the FIFO
+m5::utility::elapsed_time_t drawn_at{};
+#if defined(USING_STAMP_HEART)
+int32_t latest_raw[3]{};  // Green, Red, IR
+#else
+uint32_t latest_raw[2]{};  // IR, Red
+#endif
+#if !defined(USING_STAMP_HEART)
+float temperature{std::numeric_limits<float>::quiet_NaN()};  // Latest measured temperature (Celsius)
+#endif
+
+void draw_lcd()
+{
+    sprite.fillSprite(0);
+    sprite.setTextDatum(middle_center);
+
+    // PI is shown only while the heart rate is valid
+    const std::string lines[] = {
+#if defined(USING_STAMP_HEART)
+        m5::utility::formatString("G %ld", static_cast<long>(latest_raw[0])),
+        m5::utility::formatString("R %ld", static_cast<long>(latest_raw[1])),
+        m5::utility::formatString("IR %ld", static_cast<long>(latest_raw[2])),
+#else
+        m5::utility::formatString("IR %u", static_cast<unsigned>(latest_raw[0])),
+        m5::utility::formatString("R %u", static_cast<unsigned>(latest_raw[1])),
+#endif
+        pulse.hasBpm() ? m5::utility::formatString("PI %.2f%%", pulse.perfusionIndex()) : std::string("PI --.--%"),
+#if !defined(USING_STAMP_HEART)
+        std::isnan(temperature) ? std::string("Temp --.-C") : m5::utility::formatString("Temp %.1fC", temperature),
+#endif
+    };
+    constexpr int32_t count = sizeof(lines) / sizeof(lines[0]);
+    const int32_t lh        = sprite.fontHeight() * 3 / 2;
+    int32_t y               = sprite.height() / 2 - lh * (count - 1) / 2;
+    for (auto&& s : lines) {
+        sprite.drawString(s.c_str(), sprite.width() / 2, y);
+        y += lh;
+    }
+    sprite.pushSprite(&lcd, 0, 0);
+}
 
 }  // namespace
 
@@ -162,7 +211,22 @@ void setup()
         M5_LOGE("Failed to add the PPG data source");
         m5::unit::wiring::failStop();
     }
-    lcd.fillScreen(TFT_DARKGREEN);
+
+    // Display setup (skip for no-LCD or EPD devices)
+    has_lcd = lcd.width() > 0 && lcd.height() > 0 && !lcd.isEPD();
+    if (has_lcd) {
+        sprite.setPsram(false);
+        sprite.setColorDepth(1);
+        has_lcd = sprite.createSprite(lcd.width(), lcd.height());
+    }
+    if (has_lcd) {
+        sprite.setPaletteColor(0, TFT_DARKGREEN);
+        sprite.setPaletteColor(1, TFT_WHITE);
+        sprite.setFont(&fonts::Font2);
+        sprite.setTextSize(std::max<int32_t>(1, lcd.width() / 160));
+        sprite.setTextColor(1, 0);
+        draw_lcd();
+    }
 }
 
 void loop()
@@ -180,8 +244,11 @@ void loop()
             M5_LOGW("OVERFLOW");
         }
         while (unit.available()) {
-            M5.Log.printf(">GREEN:%ld\n>RED:%ld\n>IR:%ld\n", static_cast<long>(unit.green()),
-                          static_cast<long>(unit.red()), static_cast<long>(unit.ir()));
+            latest_raw[0] = unit.green();
+            latest_raw[1] = unit.red();
+            latest_raw[2] = unit.ir();
+            M5.Log.printf(">GREEN:%ld\n>RED:%ld\n>IR:%ld\n", static_cast<long>(latest_raw[0]),
+                          static_cast<long>(latest_raw[1]), static_cast<long>(latest_raw[2]));
             unit.discard();
         }
 #else
@@ -192,7 +259,10 @@ void loop()
         }
         // MAX30100/02 is equipped with a FIFO, so multiple data may be stored
         while (unit.available()) {
-            M5.Log.printf(">IR:%u\n>RED:%u\n", unit.ir(), unit.red());
+            latest_raw[0] = unit.ir();
+            latest_raw[1] = unit.red();
+            M5.Log.printf(">IR:%u\n>RED:%u\n", static_cast<unsigned>(latest_raw[0]),
+                          static_cast<unsigned>(latest_raw[1]));
             unit.discard();  // Discard the oldest data
         }
 #endif
@@ -211,10 +281,16 @@ void loop()
     if (M5.BtnA.wasClicked()) {
         TemperatureData td{};
         if (unit.measureTemperatureSingleshot(td)) {
-            M5.Log.printf(">Temp:%f\n", td.celsius());
+            temperature = td.celsius();
+            M5.Log.printf(">Temp:%f\n", temperature);
         }
     }
 #endif
+
+    if (has_lcd && m5::utility::hasElapsed(drawn_at, draw_interval_ms)) {
+        drawn_at = m5::utility::millis();
+        draw_lcd();
+    }
 }
 
 #if !defined(ARDUINO)
