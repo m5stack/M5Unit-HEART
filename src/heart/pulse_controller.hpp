@@ -79,7 +79,7 @@ public:
     {
         return _beat;
     }
-    //! @brief Perfusion index of the latest valid beat (%), NaN if none
+    //! @brief Perfusion index of IR (the heart rate channel if no IR) of the latest valid beat (%), NaN if none
     inline float perfusionIndex() const
     {
         return _processor.perfusionIndex();

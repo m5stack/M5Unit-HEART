@@ -204,6 +204,29 @@ TEST(PulseProcessor, PerfusionIndex)
     EXPECT_LT(proc.perfusionIndex(), 2.2f);
 }
 
+TEST(PulseProcessor, PerfusionIndexOfIR)
+{
+    // The heart rate channel is Green, but the perfusion index is of IR when IR is available
+    ppg_synth::Generator gen(make_config(100.0f, 72.0f));  // Green and IR: 2 %, Red: 2 % x ratio 0.6
+    PulseProcessor same(100.0f, ALL_CHANNELS);             // IR as generated (the same as Green)
+    PulseProcessor weak(100.0f, ALL_CHANNELS);             // IR replaced by the weaker Red
+    PulseProcessor no_ir(100.0f, channel_bit(Channel::Green) | channel_bit(Channel::Red));
+    EXPECT_EQ(weak.heartRateChannel(), channel_index(Channel::Green));
+    const uint32_t n = static_cast<uint32_t>(10.0f * same.samplingRate());
+    for (uint32_t i = 0; i < n; ++i) {
+        PPGSample s = gen.next();
+        same.push(s);
+        no_ir.push(s);
+        s.value[channel_index(Channel::IR)] = s.value[channel_index(Channel::Red)];
+        weak.push(s);
+    }
+    EXPECT_FALSE(std::isnan(same.perfusionIndex()));
+    EXPECT_NEAR(weak.perfusionIndex(), same.perfusionIndex() * 0.6f, 0.05f);
+    EXPECT_TRUE(weak.hasBpm());  // The validity uses the heart rate channel
+    // Without IR: the heart rate channel (Green)
+    EXPECT_NEAR(no_ir.perfusionIndex(), same.perfusionIndex(), 0.05f);
+}
+
 TEST(PulseProcessor, InvalidWithoutPulse)
 {
     ppg_synth::Config cfg = make_config(100.0f, 72.0f);

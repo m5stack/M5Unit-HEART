@@ -26,7 +26,8 @@ namespace heart {
   @details
   - Heart rate: 0.5-4 Hz band-pass and adaptive-threshold peak detection on the heart rate channel
   - SpO2: beat-synchronous ratio of ratios of Red and IR (provisional conversion, not calibrated)
-  - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%)
+  - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%) of IR (the heart rate channel if IR is
+    not available), as commercial pulse oximeters show
   The values do not depend on the unit or the scale of the input.
  */
 class PulseProcessor {
@@ -83,7 +84,7 @@ public:
     {
         return _beat;
     }
-    //! @brief Perfusion index of the latest valid beat (%), NaN if none
+    //! @brief Perfusion index of IR (the heart rate channel if no IR) of the latest valid beat (%), NaN if none
     inline float perfusionIndex() const
     {
         return _perfusion_index;
@@ -137,7 +138,8 @@ private:
         float range() const;
         float mean() const;
     };
-    void accumulate(const uint8_t events, const float* ac, const float* raw, const bool spo2_sample);
+    void accumulate(const uint8_t events, const float* ac, const float* raw, const bool spo2_sample,
+                    const bool pi_sample);
     void finish_beat(const bool valid);
 
 private:
@@ -145,6 +147,7 @@ private:
     uint8_t _channels{};
     config_t _cfg{};
     uint8_t _hr{INVALID_CHANNEL};
+    uint8_t _pi{INVALID_CHANNEL};  // Channel of perfusionIndex()
     bool _spo2_enabled{};
 
     float _dc_alpha{};
@@ -161,7 +164,8 @@ private:
     uint8_t _peaks{};
 
     bool _beat{};
-    float _perfusion_index{};
+    float _perfusion_index{};  // Of _pi
+    float _hr_perfusion{};     // Of _hr (validity of the heart rate)
     float _wave{};
 };
 

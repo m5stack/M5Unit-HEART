@@ -105,6 +105,7 @@ PulseProcessor::PulseProcessor(const float sampling_rate_hz, const uint8_t chann
 {
     if (_rate > 0.0f) {
         _hr           = select_hr_channel(_channels, _cfg.hr_channel);
+        _pi           = (_hr != INVALID_CHANNEL && (_channels & channel_bit(Channel::IR))) ? IR : _hr;
         _spo2_enabled = _cfg.spo2 && (_hr != INVALID_CHANNEL) && (_channels & channel_bit(Channel::Red)) &&
                         (_channels & channel_bit(Channel::IR));
         _dc_alpha = 1.0f - std::exp(-1.0f / (DC_TIME_CONSTANT_SEC * _rate));
@@ -132,6 +133,7 @@ void PulseProcessor::reset()
     _peaks           = 0;
     _beat            = false;
     _perfusion_index = std::numeric_limits<float>::quiet_NaN();
+    _hr_perfusion    = std::numeric_limits<float>::quiet_NaN();
     _wave            = 0.0f;
 }
 
@@ -169,11 +171,13 @@ void PulseProcessor::push(const PPGSample& s)
     if (events & BeatDetector::EXPIRED) {
         _estimator.clear();
         _perfusion_index = std::numeric_limits<float>::quiet_NaN();
+        _hr_perfusion    = std::numeric_limits<float>::quiet_NaN();
     }
-    accumulate(events, ac, raw, _spo2_enabled && present[RED] && present[IR]);
+    accumulate(events, ac, raw, _spo2_enabled && present[RED] && present[IR], present[_pi]);
 }
 
-void PulseProcessor::accumulate(const uint8_t events, const float* ac, const float* raw, const bool spo2_sample)
+void PulseProcessor::accumulate(const uint8_t events, const float* ac, const float* raw, const bool spo2_sample,
+                                const bool pi_sample)
 {
     if (events & BeatDetector::TROUGH_CANDIDATE) {
         // The trough moved: everything up to here belongs to the current interval
@@ -186,6 +190,8 @@ void PulseProcessor::accumulate(const uint8_t events, const float* ac, const flo
     if (spo2_sample) {
         _pending[RED].add(ac[RED], raw[RED]);
         _pending[IR].add(ac[IR], raw[IR]);
+    } else if (pi_sample && _pi != _hr) {
+        _pending[_pi].add(ac[_pi], raw[_pi]);
     }
 
     if (events & BeatDetector::PEAK) {
@@ -211,7 +217,12 @@ void PulseProcessor::finish_beat(const bool valid)
     const float dc = _dc[_hr];
     const float pp = _interval[_hr].range();
     if (dc > 0.0f && std::isfinite(pp)) {
-        _perfusion_index = pp / dc * 100.0f;
+        _hr_perfusion = pp / dc * 100.0f;
+    }
+    const float pi_dc = _dc[_pi];
+    const float pi_pp = _interval[_pi].range();
+    if (pi_dc > 0.0f && std::isfinite(pi_pp)) {
+        _perfusion_index = pi_pp / pi_dc * 100.0f;
     }
     if (_spo2_enabled) {
         _estimator.addBeat(_interval[RED].range(), _interval[RED].mean(), _interval[IR].range(), _interval[IR].mean());
@@ -222,7 +233,7 @@ bool PulseProcessor::hasBpm() const
 {
     return _hr != INVALID_CHANNEL && _count > _settle && _detector.hasRecentBeat() &&
            _detector.consecutiveBeats() >= MIN_CONSECUTIVE_BEATS && _detector.rrCount() >= MIN_CONSECUTIVE_BEATS &&
-           _perfusion_index >= PERFUSION_MIN && _perfusion_index <= PERFUSION_MAX;
+           _hr_perfusion >= PERFUSION_MIN && _hr_perfusion <= PERFUSION_MAX;
 }
 
 float PulseProcessor::bpm() const
