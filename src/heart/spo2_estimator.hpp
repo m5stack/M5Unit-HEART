@@ -26,6 +26,12 @@ namespace heart {
 float ratio_to_spo2(const float r);
 
 /*!
+  @brief Conversion from the ratio of ratios to SpO2 (%)
+  @details Return NaN for an R that is out of the calibrated range. The result is clamped to 0...100
+ */
+using SpO2Conversion = float (*)(const float r);
+
+/*!
   @class SpO2Estimator
   @brief Keeps the ratio of ratios (R) of recent beats and converts the median to SpO2
  */

@@ -168,6 +168,41 @@ TEST(PulseProcessor, SpO2)
     }
 }
 
+float ratio_times_50(const float r)
+{
+    return r * 50.0f;
+}
+
+float over_range(const float)
+{
+    return 150.0f;
+}
+
+TEST(PulseProcessor, SpO2Conversion)
+{
+    ppg_synth::Config cfg = make_config(100.0f, 72.0f);
+    cfg.ratio             = 0.6f;
+    {
+        ppg_synth::Generator gen(cfg);
+        PulseProcessor::config_t pcfg{};
+        pcfg.spo2_conversion = ratio_times_50;
+        PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
+        EXPECT_TRUE(std::isnan(proc.ratio()));
+        run(gen, proc, 20.0f);
+        EXPECT_TRUE(proc.hasSpO2());
+        EXPECT_NEAR(proc.ratio(), 0.6f, 0.04f);
+        EXPECT_FLOAT_EQ(proc.spo2(), proc.ratio() * 50.0f);
+    }
+    {
+        ppg_synth::Generator gen(cfg);
+        PulseProcessor::config_t pcfg{};
+        pcfg.spo2_conversion = over_range;
+        PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
+        run(gen, proc, 20.0f);
+        EXPECT_FLOAT_EQ(proc.spo2(), 100.0f);  // Clamped
+    }
+}
+
 TEST(PulseProcessor, SpO2WithoutGreen)
 {
     ppg_synth::Config cfg = make_config(100.0f, 72.0f);

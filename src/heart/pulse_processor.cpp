@@ -275,7 +275,19 @@ bool PulseProcessor::hasSpO2() const
 
 float PulseProcessor::spo2() const
 {
-    return hasSpO2() ? _estimator.spo2() : std::numeric_limits<float>::quiet_NaN();
+    if (!hasSpO2()) {
+        return std::numeric_limits<float>::quiet_NaN();
+    }
+    if (!_cfg.spo2_conversion) {
+        return _estimator.spo2();
+    }
+    const float v = _cfg.spo2_conversion(_estimator.ratio());
+    return std::isnan(v) ? v : std::min(100.0f, std::max(0.0f, v));
+}
+
+float PulseProcessor::ratio() const
+{
+    return hasSpO2() ? _estimator.ratio() : std::numeric_limits<float>::quiet_NaN();
 }
 
 }  // namespace heart

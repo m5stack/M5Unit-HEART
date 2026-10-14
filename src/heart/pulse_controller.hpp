@@ -68,11 +68,17 @@ public:
     }
     /*!
       @brief SpO2 (%), NaN if not valid
-      @warning Provisional conversion (110 - 25R), not calibrated
+      @warning The default conversion (110 - 25R) is provisional and not calibrated. Set
+      PulseProcessor::config_t::spo2_conversion for a calibrated one
      */
     inline float spo2() const
     {
         return _processor.spo2();
+    }
+    //! @brief Ratio of ratios of the recent beats (for the calibration of SpO2), NaN if SpO2 is not valid
+    inline float ratio() const
+    {
+        return _processor.ratio();
     }
     //! @brief Was a valid beat confirmed in the latest update()?
     inline bool isBeat() const

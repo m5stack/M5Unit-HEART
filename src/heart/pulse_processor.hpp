@@ -42,6 +42,8 @@ public:
         int8_t hr_channel{-1};
         //! Calculate SpO2 (only when both Red and IR are available)
         bool spo2{true};
+        //! Conversion from the ratio of ratios to SpO2 (nullptr: ratio_to_spo2(), the provisional 110 - 25R)
+        SpO2Conversion spo2_conversion{nullptr};
     };
 
     /*!
@@ -77,9 +79,15 @@ public:
     bool hasSpO2() const;
     /*!
       @brief SpO2 (%), NaN if not valid
-      @warning Provisional conversion (110 - 25R), not calibrated
+      @warning The default conversion (110 - 25R) is provisional and not calibrated. Set config_t::spo2_conversion
+      for a calibrated one
      */
     float spo2() const;
+    /*!
+      @brief Ratio of ratios R = (AC/DC of Red) / (AC/DC of IR), median of the recent beats, NaN if SpO2 is not valid
+      @note For the calibration of config_t::spo2_conversion
+     */
+    float ratio() const;
     //! @brief Did the latest push() confirm a valid beat?
     inline bool isBeat() const
     {
