@@ -47,7 +47,7 @@ public:
         //! Sampling rate if start on begin
         gh3038::SamplingRate rate{gh3038::SamplingRate::Rate100};
         //! TIA gain level for Green
-        gh3038::Gain green_gain{gh3038::Gain::Level4};
+        gh3038::Gain green_gain{gh3038::Gain::Level3};
         //! TIA gain level for Red
         gh3038::Gain red_gain{gh3038::Gain::Level1};
         //! TIA gain level for IR
