@@ -78,6 +78,8 @@ uint32_t m5_gh3038_state_size(void);
 uint16_t m5_gh3038_max_samples(void);
 //! @brief Photodiode current (pA) of the raw value with the gain level
 float m5_gh3038_raw_to_pA(int32_t raw, uint8_t gain_level);
+//! @brief Full scale of the raw value (the magnitude of the largest raw value)
+int32_t m5_gh3038_raw_full_scale(void);
 
 //! @brief Initialize the state (no bus access)
 int m5_gh3038_init(m5_gh3038_state_t* s, const m5_gh3038_io_t* io);
