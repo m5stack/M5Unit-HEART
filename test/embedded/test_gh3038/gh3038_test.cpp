@@ -240,6 +240,8 @@ TEST_F(TestGH3038, GainAndCurrent)
 {
     SCOPED_TRACE(ustr);
 
+    EXPECT_TRUE(unit->setAutoAdjust(false));  // Manual writes during periodic measurement need it off
+
     for (auto&& periodic : {true, false}) {
         auto s = m5::utility::formatString("Periodic:%u", periodic);
         SCOPED_TRACE(s);
@@ -302,6 +304,63 @@ TEST_F(TestGH3038, LEDCurrentOfSample)
     EXPECT_TRUE(unit->readPPG(s));  // The first sample after the start is oldest()
     const float scale = static_cast<float>(unit->config().green_current) / 32.0f;
     EXPECT_FLOAT_EQ(s.get(m5::heart::Channel::Green), d.current(Color::Green) * scale);
+}
+
+TEST_F(TestGH3038, AutoAdjustGuard)
+{
+    SCOPED_TRACE(ustr);
+
+    EXPECT_TRUE(unit->autoAdjust());  // config_t default
+    EXPECT_TRUE(unit->inPeriodic());
+
+    // Refused while adjusting automatically during periodic measurement
+    EXPECT_FALSE(unit->writeGain(Color::Green, Gain::Level2));
+    EXPECT_FALSE(unit->writeLEDCurrent(Color::Green, 32));
+    Gain g{};
+    EXPECT_TRUE(unit->readGain(g, Color::Green));
+    EXPECT_EQ(g, unit->config().green_gain);
+
+    // Allowed after disabling
+    EXPECT_TRUE(unit->setAutoAdjust(false));
+    EXPECT_FALSE(unit->autoAdjust());
+    EXPECT_TRUE(unit->writeGain(Color::Green, Gain::Level2));
+    EXPECT_TRUE(unit->writeLEDCurrent(Color::Green, 32));
+    uint8_t c{};
+    EXPECT_TRUE(unit->readLEDCurrent(c, Color::Green));
+    EXPECT_EQ(c, 32);
+
+    // Allowed outside periodic measurement even if enabled
+    EXPECT_TRUE(unit->setAutoAdjust(true));
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_TRUE(unit->writeGain(Color::Green, Gain::Level1));
+    EXPECT_TRUE(unit->readGain(g, Color::Green));
+    EXPECT_EQ(g, Gain::Level1);
+}
+
+class TestGH3038NoAutoAdjust : public TestGH3038 {
+protected:
+    virtual UnitGH3038* get_instance() override
+    {
+        auto ptr = new GH3038Probe();
+        if (ptr) {
+            auto cfg        = ptr->config();
+            cfg.rst_pin     = rst_pin();
+            cfg.int_pin     = -1;
+            cfg.auto_adjust = false;
+            ptr->config(cfg);
+        }
+        return ptr;
+    }
+};
+
+TEST_F(TestGH3038NoAutoAdjust, Config)
+{
+    SCOPED_TRACE(ustr);
+
+    EXPECT_FALSE(unit->autoAdjust());
+    EXPECT_TRUE(unit->inPeriodic());
+    EXPECT_TRUE(unit->writeGain(Color::Green, Gain::Level2));
+    EXPECT_TRUE(unit->writeLEDCurrent(Color::Green, 32));
 }
 
 class TestGH3038Interrupt : public TestGH3038 {

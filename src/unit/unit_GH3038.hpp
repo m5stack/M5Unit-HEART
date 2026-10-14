@@ -62,6 +62,9 @@ public:
         int8_t rst_pin{-1};
         //! INT pin (-1: polling)
         int8_t int_pin{-1};
+        //! Adjust the LED current and gain automatically to keep the raw value in range (never above the values in
+        //! this config)
+        bool auto_adjust{true};
     };
 
     /*!
@@ -187,6 +190,7 @@ public:
       @param gain Gain level
       @return True if successful
       @note Can be changed during periodic measurement
+      @warning Fails during periodic measurement while autoAdjust() is true. Call setAutoAdjust(false) first
       @note Samples already in the chip FIFO when the gain is changed are tagged with the new gain
      */
     bool writeGain(const gh3038::Color color, const gh3038::Gain gain);
@@ -203,8 +207,21 @@ public:
       @param code Current code (0...255)
       @return True if successful
       @note Can be changed during periodic measurement
+      @warning Fails during periodic measurement while autoAdjust() is true. Call setAutoAdjust(false) first
      */
     bool writeLEDCurrent(const gh3038::Color color, const uint8_t code);
+    /*!
+      @brief Enable or disable the automatic adjustment of the LED current and gain
+      @param enable True to enable
+      @return True if successful
+      @note Can be changed during periodic measurement. The settings at that time are kept when disabled
+     */
+    bool setAutoAdjust(const bool enable);
+    //! @brief Is the automatic adjustment enabled?
+    inline bool autoAdjust() const
+    {
+        return _auto_adjust;
+    }
     ///@}
 
     ///@name PPGDataSource
@@ -274,7 +291,8 @@ protected:
     volatile bool _irq_pending{};
     uint8_t _led_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes applied now
     uint8_t _ref_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes at begin (readPPG() converts to these)
-    uint32_t _ppg_pushed{}, _ppg_consumed{};        // readPPG() pop counters (independent of oldest()/discard())
+    bool _auto_adjust{};
+    uint32_t _ppg_pushed{}, _ppg_consumed{};  // readPPG() pop counters (independent of oldest()/discard())
 };
 
 }  // namespace unit

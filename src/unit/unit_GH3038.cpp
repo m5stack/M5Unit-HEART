@@ -128,6 +128,7 @@ bool UnitGH3038::begin()
     for (uint8_t c = 0; c < NUMBER_OF_COLORS; ++c) {
         _led_code[c] = _ref_code[c] = currents[c];
     }
+    _auto_adjust = _cfg.auto_adjust;
 
     r = m5_gh3038_reset(&_core, _cfg.rst_pin >= 0);
     if (r != M5_GH3038_OK) {
@@ -213,6 +214,10 @@ bool UnitGH3038::readGain(Gain& gain, const Color color)
 
 bool UnitGH3038::writeGain(const Color color, const Gain gain)
 {
+    if (_auto_adjust && inPeriodic()) {
+        M5_LIB_LOGW("Auto adjustment is enabled. Call setAutoAdjust(false) first");
+        return false;
+    }
     const int r = m5_gh3038_set_gain(&_core, color_index(color), m5::stl::to_underlying(gain));
     if (r == M5_GH3038_ERR_ARG) {
         M5_LIB_LOGE("Invalid color or gain");
@@ -227,6 +232,10 @@ bool UnitGH3038::readLEDCurrent(uint8_t& code, const Color color)
 
 bool UnitGH3038::writeLEDCurrent(const Color color, const uint8_t code)
 {
+    if (_auto_adjust && inPeriodic()) {
+        M5_LIB_LOGW("Auto adjustment is enabled. Call setAutoAdjust(false) first");
+        return false;
+    }
     const int r = m5_gh3038_set_led_current(&_core, color_index(color), code);
     if (r == M5_GH3038_ERR_ARG) {
         M5_LIB_LOGE("Invalid color");
@@ -235,6 +244,12 @@ bool UnitGH3038::writeLEDCurrent(const Color color, const uint8_t code)
         return false;
     }
     _led_code[color_index(color)] = code;
+    return true;
+}
+
+bool UnitGH3038::setAutoAdjust(const bool enable)
+{
+    _auto_adjust = enable;
     return true;
 }
 
