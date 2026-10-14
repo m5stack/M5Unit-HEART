@@ -185,7 +185,7 @@ public:
         //! The SpO2 ADC resolution if start on begin
         bool high_resolution{true};
         //! Led current for Red if start on begin (only SpO2)
-        m5::unit::max30100::LED red_current{max30100::LED::Current27_1};
+        m5::unit::max30100::LED red_current{max30100::LED::Current17_4};
     };
 
     /*! @brief Constructor
