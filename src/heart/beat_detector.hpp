@@ -25,6 +25,7 @@ namespace heart {
   - PEAK: a peak was confirmed (the latest trough candidate is final)
   - BEAT: the confirmed peak made a valid RR interval
   - EXPIRED: no valid beat for the timeout, the RR history was discarded
+  - RESEEDED: the rhythm changed, the RR history was replaced with the recent intervals (with BEAT)
  */
 class BeatDetector {
 public:
@@ -34,6 +35,7 @@ public:
     static constexpr uint8_t PEAK{0x02};              //!< A peak was confirmed
     static constexpr uint8_t BEAT{0x04};              //!< The peak made a valid RR interval
     static constexpr uint8_t EXPIRED{0x08};           //!< No valid beat for the timeout
+    static constexpr uint8_t RESEEDED{0x10};          //!< The RR history was replaced (rhythm changed)
     ///@}
 
     //! @brief Inactive detector (process() does nothing)
@@ -107,6 +109,7 @@ private:
     RecentValues<5> _rr{};
     float _rejected[3]{};
     uint8_t _rejected_count{};
+    bool _reseeded{};
 };
 
 }  // namespace heart

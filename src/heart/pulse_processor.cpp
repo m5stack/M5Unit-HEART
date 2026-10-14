@@ -26,6 +26,7 @@ constexpr uint32_t MIN_CONSECUTIVE_BEATS{3};  // Valid beats in a row required f
 constexpr float PERFUSION_MIN{0.05f};         // Plausible perfusion index (%)
 constexpr float PERFUSION_MAX{20.0f};         //
 constexpr uint8_t PEAKS_BEFORE_INTERVAL{2};   // The first trough found after a peak starts the first interval
+constexpr float BPM_TIME_CONSTANT_SEC{4.0f};  // Smoothing of the heart rate (EMA per beat)
 
 constexpr uint8_t RED{channel_index(Channel::Red)};
 constexpr uint8_t IR{channel_index(Channel::IR)};
@@ -135,6 +136,7 @@ void PulseProcessor::reset()
     _perfusion_index = std::numeric_limits<float>::quiet_NaN();
     _hr_perfusion    = std::numeric_limits<float>::quiet_NaN();
     _wave            = 0.0f;
+    _bpm             = std::numeric_limits<float>::quiet_NaN();
 }
 
 void PulseProcessor::push(const PPGSample& s)
@@ -172,6 +174,10 @@ void PulseProcessor::push(const PPGSample& s)
         _estimator.clear();
         _perfusion_index = std::numeric_limits<float>::quiet_NaN();
         _hr_perfusion    = std::numeric_limits<float>::quiet_NaN();
+        _bpm             = std::numeric_limits<float>::quiet_NaN();
+    }
+    if (events & BeatDetector::RESEEDED) {
+        _bpm = std::numeric_limits<float>::quiet_NaN();  // The rhythm changed: restart the smoothing
     }
     accumulate(events, ac, raw, _spo2_enabled && present[RED] && present[IR], present[_pi]);
 }
@@ -224,9 +230,27 @@ void PulseProcessor::finish_beat(const bool valid)
     if (pi_dc > 0.0f && std::isfinite(pi_pp)) {
         _perfusion_index = pi_pp / pi_dc * 100.0f;
     }
+    smooth_bpm();
     if (_spo2_enabled) {
         _estimator.addBeat(_interval[RED].range(), _interval[RED].mean(), _interval[IR].range(), _interval[IR].mean());
     }
+}
+
+void PulseProcessor::smooth_bpm()
+{
+    if (!hasBpm()) {
+        _bpm = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+    // The median of the recent RR intervals follows the beat-to-beat variation (respiration etc.), so smooth it
+    // over a few seconds. The first valid value starts from the median as it is
+    const float median = _detector.bpm();
+    if (std::isnan(_bpm)) {
+        _bpm = median;
+        return;
+    }
+    const float alpha = 1.0f - std::exp(-(60.0f / median) / BPM_TIME_CONSTANT_SEC);
+    _bpm += alpha * (median - _bpm);
 }
 
 bool PulseProcessor::hasBpm() const
@@ -238,7 +262,10 @@ bool PulseProcessor::hasBpm() const
 
 float PulseProcessor::bpm() const
 {
-    return hasBpm() ? _detector.bpm() : std::numeric_limits<float>::quiet_NaN();
+    if (!hasBpm()) {
+        return std::numeric_limits<float>::quiet_NaN();
+    }
+    return std::isnan(_bpm) ? _detector.bpm() : _bpm;
 }
 
 bool PulseProcessor::hasSpO2() const

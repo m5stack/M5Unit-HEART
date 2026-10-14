@@ -24,7 +24,8 @@ namespace heart {
   @class PulseProcessor
   @brief Chip-independent PPG processing (push one sample at a time)
   @details
-  - Heart rate: 0.5-4 Hz band-pass and adaptive-threshold peak detection on the heart rate channel
+  - Heart rate: 0.5-4 Hz band-pass and adaptive-threshold peak detection on the heart rate channel, the median of
+    the recent beat intervals smoothed over about 4 seconds
   - SpO2: beat-synchronous ratio of ratios of Red and IR (provisional conversion, not calibrated)
   - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%) of IR (the heart rate channel if IR is
     not available), as commercial pulse oximeters show
@@ -141,6 +142,7 @@ private:
     void accumulate(const uint8_t events, const float* ac, const float* raw, const bool spo2_sample,
                     const bool pi_sample);
     void finish_beat(const bool valid);
+    void smooth_bpm();
 
 private:
     float _rate{};
@@ -167,6 +169,7 @@ private:
     float _perfusion_index{};  // Of _pi
     float _hr_perfusion{};     // Of _hr (validity of the heart rate)
     float _wave{};
+    float _bpm{};  // Smoothed heart rate
 };
 
 }  // namespace heart

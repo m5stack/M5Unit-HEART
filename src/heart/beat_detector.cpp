@@ -81,6 +81,7 @@ void BeatDetector::reset()
     _consecutive      = 0;
     _rr.clear();
     _rejected_count = 0;
+    _reseeded       = false;
 }
 
 uint8_t BeatDetector::process(const float ac)
@@ -136,6 +137,10 @@ uint8_t BeatDetector::process(const float ac)
             events |= PEAK;
             if (_has_peak && accept_rr((_candidate_index - _peak_index + offset - _peak_offset) / _rate)) {
                 events |= BEAT;
+                if (_reseeded) {
+                    events |= RESEEDED;
+                    _reseeded = false;
+                }
                 _has_beat   = true;
                 _beat_index = _candidate_index;
             }
@@ -213,6 +218,7 @@ bool BeatDetector::reject_rr(const float rr)
     }
     _rejected_count = 0;
     _consecutive    = RESEED_COUNT;
+    _reseeded       = true;
     return true;
 }
 
