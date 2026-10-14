@@ -22,12 +22,13 @@ struct View {
         const uint32_t spr_w = wid;
         const uint32_t spr_h = _plot_hgt;
         _plot_sprite.setPsram(false);
-        _plot_sprite.setColorDepth(2);
+        _plot_sprite.setColorDepth(4);  // Room for the color of the second waveform
         _plot_sprite.createSprite(spr_w, spr_h);
         _plot_sprite.setPaletteColor(palette_black, TFT_BLACK);
         _plot_sprite.setPaletteColor(palette_white, TFT_WHITE);
         _plot_sprite.setPaletteColor(palette_theme, _theme_color);
         _plot_sprite.setPaletteColor(palette_gauge, TFT_DARKGRAY);
+        _plot_sprite.setPaletteColor(palette_second, TFT_RED);
         _plot_sprite.setTextColor(palette_white, palette_black);
         _plot_sprite.setFont(&fonts::FreeSansBold9pt7b);
         _text_sprite.setPsram(false);
@@ -64,10 +65,21 @@ struct View {
         _meter = new Meter(0, 0, spr_w, spr_h, palette_theme, palette_gauge, palette_black);
     }
 
+    // Show a second waveform in red under the main one
+    inline void enableSecondLine()
+    {
+        _meter->enableSecondLine(palette_second);
+    }
+
     // Plot one sample of the waveform
     inline void push_back(const float value)
     {
         _meter->push_back(value);
+    }
+    // Plot one sample of the waveform and of the second one
+    inline void push_back(const float value, const float second)
+    {
+        _meter->push_back(value, second);
     }
 
     // Update the values after processing (NaN if not valid)
@@ -134,10 +146,11 @@ struct View {
     }
 
     enum : uint8_t {
-        palette_black = 0,
-        palette_white = 1,
-        palette_theme = 2,
-        palette_gauge = 3,
+        palette_black  = 0,
+        palette_white  = 1,
+        palette_theme  = 2,
+        palette_gauge  = 3,
+        palette_second = 4,  // Plot sprite only
     };
     static constexpr uint32_t beat_frames{4};  // Number of updates the beat mark stays lit
     LGFX_Sprite _plot_sprite{};

@@ -99,6 +99,9 @@ m5::heart::PulseController pulse;
 // Filter for the plotted waveform: 0.3 Hz high-pass removes the DC level, 10 Hz low-pass removes the sensor noise
 // while keeping the pulse shape (the processing uses its own 0.5-4 Hz band-pass)
 m5::heart::BandPass plot_filter{};
+#if defined(USING_STAMP_HEART)
+m5::heart::BandPass plot_filter_ir{};  // IR drawn in red under Green (PI and SpO2 are calculated from Red and IR)
+#endif
 // The horizontal axis is time: one plotted point is 20 ms regardless of the sampling rate
 // (samples are thinned out above 50 Hz and repeated below it)
 constexpr float plot_points_per_sec{50.0f};
@@ -110,11 +113,15 @@ float plot_acc{};       // Accumulated plotted points
 constexpr uint32_t plot_interval_ms{static_cast<uint32_t>(1000.0f / plot_points_per_sec)};
 constexpr size_t plot_queue_size{64};
 constexpr size_t plot_queue_catch_up{15};  // Draw extra points when more than this are waiting (0.3 s)
-float plot_queue[plot_queue_size]{};
+struct PlotPoint {
+    float value{};
+    float second{};  // IR of StampHeart
+};
+PlotPoint plot_queue[plot_queue_size]{};
 size_t plot_queue_head{}, plot_queue_count{};
 m5::utility::elapsed_time_t plot_latest{};
 
-void plot_enqueue(const float v)
+void plot_enqueue(const PlotPoint& v)
 {
     if (plot_queue_count == plot_queue_size) {  // Full: drop the oldest
         plot_queue_head = (plot_queue_head + 1) % plot_queue_size;
@@ -124,9 +131,9 @@ void plot_enqueue(const float v)
     ++plot_queue_count;
 }
 
-float plot_dequeue()
+PlotPoint plot_dequeue()
 {
-    const float v   = plot_queue[plot_queue_head];
+    const PlotPoint v = plot_queue[plot_queue_head];
     plot_queue_head = (plot_queue_head + 1) % plot_queue_size;
     --plot_queue_count;
     return v;
@@ -177,6 +184,9 @@ void restart_view()
 {
     const float rate = heart.ppgSpec().sampling_rate_hz;
     plot_filter      = m5::heart::BandPass(0.3f, 10.0f, rate);
+#if defined(USING_STAMP_HEART)
+    plot_filter_ir = m5::heart::BandPass(0.3f, 10.0f, rate);
+#endif
     plot_step        = (rate > 0.0f) ? plot_points_per_sec / rate : 1.0f;
     plot_acc         = 0.0f;
     plot_queue_head = plot_queue_count = 0;
@@ -187,14 +197,16 @@ void restart_view()
 }
 
 // Waveform to plot: the heart rate channel filtered, inverted so that the systolic peak points up
-float plot_value()
+PlotPoint plot_value()
 {
+    PlotPoint p{};
 #if defined(USING_STAMP_HEART)
-    const float raw = static_cast<float>(heart.green());
+    p.value  = plot_filter.process(-static_cast<float>(heart.green()));
+    p.second = plot_filter_ir.process(-static_cast<float>(heart.ir()));
 #else
-    const float raw = static_cast<float>(heart.ir());
+    p.value = plot_filter.process(-static_cast<float>(heart.ir()));
 #endif
-    return plot_filter.process(-raw);
+    return p;
 }
 
 }  // namespace
@@ -269,6 +281,7 @@ void setup()
     view = new View(lcd.width(), lcd.height(), title, TFT_YELLOW);
 #else
     view = new View(lcd.width(), lcd.height(), title, TFT_GREEN);
+    view->enableSecondLine();  // IR in red
 #endif
     restart_view();
     view->push(&lcd, 0, 0);
@@ -296,7 +309,7 @@ void loop()
             M5.Log.printf(">IR:%u\n>RED:%u\n", heart.ir(), heart.red());
 #endif
 #endif
-            const float v = plot_value();  // The filter runs at the sampling rate
+            const PlotPoint v = plot_value();  // The filter runs at the sampling rate
             plot_acc += plot_step;
             while (plot_acc >= 1.0f) {
                 plot_enqueue(v);
@@ -324,7 +337,8 @@ void loop()
         plot_latest = m5::utility::millis();
         size_t n    = 1 + ((plot_queue_count > plot_queue_catch_up) ? plot_queue_count - plot_queue_catch_up : 0);
         while (n-- && plot_queue_count) {
-            view->push_back(plot_dequeue());
+            const PlotPoint v = plot_dequeue();
+            view->push_back(v.value, v.second);
         }
         view->render();
         view->push(&lcd, 0, 0);
