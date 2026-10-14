@@ -194,8 +194,7 @@ void UnitMAX30100::update(const bool force)
 {
     _updated = false;
     if (inPeriodic()) {
-        auto at = m5::utility::millis();
-        if (force || !_latest || at >= _latest + _interval) {
+        if (force || !_latest || m5::utility::hasElapsed(_latest, _interval)) {
             _updated = read_FIFO();
             if (_updated) {
                 _latest = m5::utility::millis();
@@ -410,14 +409,14 @@ bool UnitMAX30100::measureTemperatureSingleshot(TemperatureData& td)
         // Request measure
         mc.temperature(true);
         if (writeRegister8(MODE_CONFIGURATION, mc.value)) {
-            auto timeout_at = m5::utility::millis() + 500;
+            const auto start_at = m5::utility::millis();
             m5::utility::delay(MEASURE_TEMPERATURE_DURATION);  // We have to wait at least this long
             do {
                 if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.temperature()) {
                     return read_measurement_temperature(td);
                 }
                 m5::utility::delay(1);
-            } while (m5::utility::millis() <= timeout_at);
+            } while (!m5::utility::hasElapsed(start_at, 500));
             M5_LIB_LOGW("timeout");
         }
     }
@@ -429,7 +428,7 @@ bool UnitMAX30100::reset()
     ModeConfiguration mc{};
     mc.reset(true);
     if (writeRegister8(MODE_CONFIGURATION, mc.value)) {
-        auto timeout_at = m5::utility::millis() + 1000;
+        const auto start_at = m5::utility::millis();
         do {
             if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.reset()) {
                 _periodic  = false;
@@ -439,7 +438,7 @@ bool UnitMAX30100::reset()
                 return true;
             }
             m5::utility::delay(1);
-        } while (m5::utility::millis() <= timeout_at);
+        } while (!m5::utility::hasElapsed(start_at, 1000));
     }
     return false;
 }
