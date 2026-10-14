@@ -275,6 +275,10 @@ protected:
     static bool io_set_rst(void* user, const int level);
     static void on_sample(void* user, const m5_gh3038_sample_t* sample);
 
+    void accumulate_adjust(const gh3038::Data& d);
+    void reset_adjust_window();
+    void auto_adjust();
+
     M5_UNIT_COMPONENT_PERIODIC_MEASUREMENT_ADAPTER_HPP_BUILDER(UnitGH3038, gh3038::Data);
 
 protected:
@@ -292,7 +296,16 @@ protected:
     uint8_t _led_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes applied now
     uint8_t _ref_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes at begin (readPPG() converts to these)
     bool _auto_adjust{};
-    uint32_t _ppg_pushed{}, _ppg_consumed{};  // readPPG() pop counters (independent of oldest()/discard())
+    struct adjust_window_t {
+        int64_t sum{};
+        int32_t max{};
+        uint16_t count{};
+        uint16_t skip{};  // Samples to skip after a change (settling)
+    };
+    adjust_window_t _window[gh3038::NUMBER_OF_COLORS]{};
+    uint8_t _gain_level[gh3038::NUMBER_OF_COLORS]{};  // Gain levels applied now
+    uint8_t _max_gain[gh3038::NUMBER_OF_COLORS]{};    // Gain levels at begin (upper limit of the adjustment)
+    uint32_t _ppg_pushed{}, _ppg_consumed{};          // readPPG() pop counters (independent of oldest()/discard())
 };
 
 }  // namespace unit

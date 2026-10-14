@@ -16,6 +16,8 @@
 #include <esp_attr.h>
 #include <esp_err.h>
 
+#include "gh3038_auto_adjust.hpp"
+
 using namespace m5::utility::mmh3;
 using namespace m5::unit::types;
 using namespace m5::unit::gh3038;
@@ -55,6 +57,23 @@ uint8_t channels_of(const Mode mode)
         default:
             return (1U << color_index(Color::Green)) | (1U << color_index(Color::Red)) | (1U << color_index(Color::IR));
     }
+}
+
+constexpr uint8_t max_gain_level{static_cast<uint8_t>(Gain::Level6)};
+
+// Raw value ratio when the gain level changes from `from` to `to` (the same photodiode current)
+float raw_ratio(const uint8_t from, const uint8_t to)
+{
+    constexpr int32_t probe{1 << 20};
+    const float a = m5_gh3038_raw_to_pA(probe, from);
+    const float b = m5_gh3038_raw_to_pA(probe, to);
+    return (b > 0.0f) ? a / b : 0.0f;
+}
+
+// Samples skipped after a change (about 0.2 s)
+uint16_t settle_samples(const SamplingRate rate)
+{
+    return static_cast<uint16_t>(sampling_rate_to_hz(rate) / 5U);
 }
 }  // namespace
 
@@ -127,6 +146,7 @@ bool UnitGH3038::begin()
     }
     for (uint8_t c = 0; c < NUMBER_OF_COLORS; ++c) {
         _led_code[c] = _ref_code[c] = currents[c];
+        _gain_level[c] = _max_gain[c] = m5::stl::to_underlying(gains[c]);
     }
     _auto_adjust = _cfg.auto_adjust;
 
@@ -155,6 +175,9 @@ void UnitGH3038::update(const bool force)
     }
     _irq_pending = false;  // Clear before reading the chip
     _updated     = read_fifo();
+    if (_updated && _auto_adjust) {
+        auto_adjust();
+    }
     if (_updated) {
         _latest = m5::utility::millis();
     }
@@ -187,7 +210,8 @@ bool UnitGH3038::start_periodic_measurement(const Mode mode, const SamplingRate 
     _irq_pending  = false;
     _latest       = 0;
     _interval     = interval_ms(rate);
-    _periodic     = true;
+    reset_adjust_window();
+    _periodic = true;
     return true;
 }
 
@@ -222,7 +246,11 @@ bool UnitGH3038::writeGain(const Color color, const Gain gain)
     if (r == M5_GH3038_ERR_ARG) {
         M5_LIB_LOGE("Invalid color or gain");
     }
-    return r == M5_GH3038_OK;
+    if (r != M5_GH3038_OK) {
+        return false;
+    }
+    _gain_level[color_index(color)] = m5::stl::to_underlying(gain);
+    return true;
 }
 
 bool UnitGH3038::readLEDCurrent(uint8_t& code, const Color color)
@@ -249,8 +277,74 @@ bool UnitGH3038::writeLEDCurrent(const Color color, const uint8_t code)
 
 bool UnitGH3038::setAutoAdjust(const bool enable)
 {
+    if (enable && !_auto_adjust) {
+        reset_adjust_window();
+    }
     _auto_adjust = enable;
     return true;
+}
+
+void UnitGH3038::reset_adjust_window()
+{
+    for (auto&& w : _window) {
+        w      = adjust_window_t{};
+        w.skip = settle_samples(_rate);
+    }
+}
+
+void UnitGH3038::accumulate_adjust(const Data& d)
+{
+    for (uint8_t c = 0; c < NUMBER_OF_COLORS; ++c) {
+        if (!(d.valid & (1U << c))) {
+            continue;
+        }
+        auto& w = _window[c];
+        if (w.skip) {
+            --w.skip;
+            continue;
+        }
+        const int32_t v = d.raw[c];
+        w.max           = w.count ? std::max(w.max, v) : v;
+        w.sum += v;
+        ++w.count;
+    }
+}
+
+void UnitGH3038::auto_adjust()
+{
+    const uint16_t window  = static_cast<uint16_t>(sampling_rate_to_hz(_rate));  // 1 s
+    const float full_scale = static_cast<float>(m5_gh3038_raw_full_scale());
+    for (uint8_t c = 0; c < NUMBER_OF_COLORS; ++c) {
+        auto& w = _window[c];
+        if (w.count < window) {
+            continue;
+        }
+        AdjustInput in{};
+        in.mean           = static_cast<float>(w.sum) / static_cast<float>(w.count);
+        in.max            = static_cast<float>(w.max);
+        in.full_scale     = full_scale;
+        in.code           = _led_code[c];
+        in.gain           = _gain_level[c];
+        in.max_code       = _ref_code[c];
+        in.max_gain       = _max_gain[c];
+        in.raw_ratio_down = (in.gain > 0) ? raw_ratio(in.gain, in.gain - 1U) : 0.0f;
+        in.raw_ratio_up   = (in.gain < max_gain_level) ? raw_ratio(in.gain, in.gain + 1U) : 0.0f;
+        w                 = adjust_window_t{};
+
+        const auto out = decide_adjustment(in);
+        if (!out.changed(in)) {
+            continue;
+        }
+        // Called right after the FIFO is read out, so the new settings apply to the following samples only
+        if (out.gain != in.gain && m5_gh3038_set_gain(&_core, c, out.gain) == M5_GH3038_OK) {
+            _gain_level[c] = out.gain;
+        }
+        if (out.code != in.code && m5_gh3038_set_led_current(&_core, c, out.code) == M5_GH3038_OK) {
+            _led_code[c] = out.code;
+        }
+        w.skip = settle_samples(_rate);
+        M5_LIB_LOGD("Auto adjust color:%u code:%u->%u gain:%u->%u", c, in.code, _led_code[c], in.gain, _gain_level[c]);
+    }
 }
 
 bool UnitGH3038::softReset()
@@ -439,6 +533,9 @@ void UnitGH3038::on_sample(void* user, const m5_gh3038_sample_t* sample)
         d.led_current[i] = self->_led_code[i];
     }
     d.valid = sample->valid;
+    if (self->_auto_adjust) {
+        self->accumulate_adjust(d);
+    }
     self->_data->push_back(d);
     ++self->_ppg_pushed;
 }
