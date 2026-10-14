@@ -75,8 +75,26 @@ bool has_usable_port_c()
 }
 #endif
 
+#if defined(USING_STAMP_HEART)
+// SpO2 conversion for StampHeart: the provisional slope (110 - 25R) with the offset fitted against pulse oximeters
+// at normal SpO2 (94-98 %). Not verified at lower SpO2
+float stamp_heart_spo2(const float r)
+{
+    return 111.0f - 25.0f * r;
+}
+
+m5::heart::PulseProcessor::config_t make_pulse_config()
+{
+    m5::heart::PulseProcessor::config_t cfg{};
+    cfg.spo2_conversion = stamp_heart_spo2;
+    return cfg;
+}
+// Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
+m5::heart::PulseController pulse{make_pulse_config()};
+#else
 // Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
 m5::heart::PulseController pulse;
+#endif
 
 #if defined(USING_HAT_HEART)
 constexpr bool using_multi_led_mode{false};  // Using multiLED mode if true
@@ -271,7 +289,7 @@ void loop()
             M5.Log.printf(">BPM:%f\n>PI:%f\n", pulse.bpm(), pulse.perfusionIndex());
         }
         if (pulse.hasSpO2()) {
-            M5.Log.printf(">SpO2:%f\n", pulse.spo2());  // Provisional (not calibrated)
+            M5.Log.printf(">SpO2:%f\n>R:%f\n", pulse.spo2(), pulse.ratio());
         }
         M5.Log.printf(">BEAT:%u\n", pulse.isBeat());
     }
