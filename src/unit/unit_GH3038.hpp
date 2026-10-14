@@ -212,12 +212,13 @@ public:
     /*!
       @brief What this unit provides
       @return HR: Green, SpO2: Red and IR, All: Green, Red and IR. Unit is PicoAmpere (converted with the gain of
-      each sample). The sampling rate is 0 if not in periodic measurement
+      each sample and to the LED current at begin). The sampling rate is 0 if not in periodic measurement
      */
     virtual m5::heart::PPGSpec ppgSpec() const override;
     /*!
       @brief Pop the oldest sample not yet read by readPPG()
-      @param[out] out Sample (pA)
+      @param[out] out Sample (pA converted to the LED current at begin, so that changes of the LED current do not
+      make steps)
       @return True if a sample was stored in out
       @note It does not change available(), oldest() or discard(). Samples removed by discard() or flush() before
       readPPG() reads them are skipped, so call it (or PulseController::update()) before discarding
@@ -271,7 +272,9 @@ protected:
     int _int_idle_level{};
     int8_t _int_pin{-1};
     volatile bool _irq_pending{};
-    uint32_t _ppg_pushed{}, _ppg_consumed{};  // readPPG() pop counters (independent of oldest()/discard())
+    uint8_t _led_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes applied now
+    uint8_t _ref_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes at begin (readPPG() converts to these)
+    uint32_t _ppg_pushed{}, _ppg_consumed{};        // readPPG() pop counters (independent of oldest()/discard())
 };
 
 }  // namespace unit

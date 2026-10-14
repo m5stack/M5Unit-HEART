@@ -93,9 +93,10 @@ inline uint32_t sampling_rate_to_hz(const SamplingRate r)
   @brief Measurement data group (one sample of each driven LED)
  */
 struct Data {
-    int32_t raw[NUMBER_OF_COLORS]{};  //!< Signed ADC value [Green, Red, IR]
-    Gain gain[NUMBER_OF_COLORS]{};    //!< TIA gain level at the measurement
-    uint8_t valid{};                  //!< Valid bits (1 << color_index)
+    int32_t raw[NUMBER_OF_COLORS]{};          //!< Signed ADC value [Green, Red, IR]
+    Gain gain[NUMBER_OF_COLORS]{};            //!< TIA gain level at the measurement
+    uint8_t led_current[NUMBER_OF_COLORS]{};  //!< LED current code at the measurement
+    uint8_t valid{};                          //!< Valid bits (1 << color_index)
 
     //! @brief Has the value of the color?
     inline bool has(const Color c) const

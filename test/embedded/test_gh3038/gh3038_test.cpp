@@ -51,7 +51,7 @@ constexpr uint8_t valid_table[]     = {0x01, 0x06, 0x07};  // Valid bits of each
 constexpr SamplingRate rate_table[] = {SamplingRate::Rate25, SamplingRate::Rate50, SamplingRate::Rate100,
                                        SamplingRate::Rate200};
 constexpr Gain gain_table[]         = {Gain::Level0, Gain::Level1, Gain::Level2, Gain::Level3,
-                               Gain::Level4, Gain::Level5, Gain::Level6};
+                                       Gain::Level4, Gain::Level5, Gain::Level6};
 constexpr Color color_table[]       = {Color::Green, Color::Red, Color::IR};
 constexpr uint8_t current_table[]   = {0, 1, 64, 128, 255};
 
@@ -284,6 +284,24 @@ TEST_F(TestGH3038, GainAndCurrent)
     EXPECT_EQ(g, Gain::Level2);
     EXPECT_TRUE(wait_updated(unit.get(), 1000));
     EXPECT_EQ(unit->oldest().gain[color_index(Color::Red)], Gain::Level2);
+}
+
+TEST_F(TestGH3038, LEDCurrentOfSample)
+{
+    SCOPED_TRACE(ustr);
+
+    // Data carries the LED current at the measurement, readPPG() converts it to the current at begin
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_TRUE(unit->writeLEDCurrent(Color::Green, 32));
+    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::HR, SamplingRate::Rate100));
+    EXPECT_TRUE(wait_updated(unit.get(), 1000));
+
+    const auto d = unit->oldest();
+    EXPECT_EQ(d.led_current[color_index(Color::Green)], 32);
+    m5::heart::PPGSample s{};
+    EXPECT_TRUE(unit->readPPG(s));  // The first sample after the start is oldest()
+    const float scale = static_cast<float>(unit->config().green_current) / 32.0f;
+    EXPECT_FLOAT_EQ(s.get(m5::heart::Channel::Green), d.current(Color::Green) * scale);
 }
 
 class TestGH3038Interrupt : public TestGH3038 {

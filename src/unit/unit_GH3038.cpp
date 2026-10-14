@@ -125,6 +125,9 @@ bool UnitGH3038::begin()
         M5_LIB_LOGE("Invalid configuration (%d)", r);
         return false;
     }
+    for (uint8_t c = 0; c < NUMBER_OF_COLORS; ++c) {
+        _led_code[c] = _ref_code[c] = currents[c];
+    }
 
     r = m5_gh3038_reset(&_core, _cfg.rst_pin >= 0);
     if (r != M5_GH3038_OK) {
@@ -228,7 +231,11 @@ bool UnitGH3038::writeLEDCurrent(const Color color, const uint8_t code)
     if (r == M5_GH3038_ERR_ARG) {
         M5_LIB_LOGE("Invalid color");
     }
-    return r == M5_GH3038_OK;
+    if (r != M5_GH3038_OK) {
+        return false;
+    }
+    _led_code[color_index(color)] = code;
+    return true;
 }
 
 bool UnitGH3038::softReset()
@@ -295,7 +302,12 @@ bool UnitGH3038::readPPG(m5::heart::PPGSample& out)
     const Color colors[] = {Color::Green, Color::Red, Color::IR};
     for (const auto c : colors) {
         if (d->has(c)) {
-            out.set(static_cast<m5::heart::Channel>(color_index(c)), d->current(c));
+            const uint8_t i = color_index(c);
+            float v         = d->current(c);
+            if (d->led_current[i] && _ref_code[i] && d->led_current[i] != _ref_code[i]) {
+                v *= static_cast<float>(_ref_code[i]) / static_cast<float>(d->led_current[i]);
+            }
+            out.set(static_cast<m5::heart::Channel>(i), v);
         }
     }
     return true;
@@ -407,8 +419,9 @@ void UnitGH3038::on_sample(void* user, const m5_gh3038_sample_t* sample)
     auto self = static_cast<UnitGH3038*>(user);
     Data d{};
     for (uint8_t i = 0; i < NUMBER_OF_COLORS; ++i) {
-        d.raw[i]  = sample->raw[i];
-        d.gain[i] = static_cast<Gain>(sample->gain[i]);
+        d.raw[i]         = sample->raw[i];
+        d.gain[i]        = static_cast<Gain>(sample->gain[i]);
+        d.led_current[i] = self->_led_code[i];
     }
     d.valid = sample->valid;
     self->_data->push_back(d);
