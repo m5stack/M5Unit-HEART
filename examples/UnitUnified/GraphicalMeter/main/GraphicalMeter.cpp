@@ -286,7 +286,9 @@ void loop()
             }
             heart.discard();
         }
-        view->update(pulse.bpm(), pulse.spo2(), pulse.isBeat());
+        // PI is shown only while the heart rate is valid
+        view->update(pulse.bpm(), pulse.spo2(),
+                     pulse.hasBpm() ? pulse.perfusionIndex() : std::numeric_limits<float>::quiet_NaN(), pulse.isBeat());
 #if defined(USING_SERIAL_LOG)
         // Invalid values (NaN) are not printed
         if (pulse.hasBpm()) {

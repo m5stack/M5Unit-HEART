@@ -13,6 +13,9 @@
 #include <wiring/m5_unit_unified_wiring.hpp>  // Board-aware connection helpers (include last)
 #include "../src/view.hpp"
 
+// Uncomment to print the raw values and the results to Serial (always printed on EPD devices)
+// #define USING_SERIAL_LOG
+
 namespace {
 auto& lcd = M5.Display;
 m5::unit::UnitUnified Units;
@@ -25,6 +28,7 @@ m5::heart::PulseController pulse_hat;
 
 View* view[2]{};
 bool is_epd_panel{};
+bool serial_log{};
 
 // Waveform plot of one unit
 // - Filter: 0.3 Hz high-pass removes the DC level, 10 Hz low-pass removes the sensor noise while keeping the pulse
@@ -104,6 +108,11 @@ void setup()
     M5.begin();
     M5.setTouchButtonHeightByRatio(100);
     is_epd_panel = lcd.isEPD();
+#if defined(USING_SERIAL_LOG)
+    serial_log = true;
+#else
+    serial_log = is_epd_panel;
+#endif
 
     // The screen shall be in landscape mode
     if (lcd.height() > lcd.width()) {
@@ -174,14 +183,18 @@ void loop()
             const auto ir  = unit.ir();
             const auto red = unit.red();
             plot[0].add(static_cast<float>(ir));
-            if (is_epd_panel) {
+            if (serial_log) {
                 M5.Log.printf(">UIR:%u\n>URED:%u\n", static_cast<uint32_t>(ir), static_cast<uint32_t>(red));
             }
             unit.discard();
         }
-        view[0]->update(pulse_unit.bpm(), pulse_unit.spo2(), pulse_unit.isBeat());
-        if (is_epd_panel) {
-            M5.Log.printf(">UBPM:%f\n>USpO2:%f\n>UBEAT:%u\n", pulse_unit.bpm(), pulse_unit.spo2(), pulse_unit.isBeat());
+        // PI is shown only while the heart rate is valid
+        view[0]->update(pulse_unit.bpm(), pulse_unit.spo2(),
+                        pulse_unit.hasBpm() ? pulse_unit.perfusionIndex() : std::numeric_limits<float>::quiet_NaN(),
+                        pulse_unit.isBeat());
+        if (serial_log) {
+            M5.Log.printf(">UBPM:%f\n>USpO2:%f\n>UPI:%f\n>UBEAT:%u\n", pulse_unit.bpm(), pulse_unit.spo2(),
+                          pulse_unit.perfusionIndex(), pulse_unit.isBeat());
         }
     }
 
@@ -195,14 +208,17 @@ void loop()
             const auto ir  = hat.ir();
             const auto red = hat.red();
             plot[1].add(static_cast<float>(ir));
-            if (is_epd_panel) {
+            if (serial_log) {
                 M5.Log.printf(">HIR:%u\n>HRED:%u\n", static_cast<uint32_t>(ir), static_cast<uint32_t>(red));
             }
             hat.discard();
         }
-        view[1]->update(pulse_hat.bpm(), pulse_hat.spo2(), pulse_hat.isBeat());
-        if (is_epd_panel) {
-            M5.Log.printf(">HBPM:%f\n>HSpO2:%f\n>HBEAT:%u\n", pulse_hat.bpm(), pulse_hat.spo2(), pulse_hat.isBeat());
+        view[1]->update(pulse_hat.bpm(), pulse_hat.spo2(),
+                        pulse_hat.hasBpm() ? pulse_hat.perfusionIndex() : std::numeric_limits<float>::quiet_NaN(),
+                        pulse_hat.isBeat());
+        if (serial_log) {
+            M5.Log.printf(">HBPM:%f\n>HSpO2:%f\n>HPI:%f\n>HBEAT:%u\n", pulse_hat.bpm(), pulse_hat.spo2(),
+                          pulse_hat.perfusionIndex(), pulse_hat.isBeat());
         }
     }
 

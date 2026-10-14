@@ -33,10 +33,11 @@ struct View {
     }
 
     // Update the values after processing (NaN if not valid)
-    void update(const float bpm, const float spo2, const bool beat)
+    void update(const float bpm, const float spo2, const float pi, const bool beat)
     {
         _bpm  = bpm;
         _spo2 = spo2;
+        _pi   = pi;
         if (beat) {
             _beat = beat_frames;
         } else if (_beat) {
@@ -55,9 +56,14 @@ struct View {
             _sprite.printf("BPM: %3.2f\n", _bpm);
         }
         if (std::isnan(_spo2)) {
-            _sprite.printf("SpO2: --.--");
+            _sprite.printf("SpO2: --.--\n");
         } else {
-            _sprite.printf("SpO2:%3.2f", _spo2);
+            _sprite.printf("SpO2:%3.2f\n", _spo2);
+        }
+        if (std::isnan(_pi)) {
+            _sprite.printf("PI:   --.--");
+        } else {
+            _sprite.printf("PI:   %3.2f", _pi);
         }
         _sprite.fillCircle(_sprite.width() - 12, 24 * 3, 7, _beat ? palette_theme : palette_white);
 
@@ -68,6 +74,7 @@ struct View {
     {
         _bpm  = std::numeric_limits<float>::quiet_NaN();
         _spo2 = std::numeric_limits<float>::quiet_NaN();
+        _pi   = std::numeric_limits<float>::quiet_NaN();
         _beat = 0;
         _meter->clear();
     }
@@ -88,6 +95,7 @@ struct View {
     Meter* _meter{};
     float _bpm{std::numeric_limits<float>::quiet_NaN()};
     float _spo2{std::numeric_limits<float>::quiet_NaN()};
+    float _pi{std::numeric_limits<float>::quiet_NaN()};
     uint32_t _left{}, _top{}, _beat{};
     bool _type{};
     m5gfx::rgb565_t _theme_color{};

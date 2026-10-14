@@ -7,6 +7,7 @@
 #define M5_UNIT_HEART_EXAMPLE_VIEW_HPP
 
 #include <cmath>
+#include <cstdio>
 #include <limits>
 #include "meter.hpp"
 
@@ -42,7 +43,7 @@ struct View {
         const int32_t bpm_w   = _text_sprite.textWidth("BPM: 000.00");
         const int32_t spo2_w  = _text_sprite.textWidth("SpO2:100.00");
         _text_w               = std::max(title_w, std::max(bpm_w, spo2_w));
-        _text_h               = line_h * 3;
+        _text_h               = line_h * 4;
         _text_sprite.createSprite(_text_w, _text_h);
         _text_sprite.setPaletteColor(palette_black, TFT_BLACK);
         _text_sprite.setPaletteColor(palette_white, TFT_WHITE);
@@ -70,10 +71,11 @@ struct View {
     }
 
     // Update the values after processing (NaN if not valid)
-    void update(const float bpm, const float spo2, const bool beat)
+    void update(const float bpm, const float spo2, const float pi, const bool beat)
     {
         _bpm  = bpm;
         _spo2 = spo2;
+        _pi   = pi;
         if (beat) {
             _beat = beat_frames;
         } else if (_beat) {
@@ -86,18 +88,28 @@ struct View {
         _plot_sprite.clear(palette_black);
         _meter->push(&_plot_sprite);
         _text_sprite.clear(palette_black);
+        // One line per fontHeight (the line feed of printf advances more and the last line would be cut)
+        const int32_t line_h = _text_sprite.fontHeight();
+        char buf[24]{};
         _text_sprite.drawString(_title, 0, 0);
-        _text_sprite.setCursor(0, _text_sprite.fontHeight());
         if (std::isnan(_bpm)) {
-            _text_sprite.printf("BPM:  --.--\n");
+            snprintf(buf, sizeof(buf), "BPM:  --.--");
         } else {
-            _text_sprite.printf("BPM: %3.2f\n", _bpm);
+            snprintf(buf, sizeof(buf), "BPM: %3.2f", _bpm);
         }
+        _text_sprite.drawString(buf, 0, line_h);
         if (std::isnan(_spo2)) {
-            _text_sprite.printf("SpO2: --.--");
+            snprintf(buf, sizeof(buf), "SpO2: --.--");
         } else {
-            _text_sprite.printf("SpO2:%3.2f", _spo2);
+            snprintf(buf, sizeof(buf), "SpO2:%3.2f", _spo2);
         }
+        _text_sprite.drawString(buf, 0, line_h * 2);
+        if (std::isnan(_pi)) {
+            snprintf(buf, sizeof(buf), "PI:   --.--");
+        } else {
+            snprintf(buf, sizeof(buf), "PI:   %3.2f", _pi);
+        }
+        _text_sprite.drawString(buf, 0, line_h * 3);
         _beat_sprite.clear(palette_black);
         _beat_sprite.fillCircle(_beat_size / 2, _beat_size / 2, 7, _beat ? palette_theme : palette_white);
     }
@@ -106,6 +118,7 @@ struct View {
     {
         _bpm  = std::numeric_limits<float>::quiet_NaN();
         _spo2 = std::numeric_limits<float>::quiet_NaN();
+        _pi   = std::numeric_limits<float>::quiet_NaN();
         _beat = 0;
         _meter->clear();
         _plot_sprite.clear(palette_black);
@@ -134,6 +147,7 @@ struct View {
     const char* _title{};
     float _bpm{std::numeric_limits<float>::quiet_NaN()};
     float _spo2{std::numeric_limits<float>::quiet_NaN()};
+    float _pi{std::numeric_limits<float>::quiet_NaN()};
     uint32_t _left{}, _top{}, _beat{};
     uint32_t _screen_w{}, _screen_h{}, _plot_top{}, _plot_hgt{};
     int32_t _text_w{}, _text_h{}, _beat_x{}, _beat_y{}, _beat_size{};
