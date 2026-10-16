@@ -80,7 +80,7 @@ bool has_usable_port_c()
 // at normal SpO2 (94-98 %). Not verified at lower SpO2
 float stamp_heart_spo2(const float r)
 {
-    return 111.0f - 25.0f * r;
+    return 112.0f - 25.0f * r;
 }
 
 m5::heart::PulseProcessor::config_t make_pulse_config()
