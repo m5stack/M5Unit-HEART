@@ -27,6 +27,7 @@ constexpr float PERFUSION_MIN{0.05f};         // Plausible perfusion index (%)
 constexpr float PERFUSION_MAX{20.0f};         //
 constexpr uint8_t PEAKS_BEFORE_INTERVAL{2};   // The first trough found after a peak starts the first interval
 constexpr float BPM_TIME_CONSTANT_SEC{4.0f};  // Smoothing of the heart rate (EMA per beat)
+constexpr float RATIO_TIME_CONSTANT_SEC{4.0f};  // Smoothing of the ratio of ratios for SpO2 (EMA per beat)
 
 constexpr uint8_t RED{channel_index(Channel::Red)};
 constexpr uint8_t IR{channel_index(Channel::IR)};
@@ -137,6 +138,7 @@ void PulseProcessor::reset()
     _hr_perfusion    = std::numeric_limits<float>::quiet_NaN();
     _wave            = 0.0f;
     _bpm             = std::numeric_limits<float>::quiet_NaN();
+    _ratio           = std::numeric_limits<float>::quiet_NaN();
 }
 
 void PulseProcessor::push(const PPGSample& s)
@@ -175,6 +177,7 @@ void PulseProcessor::push(const PPGSample& s)
         _perfusion_index = std::numeric_limits<float>::quiet_NaN();
         _hr_perfusion    = std::numeric_limits<float>::quiet_NaN();
         _bpm             = std::numeric_limits<float>::quiet_NaN();
+        _ratio           = std::numeric_limits<float>::quiet_NaN();
     }
     if (events & BeatDetector::RESEEDED) {
         _bpm = std::numeric_limits<float>::quiet_NaN();  // The rhythm changed: restart the smoothing
@@ -233,7 +236,25 @@ void PulseProcessor::finish_beat(const bool valid)
     smooth_bpm();
     if (_spo2_enabled) {
         _estimator.addBeat(_interval[RED].range(), _interval[RED].mean(), _interval[IR].range(), _interval[IR].mean());
+        smooth_ratio();
     }
+}
+
+void PulseProcessor::smooth_ratio()
+{
+    if (!hasSpO2()) {
+        _ratio = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+    // Smooth the median of the recent R over a few seconds as the heart rate. The first valid value starts from the
+    // median as it is
+    const float median = _estimator.ratio();
+    if (std::isnan(_ratio)) {
+        _ratio = median;
+        return;
+    }
+    const float alpha = 1.0f - std::exp(-(60.0f / bpm()) / RATIO_TIME_CONSTANT_SEC);
+    _ratio += alpha * (median - _ratio);
 }
 
 void PulseProcessor::smooth_bpm()
@@ -278,16 +299,20 @@ float PulseProcessor::spo2() const
     if (!hasSpO2()) {
         return std::numeric_limits<float>::quiet_NaN();
     }
+    const float r = ratio();
     if (!_cfg.spo2_conversion) {
-        return _estimator.spo2();
+        return ratio_to_spo2(r);
     }
-    const float v = _cfg.spo2_conversion(_estimator.ratio());
+    const float v = _cfg.spo2_conversion(r);
     return std::isnan(v) ? v : std::min(100.0f, std::max(0.0f, v));
 }
 
 float PulseProcessor::ratio() const
 {
-    return hasSpO2() ? _estimator.ratio() : std::numeric_limits<float>::quiet_NaN();
+    if (!hasSpO2()) {
+        return std::numeric_limits<float>::quiet_NaN();
+    }
+    return std::isnan(_ratio) ? _estimator.ratio() : _ratio;
 }
 
 }  // namespace heart

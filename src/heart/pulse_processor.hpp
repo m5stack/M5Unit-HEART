@@ -26,7 +26,8 @@ namespace heart {
   @details
   - Heart rate: 0.5-4 Hz band-pass and adaptive-threshold peak detection on the heart rate channel, the median of
     the recent beat intervals smoothed over about 4 seconds
-  - SpO2: beat-synchronous ratio of ratios of Red and IR (provisional conversion, not calibrated)
+  - SpO2: beat-synchronous ratio of ratios of Red and IR, the median of the recent beats smoothed over about 4
+    seconds (provisional conversion, not calibrated)
   - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%) of IR (the heart rate channel if IR is
     not available), as commercial pulse oximeters show
   The values do not depend on the unit or the scale of the input.
@@ -84,7 +85,8 @@ public:
      */
     float spo2() const;
     /*!
-      @brief Ratio of ratios R = (AC/DC of Red) / (AC/DC of IR), median of the recent beats, NaN if SpO2 is not valid
+      @brief Ratio of ratios R = (AC/DC of Red) / (AC/DC of IR) of the recent beats (smoothed), NaN if SpO2 is not
+      valid
       @note For the calibration of config_t::spo2_conversion
      */
     float ratio() const;
@@ -151,6 +153,7 @@ private:
                     const bool pi_sample);
     void finish_beat(const bool valid);
     void smooth_bpm();
+    void smooth_ratio();
 
 private:
     float _rate{};
@@ -177,7 +180,8 @@ private:
     float _perfusion_index{};  // Of _pi
     float _hr_perfusion{};     // Of _hr (validity of the heart rate)
     float _wave{};
-    float _bpm{};  // Smoothed heart rate
+    float _bpm{};    // Smoothed heart rate
+    float _ratio{};  // Smoothed ratio of ratios
 };
 
 }  // namespace heart
