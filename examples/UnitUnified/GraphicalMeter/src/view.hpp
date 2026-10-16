@@ -105,15 +105,15 @@ struct View {
         char buf[24]{};
         _text_sprite.drawString(_title, 0, 0);
         if (std::isnan(_bpm)) {
-            snprintf(buf, sizeof(buf), "BPM:  --.--");
+            snprintf(buf, sizeof(buf), "BPM:  --");
         } else {
-            snprintf(buf, sizeof(buf), "BPM: %3.2f", _bpm);
+            snprintf(buf, sizeof(buf), "BPM: %3.0f", _bpm);
         }
         _text_sprite.drawString(buf, 0, line_h);
         if (std::isnan(_spo2)) {
-            snprintf(buf, sizeof(buf), "SpO2: --.--");
+            snprintf(buf, sizeof(buf), "SpO2: --");
         } else {
-            snprintf(buf, sizeof(buf), "SpO2:%3.2f", _spo2);
+            snprintf(buf, sizeof(buf), "SpO2:%3.0f", _spo2);
         }
         _text_sprite.drawString(buf, 0, line_h * 2);
         if (std::isnan(_pi)) {
