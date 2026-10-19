@@ -18,21 +18,23 @@ using m5::heart::Channel;
 using m5::heart::channel_bit;
 using m5::heart::channel_index;
 
-constexpr float BAND_LOW_HZ{0.5f};                 // Band-pass lower cutoff
-constexpr float BAND_HIGH_HZ{4.0f};                // Band-pass upper cutoff
-constexpr float DC_TIME_CONSTANT_SEC{1.0f};        // DC estimation (EMA)
-constexpr float SETTLE_SEC{2.0f};                  // Filters settle before the beat detection starts
-constexpr uint32_t MIN_CONSECUTIVE_BEATS{3};       // Valid beats in a row required for the heart rate
-constexpr float PERFUSION_MIN{0.05f};              // Plausible perfusion index (%)
-constexpr float PERFUSION_MAX{20.0f};              //
-constexpr uint8_t PEAKS_BEFORE_INTERVAL{2};        // The first trough found after a peak starts the first interval
-constexpr float BPM_TIME_CONSTANT_SEC{4.0f};       // Smoothing of the heart rate (EMA per beat)
-constexpr float BPM_FAST_TIME_CONSTANT_SEC{1.0f};  // Smoothing while the heart rate is changing
-constexpr float BPM_FAST_DIFFERENCE{3.0f};         // Difference (bpm) from the median to follow fast
-constexpr float RATIO_TIME_CONSTANT_SEC{8.0f};     // Smoothing of the ratio of ratios for SpO2 (EMA per beat)
+constexpr float BAND_LOW_HZ{0.5f};            // Band-pass lower cutoff
+constexpr float BAND_HIGH_HZ{4.0f};           // Band-pass upper cutoff
+constexpr float DC_TIME_CONSTANT_SEC{1.0f};   // DC estimation (EMA)
+constexpr float SETTLE_SEC{2.0f};             // Filters settle before the beat detection starts
+constexpr uint32_t MIN_CONSECUTIVE_BEATS{3};  // Valid beats in a row required for the heart rate
+constexpr float PERFUSION_MIN{0.05f};         // Plausible perfusion index (%)
+constexpr float PERFUSION_MAX{20.0f};         //
+constexpr uint8_t PEAKS_BEFORE_INTERVAL{2};   // The first trough found after a peak starts the first interval
 
 constexpr uint8_t RED{channel_index(Channel::Red)};
 constexpr uint8_t IR{channel_index(Channel::IR)};
+
+// Weight of the new value of an EMA updated every period (s). Not smoothed if the time constant is not positive
+float ema_alpha(const float period_sec, const float time_constant_sec)
+{
+    return (time_constant_sec > 0.0f) ? 1.0f - std::exp(-period_sec / time_constant_sec) : 1.0f;
+}
 
 uint8_t select_hr_channel(const uint8_t channels, const int8_t requested)
 {
@@ -255,8 +257,7 @@ void PulseProcessor::smooth_ratio()
         _ratio = median;
         return;
     }
-    const float alpha = 1.0f - std::exp(-(60.0f / bpm()) / RATIO_TIME_CONSTANT_SEC);
-    _ratio += alpha * (median - _ratio);
+    _ratio += ema_alpha(60.0f / bpm(), _cfg.spo2_time_constant) * (median - _ratio);
 }
 
 void PulseProcessor::smooth_bpm()
@@ -274,9 +275,8 @@ void PulseProcessor::smooth_bpm()
         return;
     }
     const float tc =
-        std::fabs(median - _bpm) > BPM_FAST_DIFFERENCE ? BPM_FAST_TIME_CONSTANT_SEC : BPM_TIME_CONSTANT_SEC;
-    const float alpha = 1.0f - std::exp(-(60.0f / median) / tc);
-    _bpm += alpha * (median - _bpm);
+        std::fabs(median - _bpm) > _cfg.bpm_fast_difference ? _cfg.bpm_fast_time_constant : _cfg.bpm_time_constant;
+    _bpm += ema_alpha(60.0f / median, tc) * (median - _bpm);
 }
 
 bool PulseProcessor::hasBpm() const

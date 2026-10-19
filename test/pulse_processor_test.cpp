@@ -137,6 +137,40 @@ TEST(PulseProcessor, RateStep)
     EXPECT_NEAR(proc.bpm(), 80.0f, 2.0f);
 }
 
+namespace {
+// The heart rate 8 s after a change from 70 to 78 bpm (within the tolerance of the RR history, so not reseeded)
+float bpm_after_change(const PulseProcessor::config_t& pcfg)
+{
+    ppg_synth::Generator gen(make_config(100.0f, 70.0f));
+    PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
+    run(gen, proc, 15.0f);
+    gen.setBpm(78.0f);
+    run(gen, proc, 8.0f);
+    EXPECT_TRUE(proc.hasBpm());
+    return proc.bpm();
+}
+}  // namespace
+
+TEST(PulseProcessor, BpmSmoothing)
+{
+    PulseProcessor::config_t pcfg{};
+    EXPECT_NEAR(bpm_after_change(pcfg), 78.0f, 1.5f);  // Default
+
+    pcfg.bpm_time_constant      = 0.0f;
+    pcfg.bpm_fast_time_constant = 0.0f;
+    EXPECT_NEAR(bpm_after_change(pcfg), 78.0f, 1.0f);  // Not smoothed
+
+    pcfg.bpm_time_constant      = 60.0f;
+    pcfg.bpm_fast_time_constant = 60.0f;
+    EXPECT_LT(bpm_after_change(pcfg), 73.0f);  // Slow in both
+
+    pcfg.bpm_fast_time_constant = 1.0f;
+    EXPECT_GT(bpm_after_change(pcfg), 74.5f);  // Fast until about bpm_fast_difference, then slow
+
+    pcfg.bpm_fast_difference = 100.0f;
+    EXPECT_LT(bpm_after_change(pcfg), 73.0f);  // Never regarded as changing
+}
+
 TEST(PulseProcessor, NoiseNoDoubleCount)
 {
     const float bpms[] = {40.0f, 72.0f, 120.0f};
@@ -201,6 +235,36 @@ TEST(PulseProcessor, SpO2Conversion)
         run(gen, proc, 20.0f);
         EXPECT_FLOAT_EQ(proc.spo2(), 100.0f);  // Clamped
     }
+}
+
+namespace {
+// The ratio of ratios 8 s after a change from 0.6 to 0.7 (within the allowed spread, so SpO2 stays valid)
+float ratio_after_change(const PulseProcessor::config_t& pcfg)
+{
+    ppg_synth::Config cfg = make_config(100.0f, 72.0f);
+    cfg.ratio             = 0.6f;
+    ppg_synth::Generator gen(cfg);
+    PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
+    run(gen, proc, 20.0f);
+    gen.setRatio(0.7f);
+    run(gen, proc, 8.0f);
+    EXPECT_TRUE(proc.hasSpO2());
+    return proc.ratio();
+}
+}  // namespace
+
+TEST(PulseProcessor, SpO2Smoothing)
+{
+    PulseProcessor::config_t pcfg{};
+    const float def = ratio_after_change(pcfg);
+    EXPECT_GT(def, 0.63f);
+    EXPECT_LT(def, 0.69f);  // Default (8 s) is on the way
+
+    pcfg.spo2_time_constant = 0.0f;
+    EXPECT_NEAR(ratio_after_change(pcfg), 0.7f, 0.04f);  // Not smoothed
+
+    pcfg.spo2_time_constant = 120.0f;
+    EXPECT_LT(ratio_after_change(pcfg), 0.63f);  // Slow
 }
 
 TEST(PulseProcessor, SpO2WithoutGreen)

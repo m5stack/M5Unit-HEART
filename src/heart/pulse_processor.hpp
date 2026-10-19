@@ -25,9 +25,10 @@ namespace heart {
   @brief Chip-independent PPG processing (push one sample at a time)
   @details
   - Heart rate: 0.5-4 Hz band-pass and adaptive-threshold peak detection on the heart rate channel, the median of
-    the recent beat intervals smoothed over about 4 seconds (about 1 second while the heart rate is changing)
+    the recent beat intervals smoothed over about 4 seconds (about 1 second while the heart rate is changing, see
+    config_t)
   - SpO2: beat-synchronous ratio of ratios of Red and IR, the median of the recent beats smoothed over about 8
-    seconds (provisional conversion, not calibrated)
+    seconds (see config_t, provisional conversion, not calibrated)
   - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%) of IR (the heart rate channel if IR is
     not available), as commercial pulse oximeters show
   The values do not depend on the unit or the scale of the input.
@@ -45,6 +46,30 @@ public:
         bool spo2{true};
         //! Conversion from the ratio of ratios to SpO2 (nullptr: ratio_to_spo2(), the provisional 110 - 25R)
         SpO2Conversion spo2_conversion{nullptr};
+        /*!
+          Time constant (s) of the heart rate smoothing at rest (0 or less: not smoothed)
+          - Larger: more stable at rest, but follows small changes slower
+          - Smaller: follows faster, but shows more of the beat-to-beat variation (respiration etc.)
+         */
+        float bpm_time_constant{4.0f};
+        /*!
+          Time constant (s) of the heart rate smoothing while the heart rate is changing (0 or less: not smoothed)
+          - Larger: changes of the heart rate are shown slower
+          - Smaller: follows the changes faster, but an irregular beat moves the value more
+         */
+        float bpm_fast_time_constant{1.0f};
+        /*!
+          Difference (bpm) between the heart rate and the median of the recent beats to use bpm_fast_time_constant
+          - Larger: bpm_time_constant is used more often (more stable, slower to follow)
+          - Smaller: bpm_fast_time_constant is used more often (faster to follow, less stable)
+         */
+        float bpm_fast_difference{3.0f};
+        /*!
+          Time constant (s) of the SpO2 smoothing (0 or less: not smoothed)
+          - Larger: more stable, but follows the changes of SpO2 slower
+          - Smaller: follows faster, but the value fluctuates more
+         */
+        float spo2_time_constant{8.0f};
     };
 
     /*!

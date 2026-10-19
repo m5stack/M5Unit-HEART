@@ -49,6 +49,11 @@ public:
     {
         _cfg.bpm = bpm;
     }
+    //! Change the ratio of ratios R
+    void setRatio(const float ratio)
+    {
+        _cfg.ratio = ratio;
+    }
     //! Change the perfusion (peak-to-peak / DC of Green and IR)
     void setPerfusion(const float perfusion)
     {

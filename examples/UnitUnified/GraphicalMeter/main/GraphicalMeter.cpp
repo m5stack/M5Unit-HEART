@@ -86,8 +86,20 @@ float stamp_heart_spo2(const float r)
 
 m5::heart::PulseProcessor::config_t make_pulse_config()
 {
+    // Settings to adjust (the values other than spo2_conversion are the defaults)
     m5::heart::PulseProcessor::config_t cfg{};
+    // SpO2 from the ratio of ratios R (see stamp_heart_spo2 above)
     cfg.spo2_conversion = stamp_heart_spo2;
+    // Heart rate smoothing at rest (s). Larger: more stable, slower to follow / Smaller: faster, fluctuates more
+    cfg.bpm_time_constant = 4.0f;
+    // Heart rate smoothing while it is changing (s). Larger: slower to follow / Smaller: faster, irregular beats
+    // move the value more
+    cfg.bpm_fast_time_constant = 1.0f;
+    // Difference (bpm) from the recent beats regarded as changing. Larger: more stable, slower to follow / Smaller:
+    // faster, less stable
+    cfg.bpm_fast_difference = 3.0f;
+    // SpO2 smoothing (s). Larger: more stable, slower to follow / Smaller: faster, fluctuates more
+    cfg.spo2_time_constant = 8.0f;
     return cfg;
 }
 // Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
