@@ -18,16 +18,18 @@ using m5::heart::Channel;
 using m5::heart::channel_bit;
 using m5::heart::channel_index;
 
-constexpr float BAND_LOW_HZ{0.5f};            // Band-pass lower cutoff
-constexpr float BAND_HIGH_HZ{4.0f};           // Band-pass upper cutoff
-constexpr float DC_TIME_CONSTANT_SEC{1.0f};   // DC estimation (EMA)
-constexpr float SETTLE_SEC{2.0f};             // Filters settle before the beat detection starts
-constexpr uint32_t MIN_CONSECUTIVE_BEATS{3};  // Valid beats in a row required for the heart rate
-constexpr float PERFUSION_MIN{0.05f};         // Plausible perfusion index (%)
-constexpr float PERFUSION_MAX{20.0f};         //
-constexpr uint8_t PEAKS_BEFORE_INTERVAL{2};   // The first trough found after a peak starts the first interval
-constexpr float BPM_TIME_CONSTANT_SEC{4.0f};  // Smoothing of the heart rate (EMA per beat)
-constexpr float RATIO_TIME_CONSTANT_SEC{4.0f};  // Smoothing of the ratio of ratios for SpO2 (EMA per beat)
+constexpr float BAND_LOW_HZ{0.5f};                 // Band-pass lower cutoff
+constexpr float BAND_HIGH_HZ{4.0f};                // Band-pass upper cutoff
+constexpr float DC_TIME_CONSTANT_SEC{1.0f};        // DC estimation (EMA)
+constexpr float SETTLE_SEC{2.0f};                  // Filters settle before the beat detection starts
+constexpr uint32_t MIN_CONSECUTIVE_BEATS{3};       // Valid beats in a row required for the heart rate
+constexpr float PERFUSION_MIN{0.05f};              // Plausible perfusion index (%)
+constexpr float PERFUSION_MAX{20.0f};              //
+constexpr uint8_t PEAKS_BEFORE_INTERVAL{2};        // The first trough found after a peak starts the first interval
+constexpr float BPM_TIME_CONSTANT_SEC{4.0f};       // Smoothing of the heart rate (EMA per beat)
+constexpr float BPM_FAST_TIME_CONSTANT_SEC{1.0f};  // Smoothing while the heart rate is changing
+constexpr float BPM_FAST_DIFFERENCE{3.0f};         // Difference (bpm) from the median to follow fast
+constexpr float RATIO_TIME_CONSTANT_SEC{8.0f};     // Smoothing of the ratio of ratios for SpO2 (EMA per beat)
 
 constexpr uint8_t RED{channel_index(Channel::Red)};
 constexpr uint8_t IR{channel_index(Channel::IR)};
@@ -246,8 +248,8 @@ void PulseProcessor::smooth_ratio()
         _ratio = std::numeric_limits<float>::quiet_NaN();
         return;
     }
-    // Smooth the median of the recent R over a few seconds as the heart rate. The first valid value starts from the
-    // median as it is
+    // Smooth the median of the recent R over several seconds (longer than the heart rate). The first valid value starts
+    // from the median as it is
     const float median = _estimator.ratio();
     if (std::isnan(_ratio)) {
         _ratio = median;
@@ -264,13 +266,16 @@ void PulseProcessor::smooth_bpm()
         return;
     }
     // The median of the recent RR intervals follows the beat-to-beat variation (respiration etc.), so smooth it
-    // over a few seconds. The first valid value starts from the median as it is
+    // over a few seconds, and follow fast while it is apart from the median (the heart rate is changing). The first
+    // valid value starts from the median as it is
     const float median = _detector.bpm();
     if (std::isnan(_bpm)) {
         _bpm = median;
         return;
     }
-    const float alpha = 1.0f - std::exp(-(60.0f / median) / BPM_TIME_CONSTANT_SEC);
+    const float tc =
+        std::fabs(median - _bpm) > BPM_FAST_DIFFERENCE ? BPM_FAST_TIME_CONSTANT_SEC : BPM_TIME_CONSTANT_SEC;
+    const float alpha = 1.0f - std::exp(-(60.0f / median) / tc);
     _bpm += alpha * (median - _bpm);
 }
 

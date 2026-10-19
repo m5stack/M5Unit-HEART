@@ -25,8 +25,8 @@ namespace heart {
   @brief Chip-independent PPG processing (push one sample at a time)
   @details
   - Heart rate: 0.5-4 Hz band-pass and adaptive-threshold peak detection on the heart rate channel, the median of
-    the recent beat intervals smoothed over about 4 seconds
-  - SpO2: beat-synchronous ratio of ratios of Red and IR, the median of the recent beats smoothed over about 4
+    the recent beat intervals smoothed over about 4 seconds (about 1 second while the heart rate is changing)
+  - SpO2: beat-synchronous ratio of ratios of Red and IR, the median of the recent beats smoothed over about 8
     seconds (provisional conversion, not calibrated)
   - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%) of IR (the heart rate channel if IR is
     not available), as commercial pulse oximeters show
