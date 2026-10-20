@@ -32,7 +32,7 @@ float ratio_to_spo2(const float r);
 using SpO2Conversion = float (*)(const float r);
 
 //! @brief Default of the allowed spread (max - min) of the recent ratios of ratios
-constexpr float SPO2_RATIO_SPREAD_DEFAULT{0.15f};
+constexpr float SPO2_RATIO_SPREAD_DEFAULT{0.25f};
 
 /*!
   @class SpO2Estimator

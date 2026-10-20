@@ -258,7 +258,7 @@ TEST(PulseProcessor, SpO2Smoothing)
     PulseProcessor::config_t pcfg{};
     const float def = ratio_after_change(pcfg);
     EXPECT_GT(def, 0.63f);
-    EXPECT_LT(def, 0.69f);  // Default (8 s) is on the way
+    EXPECT_LT(def, 0.69f);  // Default (4 s) is on the way
 
     pcfg.spo2_time_constant = 0.0f;
     EXPECT_NEAR(ratio_after_change(pcfg), 0.7f, 0.04f);  // Not smoothed
@@ -292,10 +292,10 @@ TEST(PulseProcessor, SpO2RatioSpread)
 {
     PulseProcessor::config_t pcfg{};
     EXPECT_FLOAT_EQ(pcfg.spo2_ratio_spread, SPO2_RATIO_SPREAD_DEFAULT);
-    EXPECT_GT(invalid_spo2_after_change(pcfg), 0U);  // Default (0.15): invalid for a while
+    EXPECT_EQ(invalid_spo2_after_change(pcfg), 0U);  // Default (0.25): stays valid
 
-    pcfg.spo2_ratio_spread = 0.25f;
-    EXPECT_EQ(invalid_spo2_after_change(pcfg), 0U);  // Stays valid
+    pcfg.spo2_ratio_spread = 0.15f;
+    EXPECT_GT(invalid_spo2_after_change(pcfg), 0U);  // Invalid for a while
 
     pcfg.spo2_ratio_spread = 0.0f;
     PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
