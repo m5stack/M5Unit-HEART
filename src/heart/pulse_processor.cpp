@@ -119,7 +119,8 @@ PulseProcessor::PulseProcessor(const float sampling_rate_hz, const uint8_t chann
         for (auto& bp : _bandpass) {
             bp = BandPass(BAND_LOW_HZ, BAND_HIGH_HZ, _rate);
         }
-        _detector = BeatDetector(_rate);
+        _detector  = BeatDetector(_rate);
+        _estimator = SpO2Estimator(_cfg.spo2_ratio_spread);
     }
     reset();
 }

@@ -267,6 +267,45 @@ TEST(PulseProcessor, SpO2Smoothing)
     EXPECT_LT(ratio_after_change(pcfg), 0.63f);  // Slow
 }
 
+namespace {
+// Samples without SpO2 while R changes from 0.6 to 0.8 (the recent beats spread by 0.2 for a few beats)
+uint32_t invalid_spo2_after_change(const PulseProcessor::config_t& pcfg)
+{
+    ppg_synth::Config cfg = make_config(100.0f, 72.0f);
+    cfg.ratio             = 0.6f;
+    ppg_synth::Generator gen(cfg);
+    PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
+    run(gen, proc, 20.0f);
+    EXPECT_TRUE(proc.hasSpO2());
+    gen.setRatio(0.8f);
+    uint32_t invalid{};
+    for (uint32_t i = 0; i < 1000; ++i) {  // 10 s
+        proc.push(gen.next());
+        invalid += proc.hasSpO2() ? 0 : 1;
+    }
+    EXPECT_TRUE(proc.hasSpO2());
+    return invalid;
+}
+}  // namespace
+
+TEST(PulseProcessor, SpO2RatioSpread)
+{
+    PulseProcessor::config_t pcfg{};
+    EXPECT_FLOAT_EQ(pcfg.spo2_ratio_spread, SPO2_RATIO_SPREAD_DEFAULT);
+    EXPECT_GT(invalid_spo2_after_change(pcfg), 0U);  // Default (0.15): invalid for a while
+
+    pcfg.spo2_ratio_spread = 0.25f;
+    EXPECT_EQ(invalid_spo2_after_change(pcfg), 0U);  // Stays valid
+
+    pcfg.spo2_ratio_spread = 0.0f;
+    PulseProcessor proc(100.0f, ALL_CHANNELS, pcfg);
+    ppg_synth::Config cfg = make_config(100.0f, 72.0f);
+    ppg_synth::Generator gen(cfg);
+    run(gen, proc, 20.0f);
+    EXPECT_TRUE(proc.hasBpm());
+    EXPECT_FALSE(proc.hasSpO2());  // No spread allowed: never valid with the measured R
+}
+
 TEST(PulseProcessor, SpO2WithoutGreen)
 {
     ppg_synth::Config cfg = make_config(100.0f, 72.0f);

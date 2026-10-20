@@ -70,6 +70,13 @@ public:
           - Smaller: follows faster, but the value fluctuates more
          */
         float spo2_time_constant{8.0f};
+        /*!
+          Allowed spread (max - min) of the ratio of ratios of the recent beats for a valid SpO2 (0.15: about 4 % of
+          SpO2 by the provisional conversion)
+          - Larger: SpO2 is shown more often with an unsteady signal, but includes less reliable values
+          - Smaller: only steady beats give SpO2, but it becomes invalid more often (motion, weak signal)
+         */
+        float spo2_ratio_spread{SPO2_RATIO_SPREAD_DEFAULT};
     };
 
     /*!

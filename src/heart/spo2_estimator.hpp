@@ -31,12 +31,24 @@ float ratio_to_spo2(const float r);
  */
 using SpO2Conversion = float (*)(const float r);
 
+//! @brief Default of the allowed spread (max - min) of the recent ratios of ratios
+constexpr float SPO2_RATIO_SPREAD_DEFAULT{0.15f};
+
 /*!
   @class SpO2Estimator
   @brief Keeps the ratio of ratios (R) of recent beats and converts the median to SpO2
  */
 class SpO2Estimator {
 public:
+    SpO2Estimator() = default;
+    /*!
+      @brief Constructor
+      @param ratio_spread_max Allowed spread (max - min) of the recent R for a valid value
+     */
+    explicit SpO2Estimator(const float ratio_spread_max) : _ratio_spread_max{ratio_spread_max}
+    {
+    }
+
     //! @brief Remove all beats
     inline void clear()
     {
@@ -67,6 +79,11 @@ public:
     {
         return _ratios.spread();
     }
+    //! @brief Allowed spread (max - min) of the recent R for a valid value
+    inline float ratioSpreadMax() const
+    {
+        return _ratio_spread_max;
+    }
     //! @brief Are the recent R consistent enough?
     bool isValid() const;
     //! @brief SpO2 (%), NaN if not valid
@@ -74,6 +91,7 @@ public:
 
 private:
     RecentValues<5> _ratios{};
+    float _ratio_spread_max{SPO2_RATIO_SPREAD_DEFAULT};
 };
 
 }  // namespace heart

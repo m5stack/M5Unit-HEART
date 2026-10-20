@@ -87,3 +87,23 @@ TEST(SpO2Estimator, Validity)
     EXPECT_EQ(est.count(), 0U);
     EXPECT_FALSE(est.isValid());
 }
+
+TEST(SpO2Estimator, RatioSpread)
+{
+    // Spread 0.2: invalid by default (0.15), valid if 0.25 is allowed
+    SpO2Estimator def{}, wide{0.25f};
+    EXPECT_FLOAT_EQ(def.ratioSpreadMax(), SPO2_RATIO_SPREAD_DEFAULT);
+    EXPECT_FLOAT_EQ(wide.ratioSpreadMax(), 0.25f);
+    for (const float r : {0.5f, 0.6f, 0.7f}) {
+        EXPECT_TRUE(def.addBeat(r, 1.0f, 1.0f, 1.0f));
+        EXPECT_TRUE(wide.addBeat(r, 1.0f, 1.0f, 1.0f));
+    }
+    EXPECT_NEAR(def.ratioSpread(), 0.2f, 1e-5f);
+    EXPECT_FALSE(def.isValid());
+    EXPECT_TRUE(wide.isValid());
+    EXPECT_NEAR(wide.spo2(), ratio_to_spo2(0.6f), 0.01f);
+
+    // Kept after clear()
+    wide.clear();
+    EXPECT_FLOAT_EQ(wide.ratioSpreadMax(), 0.25f);
+}

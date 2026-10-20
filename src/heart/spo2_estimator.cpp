@@ -14,12 +14,11 @@
 #include <limits>
 
 namespace {
-constexpr size_t MIN_BEATS{3};            // Beats required for a valid value
-constexpr float RATIO_MIN{0.3f};          // Plausible range of R
-constexpr float RATIO_MAX{1.2f};          //
-constexpr float RATIO_SPREAD_MAX{0.15f};  // Allowed max - min of the recent R
-constexpr float SPO2_OFFSET{110.0f};      // Provisional: SpO2 = 110 - 25R
-constexpr float SPO2_SLOPE{25.0f};        //
+constexpr size_t MIN_BEATS{3};        // Beats required for a valid value
+constexpr float RATIO_MIN{0.3f};      // Plausible range of R
+constexpr float RATIO_MAX{1.2f};      //
+constexpr float SPO2_OFFSET{110.0f};  // Provisional: SpO2 = 110 - 25R
+constexpr float SPO2_SLOPE{25.0f};    //
 
 bool positive_finite(const float v)
 {
@@ -57,7 +56,7 @@ bool SpO2Estimator::isValid() const
         return false;
     }
     const float r = ratio();
-    return r >= RATIO_MIN && r <= RATIO_MAX && ratioSpread() <= RATIO_SPREAD_MAX;
+    return r >= RATIO_MIN && r <= RATIO_MAX && ratioSpread() <= _ratio_spread_max;
 }
 
 float SpO2Estimator::spo2() const
