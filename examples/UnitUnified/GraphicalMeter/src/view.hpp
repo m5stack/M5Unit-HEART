@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdio>
 #include <limits>
+#include <m5_utility/compatibility_feature.hpp>
 #include "meter.hpp"
 
 struct View {
@@ -85,9 +86,15 @@ struct View {
     // Update the values after processing (NaN if not valid)
     void update(const float bpm, const float spo2, const float pi, const bool beat)
     {
-        _bpm  = bpm;
-        _spo2 = spo2;
-        _pi   = pi;
+        _bpm = bpm;
+        _pi  = pi;
+        // The last valid SpO2 is kept for spo2_hold_ms while the heart rate is valid (it drops out for a few beats)
+        if (!std::isnan(spo2)) {
+            _spo2    = spo2;
+            _spo2_at = m5::utility::millis();
+        } else if (std::isnan(bpm) || m5::utility::hasElapsed(_spo2_at, spo2_hold_ms)) {
+            _spo2 = std::numeric_limits<float>::quiet_NaN();
+        }
         if (beat) {
             _beat = beat_frames;
         } else if (_beat) {
@@ -152,7 +159,8 @@ struct View {
         palette_gauge  = 3,
         palette_second = 4,  // Plot sprite only
     };
-    static constexpr uint32_t beat_frames{4};  // Number of updates the beat mark stays lit
+    static constexpr uint32_t beat_frames{4};                         // Number of updates the beat mark stays lit
+    static constexpr m5::utility::elapsed_time_t spo2_hold_ms{6000};  // Time the last valid SpO2 is kept
     LGFX_Sprite _plot_sprite{};
     LGFX_Sprite _text_sprite{};
     LGFX_Sprite _beat_sprite{};
@@ -160,6 +168,7 @@ struct View {
     const char* _title{};
     float _bpm{std::numeric_limits<float>::quiet_NaN()};
     float _spo2{std::numeric_limits<float>::quiet_NaN()};
+    m5::utility::elapsed_time_t _spo2_at{};  // Time of the last valid SpO2
     float _pi{std::numeric_limits<float>::quiet_NaN()};
     uint32_t _left{}, _top{}, _beat{};
     uint32_t _screen_w{}, _screen_h{}, _plot_top{}, _plot_hgt{};

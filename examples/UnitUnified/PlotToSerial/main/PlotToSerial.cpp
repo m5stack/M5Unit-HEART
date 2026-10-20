@@ -82,13 +82,16 @@ float stamp_heart_spo2(const float r)
 {
     return 112.0f - 25.0f * r;
 }
+#endif
 
 m5::heart::PulseProcessor::config_t make_pulse_config()
 {
-    // Settings to adjust (tuned for StampHeart, see config_t for the defaults)
+    // Settings to adjust (the values other than spo2_conversion are the defaults)
     m5::heart::PulseProcessor::config_t cfg{};
+#if defined(USING_STAMP_HEART)
     // SpO2 from the ratio of ratios R (see stamp_heart_spo2 above)
     cfg.spo2_conversion = stamp_heart_spo2;
+#endif
     // Heart rate smoothing at rest (s). Larger: more stable, slower to follow / Smaller: faster, fluctuates more
     cfg.bpm_time_constant = 5.0f;
     // Heart rate smoothing while it is changing (s). Larger: slower to follow / Smaller: faster, irregular beats
@@ -106,10 +109,6 @@ m5::heart::PulseProcessor::config_t make_pulse_config()
 }
 // Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
 m5::heart::PulseController pulse{make_pulse_config()};
-#else
-// Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
-m5::heart::PulseController pulse;
-#endif
 
 #if defined(USING_HAT_HEART)
 constexpr bool using_multi_led_mode{false};  // Using multiLED mode if true

@@ -83,13 +83,16 @@ float stamp_heart_spo2(const float r)
 {
     return 112.0f - 25.0f * r;
 }
+#endif
 
 m5::heart::PulseProcessor::config_t make_pulse_config()
 {
-    // Settings to adjust (tuned for StampHeart, see config_t for the defaults)
+    // Settings to adjust (the values other than spo2_conversion are the defaults)
     m5::heart::PulseProcessor::config_t cfg{};
+#if defined(USING_STAMP_HEART)
     // SpO2 from the ratio of ratios R (see stamp_heart_spo2 above)
     cfg.spo2_conversion = stamp_heart_spo2;
+#endif
     // Heart rate smoothing at rest (s). Larger: more stable, slower to follow / Smaller: faster, fluctuates more
     cfg.bpm_time_constant = 5.0f;
     // Heart rate smoothing while it is changing (s). Larger: slower to follow / Smaller: faster, irregular beats
@@ -107,10 +110,6 @@ m5::heart::PulseProcessor::config_t make_pulse_config()
 }
 // Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
 m5::heart::PulseController pulse{make_pulse_config()};
-#else
-// Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
-m5::heart::PulseController pulse;
-#endif
 // Filter for the plotted waveform: 0.3 Hz high-pass removes the DC level, 10 Hz low-pass removes the sensor noise
 // while keeping the pulse shape (the processing uses its own 0.5-4 Hz band-pass)
 m5::heart::BandPass plot_filter{};
@@ -155,28 +154,6 @@ PlotPoint plot_dequeue()
 }
 
 View* view{};
-
-// The last valid SpO2 is kept on the screen for this time after SpO2 becomes invalid, while the heart rate is valid
-// (0: not kept)
-#if defined(USING_STAMP_HEART)
-constexpr m5::utility::elapsed_time_t spo2_hold_ms{6000};
-#else
-constexpr m5::utility::elapsed_time_t spo2_hold_ms{0};
-#endif
-float spo2_shown{std::numeric_limits<float>::quiet_NaN()};
-m5::utility::elapsed_time_t spo2_latest{};
-
-// SpO2 to show (NaN: not shown)
-float spo2_to_show()
-{
-    if (pulse.hasSpO2()) {
-        spo2_shown  = pulse.spo2();
-        spo2_latest = m5::utility::millis();
-    } else if (!pulse.hasBpm() || m5::utility::hasElapsed(spo2_latest, spo2_hold_ms)) {
-        spo2_shown = std::numeric_limits<float>::quiet_NaN();
-    }
-    return spo2_shown;
-}
 
 // Sampling rate switched by a long press of BtnA (other settings are kept as far as possible)
 constexpr uint32_t rate_table[] = {50, 100, 200};
@@ -228,7 +205,6 @@ void restart_view()
     plot_acc         = 0.0f;
     plot_queue_head = plot_queue_count = 0;
     pulse.add(heart);
-    spo2_shown = std::numeric_limits<float>::quiet_NaN();
     snprintf(title, sizeof(title), "%s %luHz", unit_name, static_cast<unsigned long>(rate + 0.5f));
     view->clear();
     M5.Log.printf("Sampling rate: %.1f Hz\n", rate);
@@ -356,7 +332,7 @@ void loop()
             heart.discard();
         }
         // PI is shown only while the heart rate is valid
-        view->update(pulse.bpm(), spo2_to_show(),
+        view->update(pulse.bpm(), pulse.spo2(),
                      pulse.hasBpm() ? pulse.perfusionIndex() : std::numeric_limits<float>::quiet_NaN(), pulse.isBeat());
 #if defined(USING_SERIAL_LOG)
         // Invalid values (NaN) are not printed
