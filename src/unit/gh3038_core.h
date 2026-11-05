@@ -83,6 +83,8 @@ int32_t m5_gh3038_raw_full_scale(void);
 
 //! @brief Initialize the state (no bus access)
 int m5_gh3038_init(m5_gh3038_state_t* s, const m5_gh3038_io_t* io);
+//! @brief Replace io.user of an initialized state (e.g. after the owner object is moved)
+int m5_gh3038_set_io_user(m5_gh3038_state_t* s, void* user);
 //! @brief Reset the chip (hard if hard and set_rst exists, otherwise soft) and write the common settings
 //! @note If set_rst fails, RST may be left low
 int m5_gh3038_reset(m5_gh3038_state_t* s, bool hard);
