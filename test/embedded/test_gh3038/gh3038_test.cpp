@@ -410,6 +410,61 @@ TEST_F(TestGH3038Interrupt, Periodic)
     EXPECT_LE(events, 13U);
 }
 
+namespace {
+// Interrupt events and samples in a second
+void count_events(UnitGH3038* u, uint32_t& events, uint32_t& count)
+{
+    events = count                             = 0;
+    const m5::utility::elapsed_time_t start_at = m5::utility::millis();
+    while (!m5::utility::hasElapsed(start_at, 1000)) {
+        u->update();
+        if (u->updated()) {
+            ++events;
+            count += u->retrieved();
+        }
+        std::this_thread::yield();
+    }
+}
+}  // namespace
+
+TEST_F(TestGH3038Interrupt, Move)
+{
+    SCOPED_TRACE(ustr);
+
+    EXPECT_GE(int_pin(), 0);  // This test requires Port C (Core / Core2 / CoreS3 / CoreS3SE)
+    EXPECT_TRUE(unit->isInterruptEnabled());
+    EXPECT_TRUE(wait_updated(unit.get(), 1000));
+
+    uint32_t events{}, count{};
+    // Move construction: the interrupt and the I2C access go with the new object
+    std::unique_ptr<UnitGH3038> first{new UnitGH3038(std::move(*unit))};
+    EXPECT_FALSE(unit->isInterruptEnabled());
+    EXPECT_TRUE(first->isInterruptEnabled());
+    EXPECT_TRUE(first->inPeriodic());
+    // Move again and destroy the source: its destructor must not remove the interrupt of the new object
+    std::unique_ptr<UnitGH3038> second{new UnitGH3038(std::move(*first))};
+    first.reset();
+    EXPECT_TRUE(second->isInterruptEnabled());
+    count_events(second.get(), events, count);
+    EXPECT_GE(count, 80U);  // Rate100
+    EXPECT_LE(count, 120U);
+    EXPECT_GE(events, 7U);  // About one event per waterline (interrupt, not polling)
+    EXPECT_LE(events, 13U);
+    EXPECT_TRUE(second->stopPeriodicMeasurement());
+    EXPECT_TRUE(second->startPeriodicMeasurement(Mode::All, SamplingRate::Rate100));  // I2C through the new object
+
+    // Move assignment back to the original (for the teardown)
+    *unit = std::move(*second);
+    second.reset();
+    EXPECT_TRUE(unit->isInterruptEnabled());
+    EXPECT_TRUE(wait_updated(unit.get(), 1000));
+    count_events(unit.get(), events, count);
+    EXPECT_GE(count, 80U);
+    EXPECT_LE(count, 120U);
+    EXPECT_GE(events, 7U);
+    EXPECT_LE(events, 13U);
+}
+
 TEST_F(TestGH3038, PPGSpec)
 {
     SCOPED_TRACE(ustr);

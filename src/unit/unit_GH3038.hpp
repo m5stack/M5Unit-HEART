@@ -142,7 +142,7 @@ public:
     //! @brief Is the INT interrupt in use?
     inline bool isInterruptEnabled() const
     {
-        return _int_enabled;
+        return _int != nullptr;
     }
 
     ///@name Periodic measurement
@@ -267,6 +267,7 @@ protected:
     void remove_interrupt();
     bool interrupt_asserted() const;
     static void isr_handler(void* arg);
+    m5_gh3038_state_t* core();
 
     // Callbacks for the core
     static bool io_write(void* user, const uint16_t reg, const uint8_t* data, const uint32_t len);
@@ -285,14 +286,21 @@ protected:
     std::unique_ptr<m5::container::CircularBuffer<gh3038::Data>> _data{};
     config_t _cfg{};
     m5_gh3038_state_t _core{};
+    const UnitGH3038* _io_owner{};  // io.user of _core (differs from this after a move)
     gh3038::Mode _mode{gh3038::Mode::All};
     gh3038::SamplingRate _rate{gh3038::SamplingRate::Rate100};
     uint16_t _retrieved{};
     bool _overflowed{};
-    bool _int_enabled{};
-    int _int_idle_level{};
-    int8_t _int_pin{-1};
-    volatile bool _irq_pending{};
+    // INT interrupt: the ISR sets pending. Moved with the unit, and the ISR is removed when it is released
+    struct interrupt_t {
+        int8_t pin{-1};
+        int idle_level{};
+        volatile bool pending{};
+    };
+    struct interrupt_release_t {
+        void operator()(interrupt_t* p) const;
+    };
+    std::unique_ptr<interrupt_t, interrupt_release_t> _int{};
     uint8_t _led_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes applied now
     uint8_t _ref_code[gh3038::NUMBER_OF_COLORS]{};  // LED current codes at begin (readPPG() converts to these)
     bool _auto_adjust{};

@@ -10,6 +10,7 @@
 #include "unit_GH3038.hpp"
 
 #include <algorithm>
+#include <new>
 
 #include <M5Utility.hpp>
 #include <driver/gpio.h>
@@ -131,13 +132,14 @@ bool UnitGH3038::begin()
     io.max_read = (read_buffer_length / 4U) * 4U;  // Read the FIFO in whole words
     _periodic   = false;                           // The core state (running) is initialized here
     int r       = m5_gh3038_init(&_core, &io);
+    _io_owner   = (r == M5_GH3038_OK) ? this : nullptr;
 
     const Gain gains[NUMBER_OF_COLORS]       = {_cfg.green_gain, _cfg.red_gain, _cfg.ir_gain};
     const uint8_t currents[NUMBER_OF_COLORS] = {_cfg.green_current, _cfg.red_current, _cfg.ir_current};
     for (uint8_t c = 0; r == M5_GH3038_OK && c < NUMBER_OF_COLORS; ++c) {
-        r = m5_gh3038_set_gain(&_core, c, m5::stl::to_underlying(gains[c]));
+        r = m5_gh3038_set_gain(core(), c, m5::stl::to_underlying(gains[c]));
         if (r == M5_GH3038_OK) {
-            r = m5_gh3038_set_led_current(&_core, c, currents[c]);
+            r = m5_gh3038_set_led_current(core(), c, currents[c]);
         }
     }
     if (r != M5_GH3038_OK) {
@@ -150,7 +152,7 @@ bool UnitGH3038::begin()
     }
     _auto_adjust = _cfg.auto_adjust;
 
-    r = m5_gh3038_reset(&_core, _cfg.rst_pin >= 0);
+    r = m5_gh3038_reset(core(), _cfg.rst_pin >= 0);
     if (r != M5_GH3038_OK) {
         M5_LIB_LOGE("GH3038 is not ready (%d). Check the I2C and RST wiring", r);
         return false;
@@ -170,11 +172,13 @@ void UnitGH3038::update(const bool force)
     if (!force && _latest && !m5::utility::hasElapsed(_latest, _interval)) {
         return;
     }
-    if (!force && _int_enabled && !interrupt_asserted()) {
+    if (!force && _int && !interrupt_asserted()) {
         return;
     }
-    _irq_pending = false;  // Clear before reading the chip
-    _updated     = read_fifo();
+    if (_int) {
+        _int->pending = false;  // Clear before reading the chip
+    }
+    _updated = read_fifo();
     if (_updated && _auto_adjust) {
         auto_adjust();
     }
@@ -197,7 +201,7 @@ bool UnitGH3038::start_periodic_measurement(const Mode mode, const SamplingRate 
         M5_LIB_LOGE("Invalid mode or rate");
         return false;
     }
-    const int r = m5_gh3038_start(&_core, m5::stl::to_underlying(mode), m5::stl::to_underlying(rate));
+    const int r = m5_gh3038_start(core(), m5::stl::to_underlying(mode), m5::stl::to_underlying(rate));
     if (r != M5_GH3038_OK) {
         M5_LIB_LOGE("Failed to start (%d)", r);
         return false;
@@ -207,9 +211,11 @@ bool UnitGH3038::start_periodic_measurement(const Mode mode, const SamplingRate 
     _data->clear();
     _ppg_pushed   = 0;
     _ppg_consumed = 0;
-    _irq_pending  = false;
-    _latest       = 0;
-    _interval     = interval_ms(rate);
+    if (_int) {
+        _int->pending = false;
+    }
+    _latest   = 0;
+    _interval = interval_ms(rate);
     reset_adjust_window();
     _periodic = true;
     return true;
@@ -217,7 +223,7 @@ bool UnitGH3038::start_periodic_measurement(const Mode mode, const SamplingRate 
 
 bool UnitGH3038::stop_periodic_measurement()
 {
-    const int r = m5_gh3038_stop(&_core);
+    const int r = m5_gh3038_stop(core());
     if (r != M5_GH3038_OK) {
         M5_LIB_LOGE("Failed to stop (%d)", r);
         return false;
@@ -242,7 +248,7 @@ bool UnitGH3038::writeGain(const Color color, const Gain gain)
         M5_LIB_LOGW("Auto adjustment is enabled. Call setAutoAdjust(false) first");
         return false;
     }
-    const int r = m5_gh3038_set_gain(&_core, color_index(color), m5::stl::to_underlying(gain));
+    const int r = m5_gh3038_set_gain(core(), color_index(color), m5::stl::to_underlying(gain));
     if (r == M5_GH3038_ERR_ARG) {
         M5_LIB_LOGE("Invalid color or gain");
     }
@@ -264,7 +270,7 @@ bool UnitGH3038::writeLEDCurrent(const Color color, const uint8_t code)
         M5_LIB_LOGW("Auto adjustment is enabled. Call setAutoAdjust(false) first");
         return false;
     }
-    const int r = m5_gh3038_set_led_current(&_core, color_index(color), code);
+    const int r = m5_gh3038_set_led_current(core(), color_index(color), code);
     if (r == M5_GH3038_ERR_ARG) {
         M5_LIB_LOGE("Invalid color");
     }
@@ -336,10 +342,10 @@ void UnitGH3038::auto_adjust()
             continue;
         }
         // Called right after the FIFO is read out, so the new settings apply to the following samples only
-        if (out.gain != in.gain && m5_gh3038_set_gain(&_core, c, out.gain) == M5_GH3038_OK) {
+        if (out.gain != in.gain && m5_gh3038_set_gain(core(), c, out.gain) == M5_GH3038_OK) {
             _gain_level[c] = out.gain;
         }
-        if (out.code != in.code && m5_gh3038_set_led_current(&_core, c, out.code) == M5_GH3038_OK) {
+        if (out.code != in.code && m5_gh3038_set_led_current(core(), c, out.code) == M5_GH3038_OK) {
             _led_code[c] = out.code;
         }
         w.skip = settle_samples(_rate);
@@ -350,7 +356,7 @@ void UnitGH3038::auto_adjust()
 bool UnitGH3038::softReset()
 {
     _periodic   = false;
-    const int r = m5_gh3038_reset(&_core, false);
+    const int r = m5_gh3038_reset(core(), false);
     if (r != M5_GH3038_OK) {
         M5_LIB_LOGE("Failed to reset (%d)", r);
         return false;
@@ -363,7 +369,7 @@ bool UnitGH3038::read_fifo()
 {
     uint16_t count{};
     bool overflowed{};
-    const int r = m5_gh3038_read(&_core, &UnitGH3038::on_sample, this, &count, &overflowed);
+    const int r = m5_gh3038_read(core(), &UnitGH3038::on_sample, this, &count, &overflowed);
     _retrieved  = count;
     _overflowed = overflowed;
     if (overflowed) {
@@ -378,7 +384,7 @@ bool UnitGH3038::read_fifo()
 
 bool UnitGH3038::read_fifo_level(uint16_t& words)
 {
-    return m5_gh3038_fifo_level(&_core, &words) == M5_GH3038_OK;
+    return m5_gh3038_fifo_level(core(), &words) == M5_GH3038_OK;
 }
 
 m5::heart::PPGSpec UnitGH3038::ppgSpec() const
@@ -447,53 +453,63 @@ bool UnitGH3038::setup_interrupt()
         M5_LIB_LOGE("gpio_config failed for pin %d", _cfg.int_pin);
         return false;
     }
-    // The idle level is detected at setup (the interrupt status was cleared by the reset),
-    // and the edge toward the active level is used
-    _int_idle_level = gpio_get_level(pin);
-    if (gpio_set_intr_type(pin, _int_idle_level ? GPIO_INTR_NEGEDGE : GPIO_INTR_POSEDGE) != ESP_OK) {
-        M5_LIB_LOGE("gpio_set_intr_type failed for pin %d", _cfg.int_pin);
-        return false;
-    }
     // ESP_ERR_INVALID_STATE means the ISR service is already installed, which is fine
     const esp_err_t svc = gpio_install_isr_service(0);
     if (svc != ESP_OK && svc != ESP_ERR_INVALID_STATE) {
-        gpio_set_intr_type(pin, GPIO_INTR_DISABLE);
         M5_LIB_LOGE("gpio_install_isr_service failed: %d", svc);
         return false;
     }
-    if (gpio_isr_handler_add(pin, &UnitGH3038::isr_handler, this) != ESP_OK) {
-        gpio_set_intr_type(pin, GPIO_INTR_DISABLE);
-        M5_LIB_LOGE("gpio_isr_handler_add failed for pin %d", _cfg.int_pin);
+    auto p = new (std::nothrow) interrupt_t{};
+    if (!p) {
+        M5_LIB_LOGE("Failed to allocate");
         return false;
     }
-    _int_pin     = _cfg.int_pin;
-    _irq_pending = false;
-    _int_enabled = true;
+    // The idle level is detected at setup (the interrupt status was cleared by the reset),
+    // and the edge toward the active level is used
+    p->pin        = _cfg.int_pin;
+    p->idle_level = gpio_get_level(pin);
+    if (gpio_set_intr_type(pin, p->idle_level ? GPIO_INTR_NEGEDGE : GPIO_INTR_POSEDGE) != ESP_OK ||
+        gpio_isr_handler_add(pin, &UnitGH3038::isr_handler, p) != ESP_OK) {
+        gpio_set_intr_type(pin, GPIO_INTR_DISABLE);
+        delete p;
+        M5_LIB_LOGE("Failed to setup the interrupt for pin %d", _cfg.int_pin);
+        return false;
+    }
+    _int.reset(p);
     return true;
 }
 
 void UnitGH3038::remove_interrupt()
 {
-    if (!_int_enabled) {
-        return;
-    }
-    const auto pin = static_cast<gpio_num_t>(_int_pin);
-    gpio_isr_handler_remove(pin);
+    _int.reset();
+}
+
+void UnitGH3038::interrupt_release_t::operator()(interrupt_t* p) const
+{
+    const auto pin = static_cast<gpio_num_t>(p->pin);
+    gpio_isr_handler_remove(pin);  // Before the memory the ISR writes is freed
     gpio_set_intr_type(pin, GPIO_INTR_DISABLE);
-    _int_pin     = -1;
-    _int_enabled = false;
-    _irq_pending = false;
+    delete p;
 }
 
 bool UnitGH3038::interrupt_asserted() const
 {
     // Also check the level in case an edge was missed
-    return _irq_pending || gpio_get_level(static_cast<gpio_num_t>(_int_pin)) != _int_idle_level;
+    return _int->pending || gpio_get_level(static_cast<gpio_num_t>(_int->pin)) != _int->idle_level;
 }
 
 void IRAM_ATTR UnitGH3038::isr_handler(void* arg)
 {
-    static_cast<UnitGH3038*>(arg)->_irq_pending = true;
+    static_cast<interrupt_t*>(arg)->pending = true;
+}
+
+// The core calls back through io.user: point it to this object again after the unit is moved
+m5_gh3038_state_t* UnitGH3038::core()
+{
+    if (_io_owner != this && m5_gh3038_set_io_user(&_core, this) == M5_GH3038_OK) {
+        _io_owner = this;
+    }
+    return &_core;
 }
 
 bool UnitGH3038::io_write(void* user, const uint16_t reg, const uint8_t* data, const uint32_t len)
