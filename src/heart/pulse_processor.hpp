@@ -31,6 +31,7 @@ namespace heart {
     seconds (see config_t, provisional conversion, not calibrated)
   - Perfusion index: pulsatile peak-to-peak of the latest beat / DC x 100 (%) of IR (the heart rate channel if IR is
     not available), as commercial pulse oximeters show
+
   The values do not depend on the unit or the scale of the input.
  */
 class PulseProcessor {
