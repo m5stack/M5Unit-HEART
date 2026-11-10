@@ -41,11 +41,6 @@ float median3(const float* v)
 namespace m5 {
 namespace heart {
 
-constexpr uint8_t BeatDetector::TROUGH_CANDIDATE;
-constexpr uint8_t BeatDetector::PEAK;
-constexpr uint8_t BeatDetector::BEAT;
-constexpr uint8_t BeatDetector::EXPIRED;
-
 BeatDetector::BeatDetector(const float sampling_rate_hz)
 {
     if (sampling_rate_hz > 0.0f) {
