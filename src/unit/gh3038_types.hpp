@@ -39,11 +39,11 @@ enum class Mode : uint8_t {
  */
 enum class Gain : uint8_t {
     Level0,  //!< Lowest
-    Level1,
-    Level2,
-    Level3,
-    Level4,
-    Level5,
+    Level1,  //!< Level 1
+    Level2,  //!< Level 2
+    Level3,  //!< Level 3
+    Level4,  //!< Level 4
+    Level5,  //!< Level 5
     Level6,  //!< Highest
 };
 
@@ -117,38 +117,47 @@ struct Data {
 
     ///@name Accessors
     ///@{
+    //! @brief Raw value of Green (0 if not measured)
     inline int32_t green() const
     {
         return value(Color::Green);
     }
+    //! @brief Raw value of Red (0 if not measured)
     inline int32_t red() const
     {
         return value(Color::Red);
     }
+    //! @brief Raw value of IR (0 if not measured)
     inline int32_t ir() const
     {
         return value(Color::IR);
     }
+    //! @brief Has the value of Green?
     inline bool hasGreen() const
     {
         return has(Color::Green);
     }
+    //! @brief Has the value of Red?
     inline bool hasRed() const
     {
         return has(Color::Red);
     }
+    //! @brief Has the value of IR?
     inline bool hasIR() const
     {
         return has(Color::IR);
     }
+    //! @brief Photodiode current of Green (pA), NaN if not measured
     inline float greenCurrent() const
     {
         return current(Color::Green);
     }
+    //! @brief Photodiode current of Red (pA), NaN if not measured
     inline float redCurrent() const
     {
         return current(Color::Red);
     }
+    //! @brief Photodiode current of IR (pA), NaN if not measured
     inline float irCurrent() const
     {
         return current(Color::IR);
