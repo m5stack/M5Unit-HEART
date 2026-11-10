@@ -5,7 +5,7 @@
  */
 /*
   UnitTest for UnitGH3038 (StampHeart)
-  Wiring: GROVE (I2C) -> Port A, GROVE (INT/RST) -> Port C (pin1 = RST, pin2 = INT)
+  Wiring: GROVE (I2C) -> Port A (NessoN1: QWIIC), GROVE (INT/RST) -> Port C or Port B (pin1 = RST, pin2 = INT)
 */
 #include <gtest/gtest.h>
 #include <thread>
@@ -21,17 +21,32 @@ using namespace m5::unit;
 using namespace m5::unit::gh3038;
 
 namespace {
-// Wiring (Core / Core2 / CoreS3 / CoreS3SE): GROVE (I2C) -> Port A, GROVE (INT/RST) -> Port C
+// Wiring: GROVE (I2C) -> Port A (NessoN1: QWIIC, using a QWIIC-GROVE cable)
+// GROVE (INT/RST) -> Port C (Core / Core2 / CoreS3 / CoreS3SE / Fire (PSRAM disabled) / Tab5)
+//                    or Port B (Dial / NessoN1 GROVE)
 // StampHeart INT/RST GROVE: pin1 (next to 5V) = RST, pin2 = INT
-bool has_usable_port_c()
+bool select_int_rst_port(m5::pin_name_t& rst, m5::pin_name_t& intr)
 {
     switch (M5.getBoard()) {
         case m5::board_t::board_M5Stack:
-            // Fire is also detected as M5Stack, but its Port C is shared with PSRAM
-            return heap_caps_get_total_size(MALLOC_CAP_SPIRAM) == 0;
+            // Fire is also detected as M5Stack. Its Port C is shared with PSRAM, so it is usable only without PSRAM
+            if (heap_caps_get_total_size(MALLOC_CAP_SPIRAM)) {
+                return false;
+            }
+            rst  = m5::pin_name_t::port_c_pin1;
+            intr = m5::pin_name_t::port_c_pin2;
+            return true;
         case m5::board_t::board_M5StackCore2:
         case m5::board_t::board_M5StackCoreS3:
         case m5::board_t::board_M5StackCoreS3SE:
+        case m5::board_t::board_M5Tab5:
+            rst  = m5::pin_name_t::port_c_pin1;
+            intr = m5::pin_name_t::port_c_pin2;
+            return true;
+        case m5::board_t::board_M5Dial:
+        case m5::board_t::board_ArduinoNessoN1:
+            rst  = m5::pin_name_t::port_b_pin1;
+            intr = m5::pin_name_t::port_b_pin2;
             return true;
         default:
             return false;
@@ -39,11 +54,13 @@ bool has_usable_port_c()
 }
 int8_t rst_pin()
 {
-    return has_usable_port_c() ? M5.getPin(m5::pin_name_t::port_c_pin1) : -1;
+    m5::pin_name_t rst{}, intr{};
+    return select_int_rst_port(rst, intr) ? M5.getPin(rst) : -1;
 }
 int8_t int_pin()
 {
-    return has_usable_port_c() ? M5.getPin(m5::pin_name_t::port_c_pin2) : -1;
+    m5::pin_name_t rst{}, intr{};
+    return select_int_rst_port(rst, intr) ? M5.getPin(intr) : -1;
 }
 
 constexpr Mode mode_table[]         = {Mode::HR, Mode::SpO2, Mode::All};
@@ -80,6 +97,13 @@ public:
 
 class TestGH3038 : public I2CComponentTestBase<UnitGH3038> {
 protected:
+    virtual bool begin() override
+    {
+        // NessoN1: I2C on QWIIC (Port A), as its GROVE (Port B) is used for INT/RST
+        return m5::unit::wiring::addI2C(Units, *unit, unit->component_config().clock,
+                                        m5::unit::wiring::NessoPort::PortA) &&
+               Units.begin();
+    }
     virtual UnitGH3038* get_instance() override
     {
         auto ptr = new GH3038Probe();
@@ -97,7 +121,7 @@ TEST_F(TestGH3038, Begin)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_GE(rst_pin(), 0);  // This test requires Port C (Core / Core2 / CoreS3 / CoreS3SE)
+    EXPECT_GE(rst_pin(), 0);  // This test requires the INT/RST GROVE (see select_int_rst_port())
     EXPECT_TRUE(unit->inPeriodic());
     EXPECT_EQ(unit->mode(), Mode::All);
     EXPECT_EQ(unit->samplingRate(), SamplingRate::Rate100);
@@ -382,7 +406,7 @@ TEST_F(TestGH3038Interrupt, Periodic)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_GE(int_pin(), 0);  // This test requires Port C (Core / Core2 / CoreS3 / CoreS3SE)
+    EXPECT_GE(int_pin(), 0);  // This test requires the INT/RST GROVE (see select_int_rst_port())
     EXPECT_TRUE(unit->isInterruptEnabled());
     EXPECT_TRUE(unit->inPeriodic());
 
@@ -431,7 +455,7 @@ TEST_F(TestGH3038Interrupt, Move)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_GE(int_pin(), 0);  // This test requires Port C (Core / Core2 / CoreS3 / CoreS3SE)
+    EXPECT_GE(int_pin(), 0);  // This test requires the INT/RST GROVE (see select_int_rst_port())
     EXPECT_TRUE(unit->isInterruptEnabled());
     EXPECT_TRUE(wait_updated(unit.get(), 1000));
 

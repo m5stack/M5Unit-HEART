@@ -53,22 +53,37 @@ m5::unit::HatHeart heart;
 #elif defined(USING_STAMP_HEART)
 m5::unit::StampHeart heart;
 // StampHeart INT/RST GROVE: pin1 (next to 5V) = RST, pin2 = INT
+// RST must be driven high: StampHeart pulls RST low, so the chip does not respond if RST is not wired
 // StampHeart is intended to be wired directly to a Stamp host (e.g. StampC5 / StampP4)
-// Set these to the GPIOs you wired (used except on Core / Core2 / CoreS3 / CoreS3SE)
-// -1: INT unused (polling), RST not driven
+// Set these to the GPIOs you wired (used on the boards that select_int_rst_port() does not handle)
+// INT -1: polling, RST -1: not driven (the chip stays in reset, set the GPIO you wired)
 constexpr int8_t fallback_int_pin{-1};
 constexpr int8_t fallback_rst_pin{-1};
 
-// Core series whose Port C can be used for the INT/RST GROVE
-bool has_usable_port_c()
+// Port for the INT/RST GROVE. The I2C GROVE goes to Port A (NessoN1: QWIIC, using a QWIIC-GROVE cable)
+// Port C: Core / Core2 / CoreS3 / CoreS3SE / Fire (PSRAM disabled) / Tab5, Port B: Dial / NessoN1 (GROVE)
+bool select_int_rst_port(m5::pin_name_t& rst, m5::pin_name_t& intr)
 {
     switch (M5.getBoard()) {
         case m5::board_t::board_M5Stack:
-            // Fire is also detected as M5Stack, but its Port C is shared with PSRAM
-            return heap_caps_get_total_size(MALLOC_CAP_SPIRAM) == 0;
+            // Fire is also detected as M5Stack. Its Port C is shared with PSRAM, so it is usable only without PSRAM
+            if (heap_caps_get_total_size(MALLOC_CAP_SPIRAM)) {
+                return false;
+            }
+            rst  = m5::pin_name_t::port_c_pin1;
+            intr = m5::pin_name_t::port_c_pin2;
+            return true;
         case m5::board_t::board_M5StackCore2:
         case m5::board_t::board_M5StackCoreS3:
         case m5::board_t::board_M5StackCoreS3SE:
+        case m5::board_t::board_M5Tab5:
+            rst  = m5::pin_name_t::port_c_pin1;
+            intr = m5::pin_name_t::port_c_pin2;
+            return true;
+        case m5::board_t::board_M5Dial:
+        case m5::board_t::board_ArduinoNessoN1:
+            rst  = m5::pin_name_t::port_b_pin1;
+            intr = m5::pin_name_t::port_b_pin2;
             return true;
         default:
             return false;
@@ -253,11 +268,11 @@ void setup()
     }
 #elif defined(USING_STAMP_HEART)
     {
-        // Core / Core2 / CoreS3 / CoreS3SE: I2C GROVE -> Port A, INT/RST GROVE -> Port C
         auto cfg = heart.config();
-        if (has_usable_port_c()) {
-            cfg.rst_pin = M5.getPin(m5::pin_name_t::port_c_pin1);
-            cfg.int_pin = M5.getPin(m5::pin_name_t::port_c_pin2);
+        m5::pin_name_t rst_pin_name{}, int_pin_name{};
+        if (select_int_rst_port(rst_pin_name, int_pin_name)) {
+            cfg.rst_pin = M5.getPin(rst_pin_name);
+            cfg.int_pin = M5.getPin(int_pin_name);
         } else {
             cfg.rst_pin = fallback_rst_pin;
             cfg.int_pin = fallback_int_pin;
@@ -265,7 +280,8 @@ void setup()
         heart.config(cfg);
         M5.Log.printf("StampHeart INT:%d RST:%d\n", cfg.int_pin, cfg.rst_pin);
     }
-    if (!m5::unit::wiring::addI2C(Units, heart) || !Units.begin()) {
+    // NessoN1: I2C on QWIIC (Port A), as its GROVE (Port B) is used for INT/RST
+    if (!m5::unit::wiring::addI2C(Units, heart, 0, m5::unit::wiring::NessoPort::PortA) || !Units.begin()) {
         M5_LOGE("Failed to begin");
         m5::unit::wiring::failStop();
     }
