@@ -1,6 +1,6 @@
 {
     "name": "M5Unit-HEART",
-    "description": "Library for M5Stack UNIT HEART Using M5UnitUnified",
+    "description": "Library for M5Stack UNIT HEART using M5UnitUnified",
     "keywords": "m5stack, m5unitunified, heart, max30100, max30102, gh3038, pulse-oximeter, heart-rate, spo2, ppg, i2c",
     "authors": {
         "name": "M5Stack",
@@ -11,7 +11,8 @@
         "url": "https://github.com/m5stack/M5Unit-HEART.git"
     },
     "dependencies": {
-        "m5stack/M5UnitUnified": ">=0.6.0"
+        "m5stack/M5UnitUnified": ">=0.6.0",
+        "m5stack/M5Utility": ">=0.3.0"
     },
     "version": "0.3.0",
     "frameworks": [
