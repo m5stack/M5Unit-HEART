@@ -235,7 +235,7 @@ bool UnitGH3038::stop_periodic_measurement()
 bool UnitGH3038::readGain(Gain& gain, const Color color)
 {
     uint8_t level{};
-    if (m5_gh3038_get_gain(&_core, color_index(color), &level) != M5_GH3038_OK) {
+    if (m5_gh3038_get_gain(core(), color_index(color), &level) != M5_GH3038_OK) {
         return false;
     }
     gain = static_cast<Gain>(level);
@@ -261,7 +261,7 @@ bool UnitGH3038::writeGain(const Color color, const Gain gain)
 
 bool UnitGH3038::readLEDCurrent(uint8_t& code, const Color color)
 {
-    return m5_gh3038_get_led_current(&_core, color_index(color), &code) == M5_GH3038_OK;
+    return m5_gh3038_get_led_current(core(), color_index(color), &code) == M5_GH3038_OK;
 }
 
 bool UnitGH3038::writeLEDCurrent(const Color color, const uint8_t code)
@@ -519,7 +519,7 @@ bool UnitGH3038::io_write(void* user, const uint16_t reg, const uint8_t* data, c
 
 bool UnitGH3038::io_read(void* user, const uint16_t reg, uint8_t* rx, const uint32_t len)
 {
-    // Repeated start after the register address (same as the former readRegister16BE(..., false))
+    // Repeated start after the register address
     return static_cast<UnitGH3038*>(user)->readRegister(reg, rx, len, 0, false);
 }
 

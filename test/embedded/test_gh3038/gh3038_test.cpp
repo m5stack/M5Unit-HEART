@@ -435,6 +435,11 @@ TEST_F(TestGH3038Interrupt, Move)
     EXPECT_TRUE(unit->isInterruptEnabled());
     EXPECT_TRUE(wait_updated(unit.get(), 1000));
 
+    Gain gain_before{}, gain_after{};
+    uint8_t current_before{}, current_after{};
+    EXPECT_TRUE(unit->readGain(gain_before, Color::Green));
+    EXPECT_TRUE(unit->readLEDCurrent(current_before, Color::Green));
+
     uint32_t events{}, count{};
     // Move construction: the interrupt and the I2C access go with the new object
     std::unique_ptr<UnitGH3038> first{new UnitGH3038(std::move(*unit))};
@@ -445,6 +450,11 @@ TEST_F(TestGH3038Interrupt, Move)
     std::unique_ptr<UnitGH3038> second{new UnitGH3038(std::move(*first))};
     first.reset();
     EXPECT_TRUE(second->isInterruptEnabled());
+    // The first call after the move reads from the chip: it must go through the new object
+    EXPECT_TRUE(second->readGain(gain_after, Color::Green));
+    EXPECT_TRUE(second->readLEDCurrent(current_after, Color::Green));
+    EXPECT_EQ(gain_after, gain_before);
+    EXPECT_EQ(current_after, current_before);
     count_events(second.get(), events, count);
     EXPECT_GE(count, 80U);  // Rate100
     EXPECT_LE(count, 120U);
