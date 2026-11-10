@@ -70,50 +70,130 @@ typedef struct {
 //! @brief Called for each assembled sample in m5_gh3038_read()
 typedef void (*m5_gh3038_sample_cb_t)(void* user, const m5_gh3038_sample_t* sample);
 
-//! @brief API version of the library
+/*!
+  @brief API version of the library
+  @return Must be equal to M5_GH3038_CORE_API_VERSION
+ */
 uint32_t m5_gh3038_api_version(void);
-//! @brief sizeof(m5_gh3038_state_t) the library was built with
+/*!
+  @brief sizeof(m5_gh3038_state_t) the library was built with
+  @return Must be equal to sizeof(m5_gh3038_state_t)
+ */
 uint32_t m5_gh3038_state_size(void);
-//! @brief Maximum samples in the chip FIFO (for the buffer size)
+/*!
+  @brief Maximum samples in the chip FIFO (for the buffer size)
+  @return Maximum number of samples
+ */
 uint16_t m5_gh3038_max_samples(void);
-//! @brief Photodiode current (pA) of the raw value with the gain level
+/*!
+  @brief Photodiode current (pA) of the raw value with the gain level
+  @param raw Raw value of m5_gh3038_sample_t
+  @param gain_level Gain level at the measurement (0...6, larger values are clamped to 6)
+  @return Photodiode current (pA)
+ */
 float m5_gh3038_raw_to_pA(int32_t raw, uint8_t gain_level);
-//! @brief Full scale of the raw value (the magnitude of the largest raw value)
+/*!
+  @brief Full scale of the raw value
+  @return Magnitude of the largest raw value
+ */
 int32_t m5_gh3038_raw_full_scale(void);
 
-//! @brief Initialize the state (no bus access)
+/*!
+  @brief Initialize the state (no bus access)
+  @param[out] s State to initialize
+  @param io Callbacks (copied into the state)
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_init(m5_gh3038_state_t* s, const m5_gh3038_io_t* io);
-//! @brief Replace io.user of an initialized state (e.g. after the owner object is moved)
+/*!
+  @brief Replace io.user of an initialized state (e.g. after the owner object is moved)
+  @param s State
+  @param user New value of io.user
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+  @note No bus access
+ */
 int m5_gh3038_set_io_user(m5_gh3038_state_t* s, void* user);
-//! @brief Reset the chip (hard if hard and set_rst exists, otherwise soft) and write the common settings
-//! @note If set_rst fails, RST may be left low
+/*!
+  @brief Reset the chip and write the common settings
+  @param s State
+  @param hard Hard reset with RST if true and set_rst exists, otherwise soft reset
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+  @note If set_rst fails, RST may be left low
+ */
 int m5_gh3038_reset(m5_gh3038_state_t* s, bool hard);
-//! @brief Start the measurement (mode 0...2, rate 0...3)
+/*!
+  @brief Start the measurement
+  @param s State
+  @param mode Mode (0...2)
+  @param rate Sampling rate (0...3)
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_start(m5_gh3038_state_t* s, uint8_t mode, uint8_t rate);
-//! @brief Stop the measurement
+/*!
+  @brief Stop the measurement
+  @param s State
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_stop(m5_gh3038_state_t* s);
-//! @brief Is the measurement running?
+/*!
+  @brief Is the measurement running?
+  @param s State
+  @return True if running (false if not initialized)
+ */
 bool m5_gh3038_running(const m5_gh3038_state_t* s);
 
-//! @brief Set the gain level (0...6) of the color (0...2). Applied to the chip if running
+/*!
+  @brief Set the gain level of the color. Applied to the chip if running
+  @param s State
+  @param color Color (0...2)
+  @param level Gain level (0...6)
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_set_gain(m5_gh3038_state_t* s, uint8_t color, uint8_t level);
-//! @brief Get the gain level of the color (read from the chip if running)
+/*!
+  @brief Get the gain level of the color (read from the chip if running)
+  @param s State
+  @param color Color (0...2)
+  @param[out] level Gain level
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_get_gain(m5_gh3038_state_t* s, uint8_t color, uint8_t* level);
-//! @brief Set the LED current code (0...255) of the color. Applied to the chip if running
+/*!
+  @brief Set the LED current code of the color. Applied to the chip if running
+  @param s State
+  @param color Color (0...2)
+  @param code LED current code (0...255)
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_set_led_current(m5_gh3038_state_t* s, uint8_t color, uint8_t code);
-//! @brief Get the LED current code of the color (read from the chip if running)
+/*!
+  @brief Get the LED current code of the color (read from the chip if running)
+  @param s State
+  @param color Color (0...2)
+  @param[out] code LED current code
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_get_led_current(m5_gh3038_state_t* s, uint8_t color, uint8_t* code);
 
 /*!
   @brief Read the chip FIFO and call cb for each assembled sample
+  @param s State
+  @param cb Called for each sample
+  @param user Passed to cb
   @param[out] count Number of samples passed to cb
   @param[out] overflowed True if the chip FIFO overflowed before this read
+  @return M5_GH3038_OK or a negative m5_gh3038_result
   @warning Do not call any m5_gh3038_* function from cb (the chip is awake between the FIFO reads)
   @note cb, count and overflowed must not be NULL
   @note Do not call from an ISR
  */
 int m5_gh3038_read(m5_gh3038_state_t* s, m5_gh3038_sample_cb_t cb, void* user, uint16_t* count, bool* overflowed);
-//! @brief Number of words in the chip FIFO
+/*!
+  @brief Number of words in the chip FIFO
+  @param s State
+  @param[out] words Number of words
+  @return M5_GH3038_OK or a negative m5_gh3038_result
+ */
 int m5_gh3038_fifo_level(m5_gh3038_state_t* s, uint16_t* words);
 
 #ifdef __cplusplus
