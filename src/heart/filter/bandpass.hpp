@@ -39,8 +39,8 @@ public:
       @param type Filter type
       @param cutoff_hz Cutoff frequency (Hz)
       @param sampling_rate_hz Sampling rate (Hz)
-      @note It becomes a pass-through filter if the cutoff is not below the Nyquist frequency or the rate is not
-      positive
+      @note It becomes a pass-through filter if the type is Type::PassThrough, the cutoff is not positive or not
+      below the Nyquist frequency, or the rate is not positive
      */
     Biquad(const Type type, const float cutoff_hz, const float sampling_rate_hz)
     {
