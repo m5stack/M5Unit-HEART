@@ -63,8 +63,8 @@ jobs:
       max-parallel: 20
       matrix:
         # idf boundaries: 5.1.7 = oldest legacy-driver (5.0.x dropped: M5GFX needs esp_mm added
-        # in 5.1), 5.4.4 = new driver/*_master.h era, 5.5.4 = latest.
-        idf: [v5.1.7, v5.4.4, v5.5.4]
+        # in 5.1), 5.4.4 = new driver/*_master.h era, 5.5.4 = latest 5.x, 6.1 = latest (gnu++26, -Werror).
+        idf: [v5.1.7, v5.4.4, v5.5.4, v6.1]
         example_config:
           - label: PlotToSerial-UnitHeart
             example_path: examples/UnitUnified/PlotToSerial
@@ -108,10 +108,11 @@ jobs:
           target: esp32s3
           path: ${{ matrix.example_config.example_path }}
 
-  # Chip coverage: PlotToSerial (UnitHeart / StampHeart on every other supported SoC, HatHeart on the
-  # SoCs of its hosts). esp32 =
-  # classic Xtensa dual-core. esp32c6 (NanoC6) / esp32h2 (NanoH2) = RISC-V single-core, exercises
-  # the app_main CONFIG_FREERTOS_UNICORE feedIdle branch. esp32p4 (M5Stack Tab5) = RISC-V dual-core;
+  # Chip coverage: PlotToSerial (UnitHeart / StampHeart on every other declared target, HatHeart on the
+  # SoCs of its hosts). StampHeart links the precompiled GH3038 core of each target (src/<target>/).
+  # esp32 = classic Xtensa dual-core. esp32c3 / esp32c5 = RISC-V single-core (Stamp hosts).
+  # esp32c6 (NanoC6) / esp32h2 (NanoH2) = RISC-V single-core, exercises the app_main
+  # CONFIG_FREERTOS_UNICORE feedIdle branch. esp32p4 (M5Stack Tab5) = RISC-V dual-core;
   # the sdkconfig.defaults.esp32p4 overlay (chip-rev minimum keys) is auto-applied.
   build-chips:
     name: ${{ matrix.idf }} ${{ matrix.target }} PlotToSerial-${{ matrix.unit.label }}
@@ -121,8 +122,8 @@ jobs:
       fail-fast: false
       max-parallel: 20
       matrix:
-        target: [esp32, esp32c6, esp32h2, esp32p4]
-        idf: [v5.1.7, v5.4.4, v5.5.4]
+        target: [esp32, esp32c3, esp32c5, esp32c6, esp32h2, esp32p4]
+        idf: [v5.1.7, v5.4.4, v5.5.4, v6.1]
         unit:
           - label: UnitHeart
             config: CONFIG_EXAMPLE_USING_UNIT_HEART
@@ -132,6 +133,10 @@ jobs:
             config: CONFIG_EXAMPLE_USING_HAT_HEART
         exclude:
           # HatHeart hosts: StickC Plus / Plus2 / CoreInk (esp32), StickS3 (esp32s3), NessoN1 (esp32c6)
+          - target: esp32c3
+            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
+          - target: esp32c5
+            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
           - target: esp32h2
             unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
           - target: esp32p4
@@ -139,6 +144,11 @@ jobs:
           # esp32p4 stable from IDF v5.3 (M5GFX P4 verified on 5.4/5.5). 5.1.7 not applicable.
           - target: esp32p4
             idf: v5.1.7
+          # esp32c5 is supported from IDF 5.5 (preview target on 5.4)
+          - target: esp32c5
+            idf: v5.1.7
+          - target: esp32c5
+            idf: v5.4.4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
