@@ -190,8 +190,8 @@ public:
       @param gain Gain level
       @return True if successful
       @note Can be changed during periodic measurement
-      @warning Fails during periodic measurement while autoAdjust() is true. Call setAutoAdjust(false) first
       @note Samples already in the chip FIFO when the gain is changed are tagged with the new gain
+      @warning Fails during periodic measurement while autoAdjust() is true. Call setAutoAdjust(false) first
      */
     bool writeGain(const gh3038::Color color, const gh3038::Gain gain);
     /*!
