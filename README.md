@@ -30,6 +30,7 @@ TBD
 ## License
 
 - [M5Unit-HEART - MIT](LICENSE)
+- [Precompiled GH3038 core (src/\<chip\>/libm5gh3038core.a) - M5Stack proprietary](LICENSE-precompiled.md)
 
 
 ## Heart rate / SpO2 processing
