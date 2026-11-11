@@ -70,7 +70,7 @@ constexpr uint8_t valid_table[]     = {0x01, 0x06, 0x07};  // Valid bits of each
 constexpr SamplingRate rate_table[] = {SamplingRate::Rate25, SamplingRate::Rate50, SamplingRate::Rate100,
                                        SamplingRate::Rate200};
 constexpr Gain gain_table[]         = {Gain::Level0, Gain::Level1, Gain::Level2, Gain::Level3,
-                                       Gain::Level4, Gain::Level5, Gain::Level6};
+                               Gain::Level4, Gain::Level5, Gain::Level6};
 constexpr Color color_table[]       = {Color::Green, Color::Red, Color::IR};
 constexpr uint8_t current_table[]   = {0, 1, 64, 128, 255};
 

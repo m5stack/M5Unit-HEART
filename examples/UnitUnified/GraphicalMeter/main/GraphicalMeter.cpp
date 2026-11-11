@@ -163,7 +163,7 @@ void plot_enqueue(const PlotPoint& v)
 PlotPoint plot_dequeue()
 {
     const PlotPoint v = plot_queue[plot_queue_head];
-    plot_queue_head = (plot_queue_head + 1) % plot_queue_size;
+    plot_queue_head   = (plot_queue_head + 1) % plot_queue_size;
     --plot_queue_count;
     return v;
 }
@@ -216,8 +216,8 @@ void restart_view()
 #if defined(USING_STAMP_HEART)
     plot_filter_ir = m5::heart::BandPass(0.3f, 10.0f, rate);
 #endif
-    plot_step        = (rate > 0.0f) ? plot_points_per_sec / rate : 1.0f;
-    plot_acc         = 0.0f;
+    plot_step       = (rate > 0.0f) ? plot_points_per_sec / rate : 1.0f;
+    plot_acc        = 0.0f;
     plot_queue_head = plot_queue_count = 0;
     pulse.add(heart);
     snprintf(title, sizeof(title), "%s %luHz", unit_name, static_cast<unsigned long>(rate + 0.5f));
