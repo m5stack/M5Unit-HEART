@@ -48,12 +48,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Cross design: variant coverage on esp32s3 (both Target units x both LCD/serial examples plus the
-# variant-less DualSensor), chip coverage on the other SoCs with the default I2C variant
-# (UnitHeart / PlotToSerial). DualSensor drives both units at once so it has no Kconfig USING_*
-# variant; it is built only in the variant job.
+# Cross design: variant coverage of PlotToSerial on esp32s3 at every IDF boundary, the other examples on
+# esp32s3 at the oldest and the newest IDF, and chip coverage on the other SoCs with UnitHeart / StampHeart.
+# DualSensor and ViaPaHub have no Kconfig USING_* variant.
 jobs:
-  # Variant coverage: every Target unit / example on esp32s3 (LCD-capable dual-core Xtensa with PSRAM).
+  # Variant coverage: every Target unit of PlotToSerial on esp32s3 (LCD-capable dual-core Xtensa with PSRAM).
   build-variants:
     name: ${{ matrix.idf }} esp32s3 ${{ matrix.example_config.label }}
     runs-on: ubuntu-latest
@@ -75,6 +74,39 @@ jobs:
           - label: PlotToSerial-StampHeart
             example_path: examples/UnitUnified/PlotToSerial
             variant: USING_STAMP_HEART
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Kconfig variant
+        # The example's own sdkconfig.defaults is not read (top CMakeLists points SDKCONFIG_DEFAULTS
+        # at common/sdkconfig.defaults). Append the choice to common/ in the CI workspace only.
+        run: |
+          if [ -n "${{ matrix.example_config.variant }}" ]; then
+            echo "" >> examples/UnitUnified/common/sdkconfig.defaults
+            echo "CONFIG_EXAMPLE_${{ matrix.example_config.variant }}=y" >> examples/UnitUnified/common/sdkconfig.defaults
+          fi
+
+      - name: ESP-IDF build
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: ${{ matrix.idf }}
+          target: esp32s3
+          path: ${{ matrix.example_config.example_path }}
+
+  # The other examples (GraphicalMeter / DualSensor / ViaPaHub) on esp32s3 with the oldest and the newest IDF.
+  build-examples:
+    name: ${{ matrix.idf }} esp32s3 ${{ matrix.example_config.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        # The I2C driver boundaries are covered by build-variants / build-chips. The other examples only need the
+        # oldest compiler (5.1.7) and the strictest one (6.1: gnu++26, -Werror).
+        idf: [v5.1.7, v6.1]
+        example_config:
           - label: GraphicalMeter-UnitHeart
             example_path: examples/UnitUnified/GraphicalMeter
             variant: USING_UNIT_HEART
@@ -111,8 +143,9 @@ jobs:
           target: esp32s3
           path: ${{ matrix.example_config.example_path }}
 
-  # Chip coverage: PlotToSerial (UnitHeart / StampHeart on every other declared target, HatHeart on the
-  # SoCs of its hosts). StampHeart links the precompiled GH3038 core of each target (src/<target>/).
+  # Chip coverage: PlotToSerial UnitHeart / StampHeart on every other declared target (HatHeart has no chip
+  # dependent path, it is covered by build-variants). StampHeart links the precompiled GH3038 core of each
+  # target (src/<target>/).
   # esp32 = classic Xtensa dual-core. esp32c3 / esp32c5 = RISC-V single-core (Stamp hosts).
   # esp32c6 (NanoC6) / esp32h2 (NanoH2) = RISC-V single-core, exercises the app_main
   # CONFIG_FREERTOS_UNICORE feedIdle branch. esp32p4 (M5Stack Tab5) = RISC-V dual-core;
@@ -132,18 +165,7 @@ jobs:
             config: CONFIG_EXAMPLE_USING_UNIT_HEART
           - label: StampHeart
             config: CONFIG_EXAMPLE_USING_STAMP_HEART
-          - label: HatHeart
-            config: CONFIG_EXAMPLE_USING_HAT_HEART
         exclude:
-          # HatHeart hosts: StickC Plus / Plus2 / CoreInk (esp32), StickS3 (esp32s3), NessoN1 (esp32c6)
-          - target: esp32c3
-            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
-          - target: esp32c5
-            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
-          - target: esp32h2
-            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
-          - target: esp32p4
-            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
           # esp32p4 stable from IDF v5.3 (M5GFX P4 verified on 5.4/5.5). 5.1.7 not applicable.
           - target: esp32p4
             idf: v5.1.7
