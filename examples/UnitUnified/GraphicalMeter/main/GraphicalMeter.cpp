@@ -28,13 +28,13 @@
 #endif
 
 #if defined(USING_UNIT_HEART)
-#pragma message "Using UnitHeart"
+#pragma message("Using UnitHeart")
 using namespace m5::unit::max30100;
 #elif defined(USING_HAT_HEART)
-#pragma message "Using HatHeart"
+#pragma message("Using HatHeart")
 using namespace m5::unit::max30102;
 #elif defined(USING_STAMP_HEART)
-#pragma message "Using StampHeart"
+#pragma message("Using StampHeart")
 using namespace m5::unit::gh3038;
 #else
 #error Please choose unit!
