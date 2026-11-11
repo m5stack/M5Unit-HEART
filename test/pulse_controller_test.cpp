@@ -143,8 +143,12 @@ TEST(PulseController, Config)
     PulseController ctrl(cfg);
     MockSource src(0x07, 100.0f, ValueUnit::Count);
     EXPECT_TRUE(ctrl.add(src));
-    EXPECT_EQ(ctrl.processor()->heartRateChannel(), channel_index(Channel::Red));
-    EXPECT_FALSE(ctrl.processor()->isSpO2Enabled());
+    const PulseProcessor* proc = ctrl.processor();
+    EXPECT_NE(proc, nullptr);
+    if (proc) {
+        EXPECT_EQ(proc->heartRateChannel(), channel_index(Channel::Red));
+        EXPECT_FALSE(proc->isSpO2Enabled());
+    }
 }
 
 TEST(PulseController, IsBeatPerUpdate)
@@ -185,7 +189,7 @@ TEST(PulseController, OverflowResets)
     src.fill(gen, 0.1f);
     EXPECT_EQ(ctrl.update(), 10U);
     EXPECT_FALSE(ctrl.hasBpm());
-    // Calling again while the flag is still set does not reset again
+    // Recovers after the overflow is cleared
     src._overflowed = false;
     feed(ctrl, src, gen, 10.0f);
     EXPECT_TRUE(ctrl.hasBpm());
@@ -198,7 +202,11 @@ TEST(PulseController, MissingChannel)
     MockSource src(channel_bit(Channel::Red) | channel_bit(Channel::IR), 100.0f, ValueUnit::Count);
     PulseController ctrl{};
     EXPECT_TRUE(ctrl.add(src));
-    EXPECT_EQ(ctrl.processor()->heartRateChannel(), channel_index(Channel::IR));
+    const PulseProcessor* proc = ctrl.processor();
+    EXPECT_NE(proc, nullptr);
+    if (proc) {
+        EXPECT_EQ(proc->heartRateChannel(), channel_index(Channel::IR));
+    }
     ppg_synth::Generator gen(make_config(100.0f));
     feed(ctrl, src, gen, 20.0f);
     EXPECT_NEAR(ctrl.bpm(), 72.0f, 1.5f);
@@ -208,7 +216,11 @@ TEST(PulseController, MissingChannel)
     MockSource red(channel_bit(Channel::Red), 100.0f, ValueUnit::PicoAmpere);
     PulseController ctrl_red{};
     EXPECT_TRUE(ctrl_red.add(red));
-    EXPECT_EQ(ctrl_red.processor()->heartRateChannel(), channel_index(Channel::Red));
+    const PulseProcessor* proc_red = ctrl_red.processor();
+    EXPECT_NE(proc_red, nullptr);
+    if (proc_red) {
+        EXPECT_EQ(proc_red->heartRateChannel(), channel_index(Channel::Red));
+    }
     ppg_synth::Generator gen_red(make_config(100.0f));
     feed(ctrl_red, red, gen_red, 20.0f);
     EXPECT_NEAR(ctrl_red.bpm(), 72.0f, 1.5f);
@@ -227,7 +239,11 @@ TEST(PulseController, SpecChangeRebuilds)
     // Rate change
     src._spec.sampling_rate_hz = 50.0f;
     EXPECT_EQ(ctrl.update(), 0U);
-    EXPECT_FLOAT_EQ(ctrl.processor()->samplingRate(), 50.0f);
+    const PulseProcessor* proc = ctrl.processor();
+    EXPECT_NE(proc, nullptr);
+    if (proc) {
+        EXPECT_FLOAT_EQ(proc->samplingRate(), 50.0f);
+    }
     EXPECT_FALSE(ctrl.hasBpm());
     ppg_synth::Generator gen50(make_config(50.0f));
     feed(ctrl, src, gen50, 10.0f);
@@ -236,14 +252,22 @@ TEST(PulseController, SpecChangeRebuilds)
     // Channel change
     src._spec.channels = channel_bit(Channel::Green);
     ctrl.update();
-    EXPECT_EQ(ctrl.processor()->channels(), channel_bit(Channel::Green));
-    EXPECT_FALSE(ctrl.processor()->isSpO2Enabled());
+    proc = ctrl.processor();  // Rebuilt for the new channels
+    EXPECT_NE(proc, nullptr);
+    if (proc) {
+        EXPECT_EQ(proc->channels(), channel_bit(Channel::Green));
+        EXPECT_FALSE(proc->isSpO2Enabled());
+    }
 
     // Stopped (rate 0): samples are drained but not processed
     src.fill(gen50, 1.0f);
     src._spec.sampling_rate_hz = 0.0f;
     EXPECT_EQ(ctrl.update(), 50U);
-    EXPECT_FLOAT_EQ(ctrl.processor()->samplingRate(), 0.0f);
+    proc = ctrl.processor();  // Rebuilt for the new rate
+    EXPECT_NE(proc, nullptr);
+    if (proc) {
+        EXPECT_FLOAT_EQ(proc->samplingRate(), 0.0f);
+    }
     EXPECT_FALSE(ctrl.hasBpm());
 }
 
