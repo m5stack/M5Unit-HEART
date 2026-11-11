@@ -63,6 +63,8 @@ int8_t int_pin()
     return select_int_rst_port(rst, intr) ? M5.getPin(intr) : -1;
 }
 
+constexpr char wiring_message[] = "Connect the StampHeart INT/RST GROVE (Port C or Port B, see select_int_rst_port())";
+
 constexpr Mode mode_table[]         = {Mode::HR, Mode::SpO2, Mode::All};
 constexpr uint8_t valid_table[]     = {0x01, 0x06, 0x07};  // Valid bits of each mode
 constexpr SamplingRate rate_table[] = {SamplingRate::Rate25, SamplingRate::Rate50, SamplingRate::Rate100,
@@ -121,7 +123,7 @@ TEST_F(TestGH3038, Begin)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_GE(rst_pin(), 0);  // This test requires the INT/RST GROVE (see select_int_rst_port())
+    EXPECT_GE(rst_pin(), 0) << wiring_message;
     EXPECT_TRUE(unit->inPeriodic());
     EXPECT_EQ(unit->mode(), Mode::All);
     EXPECT_EQ(unit->samplingRate(), SamplingRate::Rate100);
@@ -387,6 +389,96 @@ TEST_F(TestGH3038NoAutoAdjust, Config)
     EXPECT_TRUE(unit->writeLEDCurrent(Color::Green, 32));
 }
 
+class TestGH3038BeginConfig : public TestGH3038 {
+protected:
+    virtual UnitGH3038* get_instance() override
+    {
+        auto ptr = new GH3038Probe();
+        if (ptr) {
+            auto cfg          = ptr->config();
+            cfg.rst_pin       = rst_pin();
+            cfg.int_pin       = -1;
+            cfg.mode          = Mode::HR;
+            cfg.rate          = SamplingRate::Rate50;
+            cfg.green_gain    = Gain::Level2;
+            cfg.red_gain      = Gain::Level4;
+            cfg.ir_gain       = Gain::Level5;
+            cfg.green_current = 32;
+            cfg.red_current   = 100;
+            cfg.ir_current    = 90;
+            cfg.auto_adjust   = false;  // Keep the gain and the current as configured
+            ptr->config(cfg);
+        }
+        return ptr;
+    }
+};
+
+TEST_F(TestGH3038BeginConfig, Applied)
+{
+    SCOPED_TRACE(ustr);
+    using m5::heart::Channel;
+    using m5::heart::channel_bit;
+
+    EXPECT_TRUE(unit->inPeriodic());
+    EXPECT_FALSE(unit->autoAdjust());
+    EXPECT_EQ(unit->mode(), Mode::HR);
+    EXPECT_EQ(unit->samplingRate(), SamplingRate::Rate50);
+
+    // The gain and the current of every color (color_table order) are applied, also of the colors the mode does not use
+    constexpr Gain expected_gain[]   = {Gain::Level2, Gain::Level4, Gain::Level5};
+    constexpr uint8_t expected_cur[] = {32, 100, 90};
+    for (uint8_t i = 0; i < 3; ++i) {
+        Gain gain{};
+        uint8_t current{};
+        EXPECT_TRUE(unit->readGain(gain, color_table[i])) << i;
+        EXPECT_EQ(gain, expected_gain[i]) << i;
+        EXPECT_TRUE(unit->readLEDCurrent(current, color_table[i])) << i;
+        EXPECT_EQ(current, expected_cur[i]) << i;
+    }
+    const auto spec = unit->ppgSpec();
+    EXPECT_EQ(spec.channels, channel_bit(Channel::Green));
+    EXPECT_FLOAT_EQ(spec.sampling_rate_hz, 50.0f);
+}
+
+class TestGH3038BeginNoPeriodic : public TestGH3038 {
+protected:
+    virtual UnitGH3038* get_instance() override
+    {
+        auto ptr = new GH3038Probe();
+        if (ptr) {
+            auto cfg           = ptr->config();
+            cfg.rst_pin        = rst_pin();
+            cfg.int_pin        = -1;
+            cfg.mode           = Mode::SpO2;
+            cfg.rate           = SamplingRate::Rate25;
+            cfg.start_periodic = false;
+            ptr->config(cfg);
+        }
+        return ptr;
+    }
+};
+
+TEST_F(TestGH3038BeginNoPeriodic, NotStarted)
+{
+    SCOPED_TRACE(ustr);
+
+    using m5::heart::Channel;
+    using m5::heart::channel_bit;
+
+    EXPECT_FALSE(unit->inPeriodic());
+    EXPECT_FLOAT_EQ(unit->ppgSpec().sampling_rate_hz, 0.0f);
+    // The mode and the rate are kept for startPeriodicMeasurement() without arguments
+    EXPECT_EQ(unit->mode(), Mode::SpO2);
+    EXPECT_EQ(unit->samplingRate(), SamplingRate::Rate25);
+
+    EXPECT_TRUE(unit->startPeriodicMeasurement());
+    EXPECT_TRUE(unit->inPeriodic());
+    const auto spec = unit->ppgSpec();
+    EXPECT_EQ(spec.channels, channel_bit(Channel::Red) | channel_bit(Channel::IR));
+    EXPECT_FLOAT_EQ(spec.sampling_rate_hz, 25.0f);
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+}
+
 class TestGH3038Interrupt : public TestGH3038 {
 protected:
     virtual UnitGH3038* get_instance() override
@@ -406,7 +498,7 @@ TEST_F(TestGH3038Interrupt, Periodic)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_GE(int_pin(), 0);  // This test requires the INT/RST GROVE (see select_int_rst_port())
+    EXPECT_GE(int_pin(), 0) << wiring_message;
     EXPECT_TRUE(unit->isInterruptEnabled());
     EXPECT_TRUE(unit->inPeriodic());
 
@@ -455,7 +547,7 @@ TEST_F(TestGH3038Interrupt, Move)
 {
     SCOPED_TRACE(ustr);
 
-    EXPECT_GE(int_pin(), 0);  // This test requires the INT/RST GROVE (see select_int_rst_port())
+    EXPECT_GE(int_pin(), 0) << wiring_message;
     EXPECT_TRUE(unit->isInterruptEnabled());
     EXPECT_TRUE(wait_updated(unit.get(), 1000));
 
