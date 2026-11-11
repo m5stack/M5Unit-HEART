@@ -14,6 +14,7 @@
 #include <m5_utility/stl/extension.hpp>
 #include <m5_utility/container/circular_buffer.hpp>
 #include <limits>  // NaN
+#include "../heart/ppg_data_source.hpp"
 
 namespace m5 {
 namespace unit {
@@ -159,7 +160,9 @@ struct SpO2Configuration;
   @brief Pulse oximetry and heart-rate sensor
   @note The only single measurement is temperature; other data is constantly measured and stored
 */
-class UnitMAX30100 : public Component, public PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data> {
+class UnitMAX30100 : public Component,
+                     public PeriodicMeasurementAdapter<UnitMAX30100, max30100::Data>,
+                     public m5::heart::PPGDataSource {
     M5_UNIT_COMPONENT_HPP_BUILDER(UnitMAX30100, 0x57);
 
 public:
@@ -182,7 +185,7 @@ public:
         //! The SpO2 ADC resolution if start on begin
         bool high_resolution{true};
         //! Led current for Red if start on begin (only SpO2)
-        m5::unit::max30100::LED red_current{max30100::LED::Current27_1};
+        m5::unit::max30100::LED red_current{max30100::LED::Current17_4};
     };
 
     /*! @brief Constructor
@@ -497,6 +500,29 @@ public:
     bool resetFIFO();
     ///@}
 
+    ///@name PPGDataSource
+    ///@{
+    /*!
+      @brief What this unit provides
+      @return SpO2 mode: Red and IR, HROnly: IR. Unit is Count. The sampling rate is 0 if not in periodic
+      measurement
+     */
+    virtual m5::heart::PPGSpec ppgSpec() const override;
+    /*!
+      @brief Pop the oldest sample not yet read by readPPG()
+      @param[out] out Sample
+      @return True if a sample was stored in out
+      @note It does not change available(), oldest() or discard(). Samples removed by discard() or flush() before
+      readPPG() reads them are skipped, so call it (or PulseController::update()) before discarding
+     */
+    virtual bool readPPG(m5::heart::PPGSample& out) override;
+    //! @brief Did the latest update detect a FIFO overflow?
+    virtual bool ppgOverflowed() const override
+    {
+        return _overflow != 0;
+    }
+    ///@}
+
     /*!
       @brief Reset
       @return True if successful
@@ -534,6 +560,8 @@ protected:
     max30100::Mode _mode{max30100::Mode::None};
     uint8_t _retrieved{}, _overflow{};
     std::unique_ptr<m5::container::CircularBuffer<max30100::Data>> _data{};
+    float _ppg_rate{};                        // Sampling rate at the start of periodic measurement
+    uint32_t _ppg_pushed{}, _ppg_consumed{};  // readPPG() pop counters (independent of oldest()/discard())
 
     config_t _cfg{};
 };

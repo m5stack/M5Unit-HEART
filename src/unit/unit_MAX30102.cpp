@@ -131,6 +131,9 @@ constexpr uint32_t average_table[] = {
     1, 2, 4, 8, 16, 32, 32, 32,
 };
 
+// ADC LSB of Range2048nA: 2048 nA full scale / 2^18 = 7.8125 pA (doubles with each range step)
+constexpr float adc_lsb_pA_2048nA{7.8125f};
+
 // Why mask with 0x3FFFF (the full 18-bit field) at every resolution:
 //
 // Each channel is read as 3 bytes = 24 bits, but only bits [17:0] hold ADC data; the top 6 bits
@@ -278,8 +281,7 @@ void UnitMAX30102::update(const bool force)
 {
     _updated = false;
     if (inPeriodic()) {
-        auto at = m5::utility::millis();
-        if (force || !_latest || at >= _latest + _interval) {
+        if (force || !_latest || m5::utility::hasElapsed(_latest, _interval)) {
             _updated = (read_FIFO() && _retrieved);
             if (_updated) {
                 _latest = m5::utility::millis();
@@ -307,6 +309,11 @@ bool UnitMAX30102::start_periodic_measurement()
         if (_periodic) {
             _latest   = 0;
             _interval = calculate_interval_time(avg, rate);
+            _ppg_rate = sampling_rate_table[m5::stl::to_underlying(rate)] /
+                        static_cast<float>(average_table[m5::stl::to_underlying(avg)]);
+            _ppg_lsb      = adc_lsb_pA_2048nA * static_cast<float>(1U << m5::stl::to_underlying(range));
+            _ppg_pushed   = 0;
+            _ppg_consumed = 0;
         }
     }
     return _periodic;
@@ -525,6 +532,11 @@ bool UnitMAX30102::writeMultiLEDModeControl(const max30102::Slot slot1, const ma
             slot1, slot2);
         return false;
     }
+    if (slot1 != Slot::None && slot1 == slot2) {
+        // Both slots would be stored at the same position of Data, so the data of slot1 would be lost
+        M5_LIB_LOGE("The same LED cannot be set to both slots %u,%u", slot1, slot2);
+        return false;
+    }
 
     MultiLEDControl mc{};
     mc.slotL(slot1);
@@ -541,7 +553,7 @@ bool UnitMAX30102::measureTemperatureSingleshot(TemperatureData& td)
 {
     // Request measure
     if (writeRegister8(TEMP_CONFIGURATION, 0x01)) {
-        auto timeout_at = m5::utility::millis() + 500;     // timeout 0.5 sec
+        const auto start_at = m5::utility::millis();       // timeout 0.5 sec
         m5::utility::delay(MEASURE_TEMPERATURE_DURATION);  // We have to wait at least this long
         do {
             uint8_t v{};
@@ -549,7 +561,7 @@ bool UnitMAX30102::measureTemperatureSingleshot(TemperatureData& td)
                 return read_measurement_temperature(td);
             }
             m5::utility::delay(1);
-        } while (m5::utility::millis() <= timeout_at);
+        } while (!m5::utility::hasElapsed(start_at, 500));
         M5_LIB_LOGW("timeout");
     }
     return false;
@@ -685,6 +697,7 @@ bool UnitMAX30102::read_FIFO()
                         break;
                 }
                 _data->push_back(d);
+                ++_ppg_pushed;
             }
             left -= batch_len;
         }
@@ -698,7 +711,7 @@ bool UnitMAX30102::reset()
     ModeConfiguration mc{};
     mc.reset(true);
     if (writeRegister8(MODE_CONFIGURATION, mc.value)) {
-        auto timeout_at = m5::utility::millis() + 1000;
+        const auto start_at = m5::utility::millis();
         do {
             if (read_register8(MODE_CONFIGURATION, mc.value) && !mc.reset()) {
                 _periodic  = false;
@@ -709,7 +722,7 @@ bool UnitMAX30102::reset()
                 return true;
             }
             m5::utility::delay(1);
-        } while (m5::utility::millis() <= timeout_at);
+        } while (!m5::utility::hasElapsed(start_at, 1000));
     }
     return false;
 }
@@ -731,6 +744,74 @@ uint32_t UnitMAX30102::calculateSamplingRate()
         return 1000 / calculate_interval_time(avg, rate);
     }
     return 0;
+}
+
+uint8_t UnitMAX30102::ppg_channels() const
+{
+    using m5::heart::Channel;
+    using m5::heart::channel_bit;
+    switch (_mode) {
+        case Mode::SpO2:
+            return channel_bit(Channel::Red) | channel_bit(Channel::IR);
+        case Mode::HROnly:
+            return channel_bit(Channel::Red);  // The driven LED is Red (stored in the IR field of Data)
+        case Mode::MultiLED: {
+            uint8_t ch{};
+            for (const auto slot : _slot) {
+                if (slot == Slot::Red) {
+                    ch |= channel_bit(Channel::Red);
+                } else if (slot == Slot::IR) {
+                    ch |= channel_bit(Channel::IR);
+                }
+            }
+            return ch;
+        }
+        default:
+            return 0;
+    }
+}
+
+m5::heart::PPGSpec UnitMAX30102::ppgSpec() const
+{
+    m5::heart::PPGSpec spec{};
+    spec.channels         = ppg_channels();
+    spec.sampling_rate_hz = inPeriodic() ? _ppg_rate : 0.0f;
+    spec.unit             = m5::heart::ValueUnit::PicoAmpere;
+    return spec;
+}
+
+bool UnitMAX30102::readPPG(m5::heart::PPGSample& out)
+{
+    if (!_data || _data->empty() || _ppg_pushed == _ppg_consumed) {
+        return false;
+    }
+    uint32_t lag = _ppg_pushed - _ppg_consumed;
+    if (lag > _data->size()) {
+        // Overwritten or discarded before being read: continue from the oldest kept
+        lag           = _data->size();
+        _ppg_consumed = _ppg_pushed - lag;
+    }
+    const auto d = _data->at(_data->size() - lag);
+    if (!d) {
+        return false;
+    }
+    ++_ppg_consumed;
+
+    using m5::heart::Channel;
+    using m5::heart::channel_bit;
+    out              = m5::heart::PPGSample{};
+    const uint8_t ch = ppg_channels();
+    if (_mode == Mode::HROnly) {
+        out.set(Channel::Red, d->ir() * _ppg_lsb);
+        return true;
+    }
+    if (ch & channel_bit(Channel::Red)) {
+        out.set(Channel::Red, d->red() * _ppg_lsb);
+    }
+    if (ch & channel_bit(Channel::IR)) {
+        out.set(Channel::IR, d->ir() * _ppg_lsb);
+    }
+    return true;
 }
 
 // Max30102 works with stop bit false, so wrap

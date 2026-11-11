@@ -14,6 +14,7 @@
 #include <m5_utility/stl/extension.hpp>
 #include <m5_utility/container/circular_buffer.hpp>
 #include <limits>  // NaN
+#include "../heart/ppg_data_source.hpp"
 
 namespace m5 {
 namespace unit {
@@ -187,7 +188,9 @@ struct SpO2Configuration;
   @brief Pulse oximetry and heart-rate sensor
   @note The only single measurement is temperature; other data is constantly measured and stored
 */
-class UnitMAX30102 : public Component, public PeriodicMeasurementAdapter<UnitMAX30102, max30102::Data> {
+class UnitMAX30102 : public Component,
+                     public PeriodicMeasurementAdapter<UnitMAX30102, max30102::Data>,
+                     public m5::heart::PPGDataSource {
     M5_UNIT_COMPONENT_HPP_BUILDER(UnitMAX30102, 0x57);
 
 public:
@@ -518,6 +521,7 @@ public:
       @param slot2 Slot2 mode
       @return True if successful
       @warning The slots should be enabled in order (i.e., SLOT1 should not be disabled if SLOT2 is enabled)
+      @warning The same LED cannot be set to both slots
       @warning During periodic detection runs, an error is returned
      */
     bool writeMultiLEDModeControl(const max30102::Slot slot1, const max30102::Slot slot2);
@@ -596,6 +600,29 @@ public:
     }
     ///@}
 
+    ///@name PPGDataSource
+    ///@{
+    /*!
+      @brief What this unit provides
+      @return SpO2 mode: Red and IR, HROnly: Red (the LED actually driven), MultiLED: the colors in the slots.
+      Unit is PicoAmpere (LSB of the ADC range). The sampling rate is 0 if not in periodic measurement
+     */
+    virtual m5::heart::PPGSpec ppgSpec() const override;
+    /*!
+      @brief Pop the oldest sample not yet read by readPPG()
+      @param[out] out Sample (pA)
+      @return True if a sample was stored in out
+      @note It does not change available(), oldest() or discard(). Samples removed by discard() or flush() before
+      readPPG() reads them are skipped, so call it (or PulseController::update()) before discarding
+     */
+    virtual bool readPPG(m5::heart::PPGSample& out) override;
+    //! @brief Did the latest update detect a FIFO overflow?
+    virtual bool ppgOverflowed() const override
+    {
+        return _overflow != 0;
+    }
+    ///@}
+
     /*!
       @brief Reset
       @return True if successful
@@ -636,6 +663,8 @@ protected:
 
     bool read_measurement_temperature(max30102::TemperatureData& td);
 
+    uint8_t ppg_channels() const;
+
     M5_UNIT_COMPONENT_PERIODIC_MEASUREMENT_ADAPTER_HPP_BUILDER(UnitMAX30102, max30102::Data);
 
 protected:
@@ -644,6 +673,9 @@ protected:
     uint8_t _retrieved{}, _overflow{};
     max30102::Slot _slot[2]{};
     config_t _cfg{};
+    float _ppg_rate{};                        // Sampling rate at the start of periodic measurement
+    float _ppg_lsb{};                         // pA per LSB of the ADC range at the start
+    uint32_t _ppg_pushed{}, _ppg_consumed{};  // readPPG() pop counters (independent of oldest()/discard())
 };
 
 }  // namespace unit

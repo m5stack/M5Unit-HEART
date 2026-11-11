@@ -6,10 +6,13 @@
 #ifndef M5_UNIT_HEART_EXAMPLE_VIEW_HPP
 #define M5_UNIT_HEART_EXAMPLE_VIEW_HPP
 
+#include <cmath>
+#include <limits>
+#include <m5_utility/compatibility_feature.hpp>
 #include "meter.hpp"
 
 struct View {
-    View(const uint32_t wid, const uint32_t hgt, bool unit) : _type{unit}
+    View(const uint32_t wid, const uint32_t hgt, const bool unit) : _type{unit}
     {
         _theme_color = unit ? TFT_BLUE : TFT_YELLOW;
         _sprite.setPsram(false);
@@ -24,19 +27,29 @@ struct View {
         _meter = new Meter(0, hgt * 2 / 3, wid, hgt / 3, palette_theme, palette_gauge, palette_black);
     }
 
-    inline void push_back(const float ir, const float red)
+    // Plot one sample of the waveform
+    inline void push_back(const float value)
     {
-        _monitor.push_back(ir, red);
+        _meter->push_back(value);
     }
 
-    void update()
+    // Update the values after processing (NaN if not valid)
+    void update(const float bpm, const float spo2, const float pi, const bool beat)
     {
-        if (_beat) {
+        _bpm = bpm;
+        _pi  = pi;
+        // The last valid SpO2 is kept for spo2_hold_ms while the heart rate is valid (it drops out for a few beats)
+        if (!std::isnan(spo2)) {
+            _spo2    = spo2;
+            _spo2_at = m5::utility::millis();
+        } else if (std::isnan(bpm) || m5::utility::hasElapsed(_spo2_at, spo2_hold_ms)) {
+            _spo2 = std::numeric_limits<float>::quiet_NaN();
+        }
+        if (beat) {
+            _beat = beat_frames;
+        } else if (_beat) {
             --_beat;
         }
-        _meter->push_back(_monitor.latestIR());
-        _monitor.update();
-        _beat += _monitor.isBeat() * 8;
     }
 
     void render()
@@ -44,7 +57,21 @@ struct View {
         _sprite.clear(palette_black);
         _sprite.drawString(_type ? "Unit" : "Hat", 0, 0);
         _sprite.setCursor(0, 24);
-        _sprite.printf("BPM: %3.2f\nSpO2:%3.2f", _monitor.bpm(), _monitor.SpO2());
+        if (std::isnan(_bpm)) {
+            _sprite.printf("BPM:  --\n");
+        } else {
+            _sprite.printf("BPM: %3.0f\n", _bpm);
+        }
+        if (std::isnan(_spo2)) {
+            _sprite.printf("SpO2: --\n");
+        } else {
+            _sprite.printf("SpO2:%3.0f\n", _spo2);
+        }
+        if (std::isnan(_pi)) {
+            _sprite.printf("PI:   --.--");
+        } else {
+            _sprite.printf("PI:   %3.2f", _pi);
+        }
         _sprite.fillCircle(_sprite.width() - 12, 24 * 3, 7, _beat ? palette_theme : palette_white);
 
         _meter->push(&_sprite);
@@ -52,7 +79,10 @@ struct View {
 
     void clear()
     {
-        _monitor.clear();
+        _bpm  = std::numeric_limits<float>::quiet_NaN();
+        _spo2 = std::numeric_limits<float>::quiet_NaN();
+        _pi   = std::numeric_limits<float>::quiet_NaN();
+        _beat = 0;
         _meter->clear();
     }
 
@@ -67,10 +97,15 @@ struct View {
         palette_theme = 2,
         palette_gauge = 3,
     };
+    static constexpr uint32_t beat_frames{4};                         // Number of updates the beat mark stays lit
+    static constexpr m5::utility::elapsed_time_t spo2_hold_ms{6000};  // Time the last valid SpO2 is kept
     LGFX_Sprite _sprite{};
-    m5::heart::PulseMonitor _monitor{100, 2};
     Meter* _meter{};
-    uint32_t _left{}, _top{}, _beat{};
+    float _bpm{std::numeric_limits<float>::quiet_NaN()};
+    float _spo2{std::numeric_limits<float>::quiet_NaN()};
+    m5::utility::elapsed_time_t _spo2_at{};  // Time of the last valid SpO2
+    float _pi{std::numeric_limits<float>::quiet_NaN()};
+    uint32_t _beat{};
     bool _type{};
     m5gfx::rgb565_t _theme_color{};
 };

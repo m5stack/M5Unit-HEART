@@ -14,7 +14,13 @@ class Meter {
 public:
     Meter(const uint32_t left, const uint32_t top, const uint32_t wid, const uint32_t hgt, m5gfx::rgb565_t tcolor,
           m5gfx::rgb565_t gcolor = TFT_DARKGRAY, m5gfx::rgb565_t bcolor = TFT_BLACK)
-        : _left(left), _top(top), _theme_color(tcolor), _gauge_color(gcolor), _background_color(bcolor)
+        : _left(left),
+          _top(top),
+          _wid(wid),
+          _hgt(hgt),
+          _theme_color(tcolor),
+          _gauge_color(gcolor),
+          _background_color(bcolor)
     {
         _plotter = new m5::ui::Plotter(nullptr, wid, wid, hgt);
         _plotter->setGaugeTextDatum(textdatum_t::top_right);
@@ -23,24 +29,49 @@ public:
         _plotter->setBackgroundColor(_background_color);
     }
 
+    // Add a second waveform drawn under the first one (scaled on its own)
+    void enableSecondLine(const m5gfx::rgb565_t color)
+    {
+        if (!_second) {
+            _second = new m5::ui::Plotter(nullptr, _wid, _wid, _hgt);
+            _second->setGaugeColor(_gauge_color);
+            _second->setBackgroundColor(_background_color);
+        }
+        _second->setLineColor(color);
+    }
+
     inline void push_back(const float value)
     {
         _plotter->push_back(value);
     }
+    inline void push_back(const float value, const float second)
+    {
+        _plotter->push_back(value);
+        if (_second) {
+            _second->push_back(second);
+        }
+    }
 
     inline void push(LovyanGFX* target)
     {
+        if (_second) {
+            _second->push(target, _left, _top);
+        }
         _plotter->push(target, _left, _top);
     }
 
     inline void clear()
     {
         _plotter->clear();
+        if (_second) {
+            _second->clear();
+        }
     }
 
 private:
-    uint32_t _left{}, _top{};
+    uint32_t _left{}, _top{}, _wid{}, _hgt{};
     m5::ui::Plotter* _plotter{};
+    m5::ui::Plotter* _second{};
     m5gfx::rgb565_t _theme_color{};
     m5gfx::rgb565_t _gauge_color{TFT_DARKGRAY};
     m5gfx::rgb565_t _background_color{TFT_BLACK};
