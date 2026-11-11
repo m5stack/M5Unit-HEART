@@ -91,6 +91,14 @@ void loop()
 | `isBeat()` | `isBeat()` |
 | `latestIR()` | `pulseWave()` |
 
+## Support via [PaHub](https://docs.m5stack.com/en/unit/Unit-PaHub%20v2.1)
+
+|Unit|Support|Note|
+|---|---|---|
+|UnitHeart|OK||
+
+See also the [ViaPaHub](examples/UnitUnified/ViaPaHub) example and [M5Unit-HUB](https://github.com/m5stack/M5Unit-HUB)
+
 ## Examples
 See also [examples/UnitUnified](examples/UnitUnified)
 
