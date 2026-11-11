@@ -521,6 +521,7 @@ public:
       @param slot2 Slot2 mode
       @return True if successful
       @warning The slots should be enabled in order (i.e., SLOT1 should not be disabled if SLOT2 is enabled)
+      @warning The same LED cannot be set to both slots
       @warning During periodic detection runs, an error is returned
      */
     bool writeMultiLEDModeControl(const max30102::Slot slot1, const max30102::Slot slot2);

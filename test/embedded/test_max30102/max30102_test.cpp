@@ -115,15 +115,16 @@ constexpr std::array<Slot, 2> slots_table[] = {
     {Slot::IR, Slot::None},
     {Slot::Red, Slot::None},
     //
-    {Slot::IR, Slot::IR},
     {Slot::IR, Slot::Red},
     {Slot::Red, Slot::IR},
-    {Slot::Red, Slot::Red},
 };
 
 constexpr std::array<Slot, 2> invalid_slots_table[] = {
     {Slot::None, Slot::IR},
     {Slot::None, Slot::Red},
+    // The same LED in both slots
+    {Slot::IR, Slot::IR},
+    {Slot::Red, Slot::Red},
 };
 
 void test_spo2_config(UnitMAX30102* unit, const Mode mode)
@@ -398,7 +399,7 @@ void test_periodic_multi(UnitMAX30102* unit)
 {
     constexpr std::tuple<Slot, Slot> cond_table[] = {
         {Slot::IR, Slot::Red},
-        {Slot::Red, Slot::Red},
+        {Slot::Red, Slot::IR},
         {Slot::IR, Slot::None},
         {Slot::Red, Slot::None},
     };

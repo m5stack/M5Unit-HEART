@@ -532,6 +532,11 @@ bool UnitMAX30102::writeMultiLEDModeControl(const max30102::Slot slot1, const ma
             slot1, slot2);
         return false;
     }
+    if (slot1 != Slot::None && slot1 == slot2) {
+        // Both slots would be stored at the same position of Data, so the data of slot1 would be lost
+        M5_LIB_LOGE("The same LED cannot be set to both slots %u,%u", slot1, slot2);
+        return false;
+    }
 
     MultiLEDControl mc{};
     mc.slotL(slot1);
