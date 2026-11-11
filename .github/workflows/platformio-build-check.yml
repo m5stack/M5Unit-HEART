@@ -55,6 +55,8 @@ jobs:
       matrix:
         example:
           - PlotToSerial
+          # ViaPaHub goes through UnitPaHub (M5Unit-HUB), so it is built on every representative board
+          - ViaPaHub
 
         unit:
           - UnitHeart

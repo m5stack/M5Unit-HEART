@@ -87,6 +87,9 @@ jobs:
           - label: DualSensor (no variant)
             example_path: examples/UnitUnified/DualSensor
             variant: ''
+          - label: ViaPaHub (no variant)
+            example_path: examples/UnitUnified/ViaPaHub
+            variant: ''
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -94,7 +97,7 @@ jobs:
       - name: Select Kconfig variant
         # The example's own sdkconfig.defaults is not read (top CMakeLists points SDKCONFIG_DEFAULTS
         # at common/sdkconfig.defaults). Append the choice to common/ in the CI workspace only.
-        # DualSensor has no variant, so nothing is appended for it.
+        # DualSensor and ViaPaHub have no variant, so nothing is appended for them.
         run: |
           if [ -n "${{ matrix.example_config.variant }}" ]; then
             echo "" >> examples/UnitUnified/common/sdkconfig.defaults
