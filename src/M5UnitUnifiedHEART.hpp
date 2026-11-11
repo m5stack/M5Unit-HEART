@@ -8,14 +8,21 @@
   @brief Main header of M5UnitUnifiedHEART
 
   @mainpage M5Unit-HEART
-  Library for UnitHEART using M5UnitUnified.
+  Library for UnitHeart, HatHeart and StampHeart using M5UnitUnified.
 */
 #ifndef M5_UNIT_HEART_HPP
 #define M5_UNIT_HEART_HPP
 
 #include "unit/unit_MAX30100.hpp"
 #include "unit/unit_MAX30102.hpp"
-#include "utility/pulse_monitor.hpp"
+#include "unit/unit_GH3038.hpp"
+#include "heart/ppg_types.hpp"
+#include "heart/ppg_data_source.hpp"
+#include "heart/filter/bandpass.hpp"
+#include "heart/beat_detector.hpp"
+#include "heart/spo2_estimator.hpp"
+#include "heart/pulse_processor.hpp"
+#include "heart/pulse_controller.hpp"
 
 /*!
   @namespace m5
@@ -35,6 +42,8 @@ using UnitHEART [[deprecated("Please use UnitHeart")]] = m5::unit::UnitMAX30100;
 using UnitHeart = m5::unit::UnitMAX30100;
 //! @brief HatHeart (SKU:U118, MAX30102)
 using HatHeart = m5::unit::UnitMAX30102;
+//! @brief StampHeart (GH3038)
+using StampHeart = m5::unit::UnitGH3038;
 
 }  // namespace unit
 }  // namespace m5

@@ -599,3 +599,101 @@ TEST_F(TestMAX30100, Periodic_HR)
 
     test_periodic_hr(unit.get());
 }
+
+TEST_F(TestMAX30100, PPGSpec)
+{
+    SCOPED_TRACE(ustr);
+    using m5::heart::Channel;
+    using m5::heart::channel_bit;
+
+    // Default: SpO2, 100 sps
+    EXPECT_TRUE(unit->inPeriodic());
+    m5::heart::PPGSpec spec = unit->ppgSpec();
+    EXPECT_EQ(spec.channels, channel_bit(Channel::Red) | channel_bit(Channel::IR));
+    EXPECT_FLOAT_EQ(spec.sampling_rate_hz, 100.0f);
+    EXPECT_EQ(spec.unit, m5::heart::ValueUnit::Count);
+    EXPECT_FALSE(unit->ppgOverflowed());
+
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+    EXPECT_FLOAT_EQ(unit->ppgSpec().sampling_rate_hz, 0.0f);
+
+    // The exact rate (calculateSamplingRate() truncates 167 to 166)
+    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::SpO2, Sampling::Rate167, LEDPulse::Width800, LED::Current27_1,
+                                               true, LED::Current27_1));
+    EXPECT_FLOAT_EQ(unit->ppgSpec().sampling_rate_hz, 167.0f);
+    EXPECT_TRUE(unit->stopPeriodicMeasurement());
+
+    // HR only: IR
+    EXPECT_TRUE(unit->startPeriodicMeasurement(Mode::HROnly, Sampling::Rate100, LEDPulse::Width1600, LED::Current27_1,
+                                               true, LED::Current27_1));
+    spec = unit->ppgSpec();
+    EXPECT_EQ(spec.channels, channel_bit(Channel::IR));
+    EXPECT_FLOAT_EQ(spec.sampling_rate_hz, 100.0f);
+}
+
+TEST_F(TestMAX30100, ReadPPGIndependent)
+{
+    SCOPED_TRACE(ustr);
+    using m5::heart::Channel;
+
+    EXPECT_TRUE(unit->inPeriodic());
+    m5::heart::PPGSample s{};
+    unit->update(true);
+    unit->flush();
+    while (unit->readPPG(s)) {
+        // Skip everything before the flush
+    }
+
+    m5::utility::delay(100);  // About 10 samples
+    unit->update(true);
+    EXPECT_TRUE(unit->updated());
+    const auto avail = unit->available();
+    EXPECT_GT(avail, 0U);
+    const auto first = unit->oldest();
+
+    uint32_t count{};
+    while (unit->readPPG(s)) {
+        if (count == 0) {
+            EXPECT_TRUE(s.has(Channel::Red));
+            EXPECT_TRUE(s.has(Channel::IR));
+            EXPECT_FALSE(s.has(Channel::Green));
+            EXPECT_FLOAT_EQ(s.get(Channel::IR), static_cast<float>(first.ir()));
+            EXPECT_FLOAT_EQ(s.get(Channel::Red), static_cast<float>(first.red()));
+        }
+        ++count;
+    }
+    EXPECT_EQ(count, avail);
+    // readPPG() does not consume the stored data
+    EXPECT_EQ(unit->available(), avail);
+    EXPECT_EQ(unit->oldest().ir(), first.ir());
+    EXPECT_EQ(unit->oldest().red(), first.red());
+    // discard() / flush() do not bring back samples already read
+    unit->discard();
+    EXPECT_FALSE(unit->readPPG(s));
+    unit->flush();
+    EXPECT_FALSE(unit->readPPG(s));
+}
+
+TEST_F(TestMAX30100, ReadPPGRate)
+{
+    SCOPED_TRACE(ustr);
+
+    const float rate = unit->ppgSpec().sampling_rate_hz;
+    EXPECT_FLOAT_EQ(rate, 100.0f);
+    m5::heart::PPGSample s{};
+    unit->update(true);
+    while (unit->readPPG(s)) {
+        // Skip the samples before the measurement window
+    }
+
+    uint32_t count{};
+    const m5::utility::elapsed_time_t start_at = m5::utility::millis();
+    while (!m5::utility::hasElapsed(start_at, 2000)) {
+        unit->update();
+        while (unit->readPPG(s)) {
+            ++count;
+        }
+        std::this_thread::yield();
+    }
+    EXPECT_NEAR(count, rate * 2.0f, rate * 2.0f * 0.1f);
+}

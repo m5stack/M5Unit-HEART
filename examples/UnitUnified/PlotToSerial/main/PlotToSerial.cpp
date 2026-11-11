@@ -4,22 +4,25 @@
  * SPDX-License-Identifier: MIT
  */
 /*
-  Example using M5UnitUnified for UnitHeart / HatHeart
+  Example using M5UnitUnified for UnitHeart / HatHeart / StampHeart
 */
 #include <M5Unified.h>
 #include <M5UnitUnified.h>
 #include <M5UnitUnifiedHEART.h>
 #include <driver/gpio.h>
+#include <esp_heap_caps.h>
 #include <wiring/m5_unit_unified_wiring.hpp>  // Board-aware connection helpers (include last)
 
 // *************************************************************
 // Choose one define symbol to match the unit you are using
 // *************************************************************
-#if !defined(USING_UNIT_HEART) && !defined(USING_HAT_HEART)
+#if !defined(USING_UNIT_HEART) && !defined(USING_HAT_HEART) && !defined(USING_STAMP_HEART)
 // For UnitHeart (U029)
 // #define USING_UNIT_HEART
 // For HatHeart (U118)
 // #define USING_HAT_HEART
+// For StampHeart
+// #define USING_STAMP_HEART
 #endif
 
 #if defined(USING_UNIT_HEART)
@@ -28,6 +31,9 @@ using namespace m5::unit::max30100;
 #elif defined(USING_HAT_HEART)
 #pragma message "Using HatHeart"
 using namespace m5::unit::max30102;
+#elif defined(USING_STAMP_HEART)
+#pragma message "Using StampHeart"
+using namespace m5::unit::gh3038;
 #else
 #error Please choose unit!
 #endif
@@ -39,9 +45,34 @@ m5::unit::UnitUnified Units;
 m5::unit::UnitHeart unit;
 #elif defined(USING_HAT_HEART)
 m5::unit::HatHeart unit;
+#elif defined(USING_STAMP_HEART)
+m5::unit::StampHeart unit;
+// StampHeart INT/RST GROVE: pin1 (next to 5V) = RST, pin2 = INT
+// StampHeart is intended to be wired directly to a Stamp host (e.g. StampC5 / StampP4)
+// Set these to the GPIOs you wired (used except on Core / Core2 / CoreS3 / CoreS3SE)
+// -1: INT unused (polling), RST not driven
+constexpr int8_t fallback_int_pin{-1};
+constexpr int8_t fallback_rst_pin{-1};
+
+// Core series whose Port C can be used for the INT/RST GROVE
+bool has_usable_port_c()
+{
+    switch (M5.getBoard()) {
+        case m5::board_t::board_M5Stack:
+            // Fire is also detected as M5Stack, but its Port C is shared with PSRAM
+            return heap_caps_get_total_size(MALLOC_CAP_SPIRAM) == 0;
+        case m5::board_t::board_M5StackCore2:
+        case m5::board_t::board_M5StackCoreS3:
+        case m5::board_t::board_M5StackCoreS3SE:
+            return true;
+        default:
+            return false;
+    }
+}
 #endif
 
-m5::heart::PulseMonitor monitor;
+// Heart rate / SpO2 processing (sampling rate and channels are taken from the unit)
+m5::heart::PulseController pulse;
 
 #if defined(USING_HAT_HEART)
 constexpr bool using_multi_led_mode{false};  // Using multiLED mode if true
@@ -82,6 +113,24 @@ void setup()
         M5_LOGE("Failed to begin");
         m5::unit::wiring::failStop();
     }
+#elif defined(USING_STAMP_HEART)
+    {
+        // Core / Core2 / CoreS3 / CoreS3SE: I2C GROVE -> Port A, INT/RST GROVE -> Port C
+        auto cfg = unit.config();
+        if (has_usable_port_c()) {
+            cfg.rst_pin = M5.getPin(m5::pin_name_t::port_c_pin1);
+            cfg.int_pin = M5.getPin(m5::pin_name_t::port_c_pin2);
+        } else {
+            cfg.rst_pin = fallback_rst_pin;
+            cfg.int_pin = fallback_int_pin;
+        }
+        unit.config(cfg);
+        M5.Log.printf("StampHeart INT:%d RST:%d\n", cfg.int_pin, cfg.rst_pin);
+    }
+    if (!m5::unit::wiring::addI2C(Units, unit, 400 * 1000U) || !Units.begin()) {
+        M5_LOGE("Failed to begin");
+        m5::unit::wiring::failStop();
+    }
 #else
     // UnitHeart: NessoN1 -> SoftwareI2C (M5HAL), NanoC6 / NanoH2 -> M5.Ex_I2C, others -> Wire
     if (!m5::unit::wiring::addI2C(Units, unit, 400 * 1000U) || !Units.begin()) {
@@ -90,13 +139,13 @@ void setup()
     }
 #endif
 
-    M5_LOGI("M5UnitUnified initialized");
-    M5_LOGI("%s", Units.debugInfo().c_str());
+    M5.Log.printf("M5UnitUnified initialized\n");
+    M5.Log.printf("%s\n", Units.debugInfo().c_str());
 
 #if defined(USING_HAT_HEART)
     // In MultiLED mode, you need to set and start them yourself
     if (using_multi_led_mode) {
-        M5_LOGI("MultiLED mode");
+        M5.Log.printf("MultiLED mode\n");
         unit.writeMode(Mode::MultiLED);
         unit.writeSpO2Configuration(ADC::Range4096nA, Sampling::Rate400, LEDPulse::Width411);
         unit.writeFIFOConfiguration(FIFOSampling::Average4, true, 15);
@@ -108,7 +157,11 @@ void setup()
     }
 #endif
 
-    monitor.setSamplingRate(unit.calculateSamplingRate());
+    // Add after the periodic measurement has started (the sampling rate is 0 before that)
+    if (!pulse.add(unit)) {
+        M5_LOGE("Failed to add the PPG data source");
+        m5::unit::wiring::failStop();
+    }
     lcd.fillScreen(TFT_DARKGREEN);
 }
 
@@ -118,25 +171,42 @@ void loop()
     Units.update();
 
     if (unit.updated()) {
+        // Process the new samples before they are discarded below
+        pulse.update();
+
+#if defined(USING_STAMP_HEART)
+        // Overflow means update() is not called often enough for the sampling rate
+        if (unit.overflowed()) {
+            M5_LOGW("OVERFLOW");
+        }
+        while (unit.available()) {
+            M5.Log.printf(">GREEN:%ld\n>RED:%ld\n>IR:%ld\n", static_cast<long>(unit.green()),
+                          static_cast<long>(unit.red()), static_cast<long>(unit.ir()));
+            unit.discard();
+        }
+#else
         // WARNING
         // If overflow is occurring, the sampling rate should be reduced because the processing is not up to par
         if (unit.overflow()) {
             M5_LOGW("OVERFLOW:%u", unit.overflow());
         }
-
-        bool beat{};
         // MAX30100/02 is equipped with a FIFO, so multiple data may be stored
         while (unit.available()) {
             M5.Log.printf(">IR:%u\n>RED:%u\n", unit.ir(), unit.red());
-            monitor.push_back(unit.ir(), unit.red());  // Push back the oldest data
-            M5.Log.printf(">MIR:%f\n", monitor.latestIR());
-            monitor.update();
-            beat |= monitor.isBeat();
             unit.discard();  // Discard the oldest data
         }
-        M5.Log.printf(">BPM:%f\n>SpO2:%f\n>BEAT:%u\n", monitor.bpm(), monitor.SpO2(), beat);
+#endif
+        // Invalid values (NaN) are not printed
+        if (pulse.hasBpm()) {
+            M5.Log.printf(">BPM:%f\n>PI:%f\n", pulse.bpm(), pulse.perfusionIndex());
+        }
+        if (pulse.hasSpO2()) {
+            M5.Log.printf(">SpO2:%f\n", pulse.spo2());  // Provisional (not calibrated)
+        }
+        M5.Log.printf(">BEAT:%u\n", pulse.isBeat());
     }
 
+#if !defined(USING_STAMP_HEART)
     // Measure temperature
     if (M5.BtnA.wasClicked()) {
         TemperatureData td{};
@@ -144,6 +214,7 @@ void loop()
             M5.Log.printf(">Temp:%f\n", td.celsius());
         }
     }
+#endif
 }
 
 #if !defined(ARDUINO)

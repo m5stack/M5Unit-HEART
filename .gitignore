@@ -25,6 +25,8 @@
 *.la
 *.a
 *.lib
+# Precompiled GH3038 core (StampHeart)
+!src/*/libm5gh3038core.a
 
 # Executables
 *.exe

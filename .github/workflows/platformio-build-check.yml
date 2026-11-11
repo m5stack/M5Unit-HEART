@@ -125,6 +125,17 @@ jobs:
             board: StickCPlus2
             framework: Arduino
             espressif32: latest
+          # Stamp
+          - example: PlotToSerial
+            unit: StampHeart
+            board: CoreS3
+            framework: Arduino
+            espressif32: latest
+          - example: GraphicalMeter
+            unit: StampHeart
+            board: CoreS3
+            framework: Arduino
+            espressif32: latest
           # DualSensor
           - example: DualSensor
             board: StickCPlus2

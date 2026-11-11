@@ -10,3 +10,13 @@ idf_component_register(
     REQUIRES M5UnitUnified
     PRIV_REQUIRES M5Utility
 )
+
+# Precompiled GH3038 core for StampHeart (src/<target>/libm5gh3038core.a)
+set(GH3038_CORE_LIB "${CMAKE_CURRENT_LIST_DIR}/src/${IDF_TARGET}/libm5gh3038core.a")
+if(EXISTS "${GH3038_CORE_LIB}")
+    add_prebuilt_library(m5gh3038core "${GH3038_CORE_LIB}")
+    target_link_libraries(${COMPONENT_LIB} PRIVATE m5gh3038core)
+else()
+    # Not an error: UnitHeart / HatHeart can be used without the core
+    message(WARNING "M5Unit-HEART: ${GH3038_CORE_LIB} is not found. StampHeart (UnitGH3038) is not available")
+endif()

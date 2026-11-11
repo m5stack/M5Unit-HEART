@@ -2,7 +2,7 @@
 
 ## Overview
 
-Library for UnitHEART using [M5UnitUnified](https://github.com/m5stack/M5UnitUnified).  
+Library for UnitHeart, HatHeart and StampHeart using [M5UnitUnified](https://github.com/m5stack/M5UnitUnified).  
 M5UnitUnified is a library for unified handling of various M5 units products.
 
 ### SKU:U029
@@ -11,12 +11,16 @@ Unit Heart is a blood oxygen and heart rate sensor. Integrated MAX30100, it offe
 ### SKU:U118
 Hat Heart is a blood oxygen and heart rate sensor. It integrates MAX30102, providing a complete pulse oximeter and heart rate sensor system solution. This is a non-invasive blood oxygen and heart rate sensor. Its detection principle is based on infrared LED light illumination, which detects the ratio of oxygenated to deoxygenated red blood cells to determine blood oxygen levels. The sensor uses an I2C communication interface and integrates infrared LEDs, photodetectors, optical components, and low-noise electronics, with some ambient light suppression for more accurate measurements.
 
+### SKU:TBD (StampHeart)
+TBD
+
 
 ## Related Link
 See also examples using conventional methods here.
 
 - [Unit Heart & Datasheet](https://docs.m5stack.com/en/unit/heart)
 - [Hat Heart & Datasheet](https://docs.m5stack.com/en/hat/hat_heart_rate)
+- [Stamp Heart & Datasheet](https://docs.m5stack.com/en/products/sku/TBD)
 
 ## Required Libraries:
 
@@ -29,8 +33,70 @@ See also examples using conventional methods here.
 - [M5Unit-HEART - MIT](LICENSE)
 
 
+## Heart rate / SpO2 processing
+`m5::heart::PulseController` calculates the heart rate, SpO2 and perfusion index from any of the units above.
+The sampling rate and the LED channels are taken from the unit, so the same code works for UnitHeart, HatHeart and StampHeart.
+
+```cpp
+#include <M5Unified.h>
+#include <M5UnitUnified.h>
+#include <M5UnitUnifiedHEART.h>
+
+m5::unit::UnitUnified Units;
+m5::unit::StampHeart unit;  // or UnitHeart / HatHeart
+m5::heart::PulseController pulse;
+
+void setup()
+{
+    M5.begin();
+    // Connect the unit (see the examples for each board), then
+    // Units.add(unit, Wire); Units.begin();
+    pulse.add(unit);  // After the periodic measurement has started
+}
+
+void loop()
+{
+    M5.update();
+    Units.update();
+    if (unit.updated()) {
+        pulse.update();  // Process the new samples before discarding them
+        while (unit.available()) {
+            unit.discard();
+        }
+        if (pulse.hasBpm()) {
+            M5.Log.printf("BPM:%f\n", pulse.bpm());
+        }
+        if (pulse.hasSpO2()) {
+            M5.Log.printf("SpO2:%f\n", pulse.spo2());
+        }
+    }
+}
+```
+
+- The heart rate is detected on Green (StampHeart) or IR / Red with a 0.5-4 Hz band-pass filter and an adaptive peak detector.
+- The values are NaN while they are not valid (no finger, weak or irregular pulse). Check `hasBpm()` / `hasSpO2()` before using them.
+- To process recorded samples, use `m5::heart::PulseProcessor` and push the samples one by one.
+
+> **WARNING:** SpO2 is calculated with a provisional conversion (110 - 25R) that is not calibrated for these sensors.  
+> This library is not a medical device. Do not use the values for diagnosis or treatment.
+
+### Migration from PulseMonitor
+`m5::heart::PulseMonitor`, `EMA` and `Filter` have been removed. Use `m5::heart::PulseController` instead.
+
+| PulseMonitor | PulseController |
+|---|---|
+| `setSamplingRate(unit.calculateSamplingRate())` | `add(unit)` |
+| `push_back(ir, red)` and `update()` for each sample | `update()` once after `unit.updated()` (before `discard()`) |
+| `bpm()` / `SpO2()` | `bpm()` / `spo2()` (NaN while not valid) |
+| `isBeat()` | `isBeat()` |
+| `latestIR()` | `pulseWave()` |
+
 ## Examples
 See also [examples/UnitUnified](examples/UnitUnified)
+
+- PlotToSerial: Outputs the raw values, heart rate, SpO2 and perfusion index for a serial plotter
+- GraphicalMeter: Shows the pulse waveform, heart rate and SpO2 on the LCD. BtnA click restarts the processing, long press switches the sampling rate (50 / 100 / 200 Hz)
+- DualSensor: Uses UnitHeart and HatHeart at the same time
 
 ### For ArduinoIDE settings
 You must choose a define symbol for the unit you will use.
@@ -41,11 +107,13 @@ You must choose a define symbol for the unit you will use.
 // *************************************************************
 // Choose one define symbol to match the unit you are using
 // *************************************************************
-#if !defined(USING_UNIT_HEART) && !defined(USING_HAT_HEART)
+#if !defined(USING_UNIT_HEART) && !defined(USING_HAT_HEART) && !defined(USING_STAMP_HEART)
 // For UnitHeart (U029)
 // #define USING_UNIT_HEART
 // For HatHeart (U118)
 // #define USING_HAT_HEART
+// For StampHeart
+// #define USING_STAMP_HEART
 #endif
 ```
 
@@ -65,6 +133,7 @@ idf.py menuconfig
 # -> M5Unit-HEART example -> Target unit -> choose ONE:
 #       UnitHeart (MAX30100, I2C / GROVE)
 #       HatHeart (MAX30102, Hat / internal I2C)
+#       StampHeart (GH3038, I2C / GROVE + INT/RST)
 idf.py build flash monitor
 ```
 

@@ -19,8 +19,81 @@ m5::unit::UnitUnified Units;
 m5::unit::UnitHeart unit;
 m5::unit::HatHeart hat;
 
+// Heart rate / SpO2 processing for each unit (sampling rate and channels are taken from the unit)
+m5::heart::PulseController pulse_unit;
+m5::heart::PulseController pulse_hat;
+
 View* view[2]{};
 bool is_epd_panel{};
+
+// Waveform plot of one unit
+// - Filter: 0.3 Hz high-pass removes the DC level, 10 Hz low-pass removes the sensor noise while keeping the pulse
+//   shape (the processing uses its own 0.5-4 Hz band-pass)
+// - The horizontal axis is time: one plotted point is 20 ms regardless of the sampling rate
+// - Points are queued and drawn one per 20 ms, so that the waveform scrolls smoothly while the unit delivers the
+//   samples in batches
+constexpr float plot_points_per_sec{50.0f};
+constexpr uint32_t plot_interval_ms{static_cast<uint32_t>(1000.0f / plot_points_per_sec)};
+constexpr size_t plot_queue_size{64};
+constexpr size_t plot_queue_catch_up{15};  // Draw extra points when more than this are waiting (0.3 s)
+
+struct Plot {
+    m5::heart::BandPass filter{};
+    float step{1.0f};  // Plotted points per sample
+    float acc{};       // Accumulated plotted points
+    float queue[plot_queue_size]{};
+    size_t head{}, count{};
+
+    void restart(const float rate)
+    {
+        filter = m5::heart::BandPass(0.3f, 10.0f, rate);
+        step   = (rate > 0.0f) ? plot_points_per_sec / rate : 1.0f;
+        acc    = 0.0f;
+        head = count = 0;
+    }
+    // Add a raw sample (inverted so that the systolic peak points up)
+    void add(const float raw)
+    {
+        const float v = filter.process(-raw);  // The filter runs at the sampling rate
+        acc += step;
+        while (acc >= 1.0f) {
+            if (count == plot_queue_size) {  // Full: drop the oldest
+                head = (head + 1) % plot_queue_size;
+                --count;
+            }
+            queue[(head + count) % plot_queue_size] = v;
+            ++count;
+            acc -= 1.0f;
+        }
+    }
+    // Move the points to draw in this frame to the view
+    bool draw(View* v)
+    {
+        if (!count) {
+            return false;
+        }
+        size_t n = 1 + ((count > plot_queue_catch_up) ? count - plot_queue_catch_up : 0);
+        while (n-- && count) {
+            v->push_back(queue[head]);
+            head = (head + 1) % plot_queue_size;
+            --count;
+        }
+        return true;
+    }
+};
+
+Plot plot[2]{};
+m5::utility::elapsed_time_t plot_latest{};
+
+void restart()
+{
+    pulse_unit.add(unit);
+    pulse_hat.add(hat);
+    plot[0].restart(unit.ppgSpec().sampling_rate_hz);
+    plot[1].restart(hat.ppgSpec().sampling_rate_hz);
+    view[0]->clear();
+    view[1]->clear();
+}
 
 }  // namespace
 
@@ -66,13 +139,17 @@ void setup()
         m5::unit::wiring::failStop();
     }
 
-    M5_LOGI("M5UnitUnified initialized");
-    M5_LOGI("%s", Units.debugInfo().c_str());
+    M5.Log.printf("M5UnitUnified initialized\n");
+    M5.Log.printf("%s\n", Units.debugInfo().c_str());
+
+    if (!pulse_unit.add(unit) || !pulse_hat.add(hat)) {
+        M5_LOGE("Failed to add the PPG data sources");
+        m5::unit::wiring::failStop();
+    }
 
     view[0] = new View(lcd.width() >> 1, lcd.height(), true);
     view[1] = new View(lcd.width() >> 1, lcd.height(), false);
-    view[0]->_monitor.setSamplingRate(unit.calculateSamplingRate());
-    view[1]->_monitor.setSamplingRate(hat.calculateSamplingRate());
+    restart();
     if (!is_epd_panel) {
         view[0]->push(&lcd, lcd.width() >> 1, 0);
         view[1]->push(&lcd, 0, 0);
@@ -88,60 +165,62 @@ void loop()
         lcd.startWrite();
     }
     if (unit.updated()) {
+        // Process the new samples before they are discarded below
+        pulse_unit.update();
         if (unit.overflow()) {
             M5_LOGW("OVERFLOW U:%u", unit.overflow());
         }
-        bool beat{};
         while (unit.available()) {
             const auto ir  = unit.ir();
             const auto red = unit.red();
-            view[0]->push_back(ir, red);
-            view[0]->update();
+            plot[0].add(static_cast<float>(ir));
             if (is_epd_panel) {
                 M5.Log.printf(">UIR:%u\n>URED:%u\n", static_cast<uint32_t>(ir), static_cast<uint32_t>(red));
-                M5.Log.printf(">UMIR:%f\n", view[0]->_monitor.latestIR());
             }
-            beat |= view[0]->_monitor.isBeat();
             unit.discard();
         }
+        view[0]->update(pulse_unit.bpm(), pulse_unit.spo2(), pulse_unit.isBeat());
         if (is_epd_panel) {
-            M5.Log.printf(">UBPM:%f\n>USpO2:%f\n>UBEAT:%u\n", view[0]->_monitor.bpm(), view[0]->_monitor.SpO2(), beat);
-        }
-        if (!is_epd_panel) {
-            view[0]->render();
-            view[0]->push(&lcd, lcd.width() >> 1, 0);
+            M5.Log.printf(">UBPM:%f\n>USpO2:%f\n>UBEAT:%u\n", pulse_unit.bpm(), pulse_unit.spo2(), pulse_unit.isBeat());
         }
     }
 
     if (hat.updated()) {
+        // Process the new samples before they are discarded below
+        pulse_hat.update();
         if (hat.overflow()) {
             M5_LOGW("OVERFLOW H:%u", hat.overflow());
         }
-        bool beat{};
         while (hat.available()) {
             const auto ir  = hat.ir();
             const auto red = hat.red();
-            view[1]->push_back(ir, red);
-            view[1]->update();
+            plot[1].add(static_cast<float>(ir));
             if (is_epd_panel) {
                 M5.Log.printf(">HIR:%u\n>HRED:%u\n", static_cast<uint32_t>(ir), static_cast<uint32_t>(red));
-                M5.Log.printf(">HMIR:%f\n", view[1]->_monitor.latestIR());
             }
-            beat |= view[1]->_monitor.isBeat();
             hat.discard();
         }
+        view[1]->update(pulse_hat.bpm(), pulse_hat.spo2(), pulse_hat.isBeat());
         if (is_epd_panel) {
-            M5.Log.printf(">HBPM:%f\n>HSpO2:%f\n>HBEAT:%u\n", view[1]->_monitor.bpm(), view[1]->_monitor.SpO2(), beat);
+            M5.Log.printf(">HBPM:%f\n>HSpO2:%f\n>HBEAT:%u\n", pulse_hat.bpm(), pulse_hat.spo2(), pulse_hat.isBeat());
         }
-        if (!is_epd_panel) {
+    }
+
+    // Draw one queued point of each unit per 20 ms (more if the queue is backed up)
+    if (!is_epd_panel && m5::utility::hasElapsed(plot_latest, plot_interval_ms)) {
+        plot_latest = m5::utility::millis();
+        if (plot[0].draw(view[0])) {
+            view[0]->render();
+            view[0]->push(&lcd, lcd.width() >> 1, 0);
+        }
+        if (plot[1].draw(view[1])) {
             view[1]->render();
             view[1]->push(&lcd, 0, 0);
         }
     }
 
     if (M5.BtnA.wasClicked()) {
-        view[0]->clear();
-        view[1]->clear();
+        restart();  // Restart the processing
     }
     if (!is_epd_panel) {
         lcd.endWrite();

@@ -13,6 +13,8 @@ choice EXAMPLE_HEART_VARIANT
         bool "UnitHeart (MAX30100, I2C / GROVE)"
     config EXAMPLE_USING_HAT_HEART
         bool "HatHeart (MAX30102, Hat / internal I2C)"
+    config EXAMPLE_USING_STAMP_HEART
+        bool "StampHeart (GH3038, I2C / GROVE + INT/RST)"
 endchoice
 
 endmenu

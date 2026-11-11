@@ -214,8 +214,11 @@ bool UnitMAX30100::start_periodic_measurement()
     if (readSpO2SamplingRate(rate)) {
         _periodic = writeShutdownControl(false) && resetFIFO();
         if (_periodic) {
-            _latest   = 0;
-            _interval = calculate_interval_time(rate);
+            _latest       = 0;
+            _interval     = calculate_interval_time(rate);
+            _ppg_rate     = static_cast<float>(sr_table[m5::stl::to_underlying(rate)]);
+            _ppg_pushed   = 0;
+            _ppg_consumed = 0;
             // M5_LIB_LOGE(">>>>R: Rate:%u IT:%u", rate, _interval);
             //              _mask     = adc_resolution_bits_table[m5::stl::to_underlying(width)];
             return true;
@@ -486,6 +489,7 @@ bool UnitMAX30100::read_FIFO()
                 // Unlike MAX30102, the length of data per session does not change even in HROnly
                 memcpy(d.raw.data(), rbuf + 4 * i, 4);
                 _data->push_back(d);
+                ++_ppg_pushed;
             }
             left -= batch_len;
         }
@@ -512,6 +516,54 @@ uint32_t UnitMAX30100::calculateSamplingRate()
         return 1000 / calculate_interval_time(rate);
     }
     return 0;
+}
+
+m5::heart::PPGSpec UnitMAX30100::ppgSpec() const
+{
+    using m5::heart::Channel;
+    using m5::heart::channel_bit;
+    m5::heart::PPGSpec spec{};
+    switch (_mode) {
+        case Mode::SpO2:
+            spec.channels = channel_bit(Channel::Red) | channel_bit(Channel::IR);
+            break;
+        case Mode::HROnly:
+            spec.channels = channel_bit(Channel::IR);
+            break;
+        default:
+            break;
+    }
+    spec.sampling_rate_hz = inPeriodic() ? _ppg_rate : 0.0f;
+    spec.unit             = m5::heart::ValueUnit::Count;
+    return spec;
+}
+
+bool UnitMAX30100::readPPG(m5::heart::PPGSample& out)
+{
+    if (!_data || _data->empty() || _ppg_pushed == _ppg_consumed) {
+        return false;
+    }
+    uint32_t lag = _ppg_pushed - _ppg_consumed;
+    if (lag > _data->size()) {
+        // Overwritten or discarded before being read: continue from the oldest kept
+        lag           = _data->size();
+        _ppg_consumed = _ppg_pushed - lag;
+    }
+    const auto d = _data->at(_data->size() - lag);
+    if (!d) {
+        return false;
+    }
+    ++_ppg_consumed;
+
+    using m5::heart::Channel;
+    out = m5::heart::PPGSample{};
+    if (_mode == Mode::SpO2) {
+        out.set(Channel::Red, static_cast<float>(d->red()));
+        out.set(Channel::IR, static_cast<float>(d->ir()));
+    } else if (_mode == Mode::HROnly) {
+        out.set(Channel::IR, static_cast<float>(d->ir()));
+    }
+    return true;
 }
 
 // Max30100 works with stop bit false, so wrap

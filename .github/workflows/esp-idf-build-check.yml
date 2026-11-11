@@ -72,12 +72,18 @@ jobs:
           - label: PlotToSerial-HatHeart
             example_path: examples/UnitUnified/PlotToSerial
             variant: USING_HAT_HEART
+          - label: PlotToSerial-StampHeart
+            example_path: examples/UnitUnified/PlotToSerial
+            variant: USING_STAMP_HEART
           - label: GraphicalMeter-UnitHeart
             example_path: examples/UnitUnified/GraphicalMeter
             variant: USING_UNIT_HEART
           - label: GraphicalMeter-HatHeart
             example_path: examples/UnitUnified/GraphicalMeter
             variant: USING_HAT_HEART
+          - label: GraphicalMeter-StampHeart
+            example_path: examples/UnitUnified/GraphicalMeter
+            variant: USING_STAMP_HEART
           - label: DualSensor (no variant)
             example_path: examples/UnitUnified/DualSensor
             variant: ''
@@ -102,12 +108,13 @@ jobs:
           target: esp32s3
           path: ${{ matrix.example_config.example_path }}
 
-  # Chip coverage: PlotToSerial (UnitHeart / GROVE I2C) on every other supported SoC. esp32 =
+  # Chip coverage: PlotToSerial (UnitHeart / StampHeart on every other supported SoC, HatHeart on the
+  # SoCs of its hosts). esp32 =
   # classic Xtensa dual-core. esp32c6 (NanoC6) / esp32h2 (NanoH2) = RISC-V single-core, exercises
   # the app_main CONFIG_FREERTOS_UNICORE feedIdle branch. esp32p4 (M5Stack Tab5) = RISC-V dual-core;
   # the sdkconfig.defaults.esp32p4 overlay (chip-rev minimum keys) is auto-applied.
   build-chips:
-    name: ${{ matrix.idf }} ${{ matrix.target }} PlotToSerial-UnitHeart
+    name: ${{ matrix.idf }} ${{ matrix.target }} PlotToSerial-${{ matrix.unit.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -116,7 +123,19 @@ jobs:
       matrix:
         target: [esp32, esp32c6, esp32h2, esp32p4]
         idf: [v5.1.7, v5.4.4, v5.5.4]
+        unit:
+          - label: UnitHeart
+            config: CONFIG_EXAMPLE_USING_UNIT_HEART
+          - label: StampHeart
+            config: CONFIG_EXAMPLE_USING_STAMP_HEART
+          - label: HatHeart
+            config: CONFIG_EXAMPLE_USING_HAT_HEART
         exclude:
+          # HatHeart hosts: StickC Plus / Plus2 / CoreInk (esp32), StickS3 (esp32s3), NessoN1 (esp32c6)
+          - target: esp32h2
+            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
+          - target: esp32p4
+            unit: {label: HatHeart, config: CONFIG_EXAMPLE_USING_HAT_HEART}
           # esp32p4 stable from IDF v5.3 (M5GFX P4 verified on 5.4/5.5). 5.1.7 not applicable.
           - target: esp32p4
             idf: v5.1.7
@@ -127,7 +146,7 @@ jobs:
       - name: Select Kconfig variant
         run: |
           echo "" >> examples/UnitUnified/common/sdkconfig.defaults
-          echo "CONFIG_EXAMPLE_USING_UNIT_HEART=y" >> examples/UnitUnified/common/sdkconfig.defaults
+          echo "${{ matrix.unit.config }}=y" >> examples/UnitUnified/common/sdkconfig.defaults
 
       - name: ESP-IDF build
         uses: espressif/esp-idf-ci-action@v1
