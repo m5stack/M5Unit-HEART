@@ -17,7 +17,6 @@ struct View {
         : _title{title}, _theme_color{theme}
     {
         _screen_w            = wid;
-        _screen_h            = hgt;
         _plot_top            = hgt * 2 / 3;
         _plot_hgt            = hgt / 3;
         const uint32_t spr_w = wid;
@@ -170,8 +169,8 @@ struct View {
     float _spo2{std::numeric_limits<float>::quiet_NaN()};
     m5::utility::elapsed_time_t _spo2_at{};  // Time of the last valid SpO2
     float _pi{std::numeric_limits<float>::quiet_NaN()};
-    uint32_t _left{}, _top{}, _beat{};
-    uint32_t _screen_w{}, _screen_h{}, _plot_top{}, _plot_hgt{};
+    uint32_t _beat{};
+    uint32_t _screen_w{}, _plot_top{}, _plot_hgt{};
     int32_t _text_w{}, _text_h{}, _beat_x{}, _beat_y{}, _beat_size{};
     m5gfx::rgb565_t _theme_color{};
 };

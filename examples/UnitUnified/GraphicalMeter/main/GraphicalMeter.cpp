@@ -336,7 +336,7 @@ void loop()
             M5.Log.printf(">GREEN:%ld\n>RED:%ld\n>IR:%ld\n", static_cast<long>(heart.green()),
                           static_cast<long>(heart.red()), static_cast<long>(heart.ir()));
 #else
-            M5.Log.printf(">IR:%u\n>RED:%u\n", heart.ir(), heart.red());
+            M5.Log.printf(">IR:%u\n>RED:%u\n", static_cast<unsigned>(heart.ir()), static_cast<unsigned>(heart.red()));
 #endif
 #endif
             const PlotPoint v = plot_value();  // The filter runs at the sampling rate

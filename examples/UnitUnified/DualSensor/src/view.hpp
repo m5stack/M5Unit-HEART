@@ -12,7 +12,7 @@
 #include "meter.hpp"
 
 struct View {
-    View(const uint32_t wid, const uint32_t hgt, bool unit) : _type{unit}
+    View(const uint32_t wid, const uint32_t hgt, const bool unit) : _type{unit}
     {
         _theme_color = unit ? TFT_BLUE : TFT_YELLOW;
         _sprite.setPsram(false);
@@ -105,7 +105,7 @@ struct View {
     float _spo2{std::numeric_limits<float>::quiet_NaN()};
     m5::utility::elapsed_time_t _spo2_at{};  // Time of the last valid SpO2
     float _pi{std::numeric_limits<float>::quiet_NaN()};
-    uint32_t _left{}, _top{}, _beat{};
+    uint32_t _beat{};
     bool _type{};
     m5gfx::rgb565_t _theme_color{};
 };

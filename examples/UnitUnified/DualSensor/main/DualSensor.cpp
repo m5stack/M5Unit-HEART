@@ -101,8 +101,6 @@ void restart()
 
 }  // namespace
 
-using namespace m5::unit::max30102;
-
 void setup()
 {
     M5.begin();
@@ -184,7 +182,7 @@ void loop()
             const auto red = unit.red();
             plot[0].add(static_cast<float>(ir));
             if (serial_log) {
-                M5.Log.printf(">UIR:%u\n>URED:%u\n", static_cast<uint32_t>(ir), static_cast<uint32_t>(red));
+                M5.Log.printf(">UIR:%u\n>URED:%u\n", static_cast<unsigned>(ir), static_cast<unsigned>(red));
             }
             unit.discard();
         }
@@ -209,7 +207,7 @@ void loop()
             const auto red = hat.red();
             plot[1].add(static_cast<float>(ir));
             if (serial_log) {
-                M5.Log.printf(">HIR:%u\n>HRED:%u\n", static_cast<uint32_t>(ir), static_cast<uint32_t>(red));
+                M5.Log.printf(">HIR:%u\n>HRED:%u\n", static_cast<unsigned>(ir), static_cast<unsigned>(red));
             }
             hat.discard();
         }
