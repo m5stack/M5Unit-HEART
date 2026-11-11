@@ -47,7 +47,7 @@ TEST(SpO2Estimator, Median)
     }
     EXPECT_NEAR(est.ratio(), 0.62f, 1e-5f);
     EXPECT_NEAR(est.ratioSpread(), 0.35f, 1e-5f);
-    EXPECT_FALSE(est.isValid());  // Spread > 0.15
+    EXPECT_FALSE(est.isValid());  // Spread > SPO2_RATIO_SPREAD_DEFAULT (0.25)
     EXPECT_TRUE(std::isnan(est.spo2()));
 
     // The outlier leaves the window of 5 beats
