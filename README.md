@@ -21,7 +21,7 @@ TBD
 - [Hat Heart & Datasheet](https://docs.m5stack.com/en/hat/hat_heart_rate)
 - [Stamp Heart & Datasheet](https://docs.m5stack.com/en/products/sku/TBD)
 
-## Required Libraries:
+## Required Libraries
 
 - [M5UnitUnified](https://github.com/m5stack/M5UnitUnified)
 - [M5Utility](https://github.com/m5stack/M5Utility)
