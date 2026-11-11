@@ -202,6 +202,7 @@ TEST(PulseProcessor, SpO2)
     }
 }
 
+namespace {
 float ratio_times_50(const float r)
 {
     return r * 50.0f;
@@ -211,6 +212,7 @@ float over_range(const float)
 {
     return 150.0f;
 }
+}  // namespace
 
 TEST(PulseProcessor, SpO2Conversion)
 {
